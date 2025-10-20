@@ -1,0 +1,114 @@
+
+
+/* General layout */
+.register-container {
+  display: flex;
+  top: 68px;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #fff8f9;
+  font-family: 'Poppins', sans-serif;
+}
+
+.register-card {
+  background: #ffffff;
+  padding: 40px 30px;
+  border-radius: 25px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+/* Logo */
+.register-logo {
+  width: 120px;
+  margin: 0 auto 20px;
+  display: block;
+}
+
+/* Labels */
+.input-group label {
+  display: block;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.required {
+  color: #ff5b5b;
+}
+
+/* Input field styles */
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 10px 14px;
+  background-color: white;
+  margin-bottom: 18px;
+}
+
+.input-icon {
+  color: #f28b8b;
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+  background-color: #ffffff;
+}
+
+/* Message */
+.message {
+  color: #4caf50;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+/* Login text */
+.login-text {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.login-link {
+  color: #f28b8b;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-link:hover {
+    color: #f28b8b;
+  text-decoration: underline;
+}
+
+/* Button */
+.register-btn {
+  width: 100%;
+  padding: 12px 0;
+  background: linear-gradient(90deg, #f9a8d4, #fcd5ce);
+  border: none;
+  border-radius: 30px;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.register-btn:hover {
+  background: linear-gradient(90deg, #f8a5c2, #fbb1a8);
+}
