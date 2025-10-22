@@ -9,9 +9,22 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [validation, setValidation] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ✅ Password validation using regex
+    const passwordRegex =
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$/;
+
+    if (!passwordRegex.test(password)) {
+      setValidation(
+        "Password must be 8–16 characters long and include at least one letter, one number, and one symbol."
+      );
+      return;
+    }
+
     try {
       const res = await registerUser({ email, password });
       setMessage(res.data.message);
@@ -57,6 +70,7 @@ export default function Register() {
           </div>
 
           {message && <p className="message">{message}</p>}
+          {validation && <p className="validation">{validation}</p>}
 
           <p className="login-text">
             Already registered? <Link to="/login" className="login-link">Login</Link>
