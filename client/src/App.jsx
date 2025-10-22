@@ -13,6 +13,7 @@ import VerifyEmail from "./pages/verifyEmail";
 import ForgotPassword from "./pages/forgetPassword";
 import ResetPassword from "./pages/resetPassword";
 import logo from "./assets/upgoal_logo.png";
+import Profile from "./pages/profile";
 
 // ✅ Page titles for mobile header
 const PAGE_TITLES = {
@@ -43,14 +44,35 @@ function App() {
 
 
 
-  // ✅ Load auth state from localStorage (prevents redirect on refresh)
+  // ✅ Load auth state (try refresh if no token)
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     const storedRole = localStorage.getItem("role");
-    setIsLoggedIn(!!token);
-    if (storedRole !== null) setRole(parseInt(storedRole));
-    setIsCheckingAuth(false);
+
+    const checkAuth = async () => {
+      try {
+        if (!token) {
+          // Try refreshing
+          const { data } = await API.get("/auth/refresh");
+          localStorage.setItem("accessToken", data.accessToken);
+          // Optional: decode role if needed from token payload
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(true);
+        }
+        if (storedRole !== null) setRole(parseInt(storedRole));
+      } catch (err) {
+        console.warn("Auto login failed:", err);
+        setIsLoggedIn(false);
+        localStorage.clear();
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
   }, []);
+
 
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
@@ -62,6 +84,12 @@ function App() {
       return <Navigate to="/" replace />;
     return children;
   };
+
+//   const accessToken = localStorage.getItem("accessToken");
+
+// const res = await API.get("/protected", {
+//   headers: { Authorization: `Bearer ${accessToken}` },
+// });
 
   const AppContent = () => {
     const location = useLocation();
@@ -214,6 +242,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={[1]}>
                   <InsurancePlanManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute allowedRoles={[0, 1]}>
+                  <Profile />
                 </ProtectedRoute>
               }
             />
