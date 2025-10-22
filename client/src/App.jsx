@@ -35,11 +35,13 @@ function App() {
 
   // Test backend connection
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api`)
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-      .catch((err) => console.error("Backend not reachable:", err));
+    fetch("http://localhost:5000/api", { credentials: "include" })
+      .then(r => r.json())
+      .then(d => setMessage(d.msg))
+      .catch(err => console.error("Backend not reachable:", err));
   }, []);
+
+
 
   // ✅ Load auth state from localStorage (prevents redirect on refresh)
   useEffect(() => {

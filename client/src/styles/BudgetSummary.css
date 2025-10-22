@@ -1,0 +1,87 @@
+.budget-summary-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 0;
+}
+
+/* Doughnut Chart Styling */
+.doughnut-container {
+    width: 48%;
+    position: relative;
+}
+
+.chart-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    padding: 5px;
+}
+
+.chart-label {
+    font-size: 0.8em;
+    color: #888;
+    margin: 0;
+}
+
+.chart-amount {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #333;
+    line-height: 1.2;
+    margin: 0;
+}
+
+/* Legend Area */
+.legend-area {
+    width: 48%;
+    padding-top: 10px;
+}
+
+.legend-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+
+.color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.legend-details {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.legend-name {
+    color: #555;
+    font-weight: 500;
+}
+
+.legend-value {
+    color: #333;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+.follow-text {
+    font-size: 0.8em;
+    color: #999;
+    margin-top: 15px;
+    border-top: 1px dashed #ddd;
+    padding-top: 10px;
+}

@@ -1,0 +1,26 @@
+/* Global Page Container */
+.budget-planner-page {
+    max-width: 450px; 
+    margin: 0 auto;
+    background-color: #f7f5f9; /* Light, slightly off-white background */
+    min-height: 100vh;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    padding-bottom: 30px;
+}
+
+/* Header */
+.budget-planner-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: white;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+}
+
+.budget-planner-header .title {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin: 0;
+}

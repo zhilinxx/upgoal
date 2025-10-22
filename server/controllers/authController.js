@@ -110,15 +110,15 @@ export const login = async (req, res) => {
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",      // <- more permissive for dev localhost
+    secure: false,        // <- in dev; set true only over HTTPS
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   res.json({
-      accessToken,
-      role: user.role, // 1 = admin, 0 = user
-    });
+    accessToken,
+    role: user.role, // 1 = admin, 0 = user
+  });
 };
 
 // ✅ Forgot Password

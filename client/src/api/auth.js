@@ -1,15 +1,17 @@
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: "http://localhost:5000/api/auth",
+export const API = axios.create({
+  baseURL: "http://localhost:5000/api",
   withCredentials: true,
 });
+
+
 
 // REGISTER
 export const registerUser = (formData) => API.post("/register", formData);
 
 // export const registerUser = (data) => API.post("/register", data);
-export const loginUser = (data) => API.post("/login", data);
+export const loginUser = (data) => API.post("/auth/login", data);
 export const verifyEmail = (token) => API.get(`/verify-email?token=${token}`);
 export const resendVerificationEmail = (email) =>
   API.post("/resend-verification", { email });

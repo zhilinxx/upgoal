@@ -1,0 +1,128 @@
+.expenses-container {
+  width: 360px;
+  margin: auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  font-family: Arial, sans-serif;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.top-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.search-input,
+.category-filter {
+  flex: 1;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.icon-btn {
+  padding: 6px 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.add-btn {
+  background: #ffb3b3;
+}
+
+.delete-btn {
+  background: #ffd3d3;
+}
+
+.chart-section {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.donut-chart-placeholder {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background-color: #f3f3f3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 14px;
+}
+
+.legend {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.legend li {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  margin-right: 6px;
+  border-radius: 50%;
+}
+
+.dot.food {
+  background: #a3d977;
+}
+
+.dot.utility {
+  background: #ff6f6f;
+}
+
+.dot.other {
+  background: #c9e3b0;
+}
+
+.expense-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.expense-table th,
+.expense-table td {
+  border-bottom: 1px solid #ddd;
+  padding: 8px 4px;
+  text-align: left;
+}
+
+.edit-btn {
+  background: #ffe4e4;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.page-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.page-number {
+  font-weight: bold;
+}
