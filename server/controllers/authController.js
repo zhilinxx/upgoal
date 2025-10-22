@@ -117,7 +117,7 @@ export const login = async (req, res) => {
     const refreshToken = createToken({ id: user.id }, "7d");
 
     // ✅ Save refreshToken in DB
-    await db.query("UPDATE user SET refresh_token = ? WHERE id = ?", [
+    await db.query("UPDATE user SET refresh_token = ? WHERE user_id = ?", [
       refreshToken,
       user.id,
     ]);
