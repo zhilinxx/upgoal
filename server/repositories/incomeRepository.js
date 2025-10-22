@@ -1,4 +1,3 @@
-// server/repositories/incomeRepository.js
 import pool from '../config/db.js';
 
 /** Insert one income row; returns new income_id */
