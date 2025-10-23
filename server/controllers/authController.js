@@ -133,6 +133,7 @@ export const login = async (req, res) => {
     res.json({
       accessToken,
       role: user.role,
+      userId: user.user_id,
       message: "Login successful",
     });
   } catch (error) {
@@ -184,7 +185,6 @@ export const logout = async (req, res) => {
     res.status(500).json({ message: "Logout failed" });
   }
 };
-
 
 // ✅ Forgot Password
 export const forgotPassword = async (req, res) => {

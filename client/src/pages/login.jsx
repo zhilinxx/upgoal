@@ -21,6 +21,7 @@ export default function Login() {
       const res = await loginUser({ email, password });
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("role", res.data.role);
+      localStorage.setItem("userId", res.data.userId);
       window.location.href = "/"; // redirect to homepage
 
     } catch (err) {

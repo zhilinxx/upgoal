@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";   // ✅ import connectDB
 import authRoutes from "./routes/auth.js";
+import incomeRoutes from "./routes/incomeRoutes.js";
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ connectDB()
         at: new Date().toISOString(),
       });
     });
+    app.use("/api/income", incomeRoutes);
 
     app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
   })
