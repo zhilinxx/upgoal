@@ -111,16 +111,19 @@ export const login = async (req, res) => {
 
     // ✅ Generate tokens
     const accessToken = createToken(
-      { id: user.id, role: user.role, email: user.email },
+      { user_id: user.user_id, role: user.role, email: user.email },
       "15m"
     );
-    const refreshToken = createToken({ id: user.id }, "7d");
+    const refreshToken = createToken({ user_id: user.user_id }, "7d");
+
 
     // ✅ Save refreshToken in DB
     await db.query("UPDATE user SET refresh_token = ? WHERE user_id = ?", [
       refreshToken,
-      user.id,
+      user.user_id,
     ]);
+    console.log("🟢 Stored refresh token for user:", user.user_id);
+    console.log("🔹 Token preview:", refreshToken.substring(0, 30) + "...");
 
     // ✅ Send refreshToken as cookie
     res.cookie("refreshToken", refreshToken, {
@@ -160,9 +163,10 @@ export const refresh = async (req, res) => {
 
     // Generate a new access token
     const newAccessToken = createToken(
-      { id: user.id, role: user.role, email: user.email },
+      { user_id: user.user_id, role: user.role, email: user.email },
       "15m"
     );
+
 
     res.json({ accessToken: newAccessToken });
   } catch (error) {

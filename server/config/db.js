@@ -39,4 +39,4 @@ export const getDB = () => {
   return db;
 };
 
-export default pool; 
+export default { connectDB, getDB };

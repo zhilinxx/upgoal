@@ -24,7 +24,7 @@ export default function ResetPassword() {
       <div className="card">
         <img src={logo} alt="UpGoal" className="logo" />
         <h2>Enter New Password</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>~
           <input
             type="password"
             placeholder="New password"
