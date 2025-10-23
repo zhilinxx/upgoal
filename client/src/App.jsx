@@ -2,6 +2,9 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } f
 import { useEffect, useState } from "react";
 import { FiMenu, FiX, FiUser, FiSettings } from "react-icons/fi";
 import "./App.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 // Pages
 import BudgetPlanner from "./pages/budget-planner";
@@ -13,6 +16,7 @@ import VerifyEmail from "./pages/verifyEmail";
 import ForgotPassword from "./pages/forgetPassword";
 import ResetPassword from "./pages/resetPassword";
 import logo from "./assets/upgoal_logo.png";
+import IncomeSetup from "./pages/IncomeSetup";
 
 // ✅ Page titles for mobile header
 const PAGE_TITLES = {
@@ -24,6 +28,7 @@ const PAGE_TITLES = {
   "/forgot-password": "Forgot Password",
   "/profile": "Profile",
   "/settings": "Settings",
+  "/income-setup": "Income Setup"
 };
 
 function App() {
@@ -201,6 +206,13 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route path="/income-setup" element={
+              <ProtectedRoute allowedRoles={[0]}>
+                <IncomeSetup />
+              </ProtectedRoute>} 
+              />
+
             <Route
               path="/account-management"
               element={
@@ -231,6 +243,7 @@ function App() {
   return (
     <Router>
       <AppContent />
+      <ToastContainer position="top-right" autoClose={3000} />
     </Router>
   );
 }

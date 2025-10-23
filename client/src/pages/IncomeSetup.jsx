@@ -12,7 +12,7 @@ export default function IncomeSetup() {
   const [housingLoan, setHousingLoan] = useState("");
   const [carLoan, setCarLoan] = useState("");
   const [otherCommitments, setOtherCommitments] = useState([""]);
-  const userId = 1;
+  const userId = Number(localStorage.getItem("userId"));
 
   useEffect(() => {
     (async () => {

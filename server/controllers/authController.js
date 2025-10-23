@@ -118,6 +118,7 @@ export const login = async (req, res) => {
   res.json({
     accessToken,
     role: user.role, // 1 = admin, 0 = user
+    userId: user.user_id,
   });
 };
 

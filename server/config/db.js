@@ -38,3 +38,5 @@ export const getDB = () => {
   if (!db) throw new Error("Database not connected");
   return db;
 };
+
+export default pool; 
