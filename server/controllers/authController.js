@@ -93,33 +93,97 @@ export const resendVerification = async (req, res) => {
 
 // ✅ Login
 export const login = async (req, res) => {
-  const { email, password } = req.body;
-  const db = getDB();
+  try {
+    const { email, password } = req.body;
+    const db = getDB();
 
-  const [rows] = await db.query("SELECT * FROM user WHERE email = ?", [email]);
-  if (rows.length === 0) return res.status(400).json({ message: "User not found" });
+    const [rows] = await db.query("SELECT * FROM user WHERE email = ?", [email]);
+    if (rows.length === 0)
+      return res.status(400).json({ message: "User not found" });
 
-  const user = rows[0];
-  if (!user.is_verified) return res.status(400).json({ message: "Please verify your email" });
+    const user = rows[0];
+    if (!user.is_verified)
+      return res.status(400).json({ message: "Please verify your email" });
 
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) return res.status(400).json({ message: "Invalid credentials" });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid)
+      return res.status(400).json({ message: "Invalid credentials" });
 
-  const accessToken = createToken({ id: user.id, role: user.role, email: user.email }, "15m");
-  const refreshToken = createToken({ id: user.id }, "7d");
+    // ✅ Generate tokens
+    const accessToken = createToken(
+      { id: user.id, role: user.role, email: user.email },
+      "15m"
+    );
+    const refreshToken = createToken({ id: user.id }, "7d");
 
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    sameSite: "lax",      // <- more permissive for dev localhost
-    secure: false,        // <- in dev; set true only over HTTPS
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+    // ✅ Save refreshToken in DB
+    await db.query("UPDATE user SET refresh_token = ? WHERE user_id = ?", [
+      refreshToken,
+      user.id,
+    ]);
 
-  res.json({
-    accessToken,
-    role: user.role, // 1 = admin, 0 = user
-    userId: user.user_id,
-  });
+    // ✅ Send refreshToken as cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false, // true only in HTTPS
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.json({
+      accessToken,
+      role: user.role,
+      userId: user.user_id,
+      message: "Login successful",
+    });
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const refresh = async (req, res) => {
+  try {
+    const { refreshToken } = req.cookies;
+    if (!refreshToken)
+      return res.status(401).json({ message: "No refresh token" });
+
+    const db = getDB();
+    const [rows] = await db.query("SELECT * FROM user WHERE refresh_token = ?", [refreshToken]);
+    if (rows.length === 0)
+      return res.status(403).json({ message: "Invalid refresh token" });
+
+    const user = rows[0];
+
+    // Verify and decode token
+    jwt.verify(refreshToken, process.env.JWT_SECRET);
+
+    // Generate a new access token
+    const newAccessToken = createToken(
+      { id: user.id, role: user.role, email: user.email },
+      "15m"
+    );
+
+    res.json({ accessToken: newAccessToken });
+  } catch (error) {
+    console.error("Refresh Error:", error);
+    res.status(403).json({ message: "Invalid or expired refresh token" });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    const { refreshToken } = req.cookies;
+    if (refreshToken) {
+      const db = getDB();
+      await db.query("UPDATE user SET refresh_token = '' WHERE refresh_token = ?", [refreshToken]);
+    }
+
+    res.clearCookie("refreshToken");
+    res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Logout failed" });
+  }
 };
 
 // ✅ Forgot Password

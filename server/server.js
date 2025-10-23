@@ -34,6 +34,13 @@ connectDB()
     });
 
     app.use("/api/auth", authRoutes);
+    app.get("/api", (req, res) => {
+      res.json({
+        ok: true,
+        msg: "Hello from backend",
+        at: new Date().toISOString(),
+      });
+    });
     app.use("/api/income", incomeRoutes);
 
     app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));

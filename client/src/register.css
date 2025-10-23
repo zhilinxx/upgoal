@@ -77,6 +77,12 @@ input {
   margin-bottom: 10px;
 }
 
+.validation {
+  color: #e54f4f;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
 /* Login text */
 .login-text {
   font-size: 13px;
