@@ -2,13 +2,18 @@ import React, { useState } from "react";
 import { loginUser } from "../api/auth";
 import { Link } from "react-router-dom";
 import logo from "../assets/upgoal_logo.png";
-import { FaEnvelope, FaKey } from "react-icons/fa";
+import { FaEnvelope, FaKey, FaEye, FaEyeSlash } from "react-icons/fa";
 import "../register.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  
+  const togglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,29 +49,41 @@ export default function Login() {
           </div>
 
           <div className="input-group">
-            <label>Password<span className="required">*</span></label>
+            <label>
+              Password<span className="required">*</span>
+            </label>
             <div className="input-wrapper">
               <FaKey className="input-icon" />
               <input
-                type="password"
-                placeholder="******"
+                type={showPassword ? "text" : "password"}
+                placeholder="********"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={togglePassword}
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
             </div>
           </div>
+          
 
-          <p className="login-text">
+          <p className="forget-psw">
             Forgot your password?{" "}
             <Link to="/forgot-password" className="login-link">Reset here</Link>
           </p>
           <p className="login-text">
             Don’t have an account? <Link to="/register" className="login-link">Register</Link>
           </p>
-          {message && <p>{message}</p>}
+          
 
           <button type="submit" className="register-btn">Login</button>
+          {message && <p className="validation">{message}</p>}
         </form>
       </div>
     </div>

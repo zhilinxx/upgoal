@@ -20,8 +20,6 @@ export default function Profile() {
   return (
     <div className="profile-container">
       <div className="profile-card">
-        <h2>Profile</h2>
-
         <div className="profile-info">
           <div className="info-row">
             <label>Email</label>
