@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import "../styles/IncomeSetup.css";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";  
+import { toast } from "react-toastify";
 
 export default function IncomeSetup() {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ export default function IncomeSetup() {
         setOtherCommitments(others.length ? others : [""]);
       } catch (e) {
         console.error("Prefill failed", e);
-        toast.error("Failed to load existing data!"); 
+        toast.error("Failed to load existing data!");
       }
     })();
   }, []);
@@ -54,20 +54,44 @@ export default function IncomeSetup() {
     };
 
     try {
+      console.log("[IncomeSetup] saving…", { incomeId, payload });
       if (incomeId) {
-        await api.put("/income", { ...payload, incomeId });
-        toast.info("Income setup updated successfully!"); 
+        const { data } = await api.put("/income", { ...payload, incomeId });
+        console.log("[IncomeSetup] PUT ok:", data);
+        toast.info("Income setup updated successfully!");
       } else {
         const { data } = await api.post("/income", payload);
+        console.log("[IncomeSetup] POST ok:", data);
         setIncomeId(data.incomeId);
-        toast.success("Income setup saved successfully!"); 
+        toast.success("Income setup saved successfully!");
       }
       navigate("/budget-planner");
     } catch (err) {
-      console.error(err);
-      const msg = err?.response?.data?.error || err.message || "Failed to save income setup";
-      toast.error(msg); 
+      // Show detailed diagnostics in DevTools
+      if (err.response) {
+        console.error("[IncomeSetup] Server responded with error:", {
+          status: err.response.status,
+          data: err.response.data,
+          url: err.config?.baseURL + err.config?.url,
+          method: err.config?.method,
+        });
+        toast.error(`${err.response.status}: ${typeof err.response.data === "string"
+            ? err.response.data
+            : err.response.data?.error || "Server error"
+          }`);
+      } else if (err.request) {
+        console.error("[IncomeSetup] No response received:", {
+          url: err.config?.baseURL + err.config?.url,
+          method: err.config?.method,
+          request: err.request,
+        });
+        toast.error("No response from server (network/preflight/server crash)");
+      } else {
+        console.error("[IncomeSetup] Request setup error:", err.message);
+        toast.error(err.message || "Failed to save income setup");
+      }
     }
+
   };
 
   return (
