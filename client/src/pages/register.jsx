@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { registerUser } from "../api/auth";
 import { Link } from "react-router-dom";
 import logo from "../assets/upgoal_logo.png"; // replace with your upgoal logo (e.g. "../assets/upgoal-logo.png")
-import { FaEnvelope, FaKey } from "react-icons/fa";
+import { FaEnvelope, FaKey, FaEye, FaEyeSlash } from "react-icons/fa";
 import "../register.css";
 
 export default function Register() {
@@ -10,6 +10,11 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [validation, setValidation] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +34,7 @@ export default function Register() {
       const res = await registerUser({ email, password });
       setMessage(res.data.message);
     } catch (err) {
-      setMessage(err.response?.data?.message || "Error occurred");
+      setValidation(err.response?.data?.message || "Error occurred");
     }
   };
 
@@ -56,20 +61,29 @@ export default function Register() {
           </div>
 
           <div className="input-group">
-            <label>Password<span className="required">*</span></label>
+            <label>
+              Password<span className="required">*</span>
+            </label>
             <div className="input-wrapper">
               <FaKey className="input-icon" />
               <input
-                type="password"
-                placeholder="******"
+                type={showPassword ? "text" : "password"}
+                placeholder="********"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={togglePassword}
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? <FaEye /> : <FaEyeSlash />}
+              </button>
             </div>
           </div>
 
-          {message && <p className="message">{message}</p>}
           {validation && <p className="validation">{validation}</p>}
 
           <p className="login-text">
@@ -77,6 +91,7 @@ export default function Register() {
           </p>
 
           <button type="submit" className="register-btn">Register</button>
+          {message && <p className="message">{message}</p>}
         </form>
       </div>
     </div>

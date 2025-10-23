@@ -11,6 +11,15 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* variable */
+  --btn-color: linear-gradient(90deg, #f9a8d4, #fcd5ce);
+  --btn-hover: linear-gradient(90deg, #fb9dbe, #fcaba0);
+  --bg-light-color: #fff8f9;
+  --error-msg: #ff4848;
+  --green-msg: #4caf50;
+  --main-pink: #f28b8b;
+  --light-pink: #f0baba;
 }
 
 a {

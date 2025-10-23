@@ -107,7 +107,7 @@ export const login = async (req, res) => {
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid)
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Wrong password" });
 
     // ✅ Generate tokens
     const accessToken = createToken(
