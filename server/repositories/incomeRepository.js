@@ -1,59 +1,62 @@
 import pool from '../config/db.js';
 
-/** Insert one income row; returns new income_id */
-export async function insertIncome(conn, { userId, netIncome, lifestyle }) {
-  const sql = `
-    INSERT INTO income (user_id, net_income, lifestyle)
-    VALUES (?, ?, ?)
-  `;
-  const params = [userId, netIncome, lifestyle];
-  const [r] = await conn.execute(sql, params);
-  return r.insertId;
-}
-
-export async function updateIncomeById(conn, incomeId, { netIncome, lifestyle }) {
+export async function upsertIncome(conn, { userId, netIncome, lifestyle }) {
   await conn.execute(
-    `UPDATE income SET net_income = ?, lifestyle = ? WHERE income_id = ?`,
-    [netIncome, lifestyle, incomeId]
+    `INSERT INTO income (user_id, net_income, lifestyle)
+     VALUES (?, ?, ?)
+     ON DUPLICATE KEY UPDATE
+       net_income = VALUES(net_income),
+       lifestyle  = VALUES(lifestyle)`,
+    [userId, netIncome, lifestyle]
   );
+
+  // Return the correct income_id
+  const [rows] = await conn.execute(
+    `SELECT income_id FROM income WHERE user_id = ? ORDER BY income_id DESC LIMIT 1`,
+    [userId]
+  );
+  return rows[0]?.income_id;
 }
 
-/** Get latest income row for a user (highest income_id) */
 export async function getLatestIncomeByUser(userId) {
   const [rows] = await pool.execute(
     `SELECT * FROM income
      WHERE user_id = ?
      ORDER BY income_id DESC
      LIMIT 1`,
-    [userId]
+    [Number(userId)]
   );
   return rows[0] || null;
 }
 
-/** Get all commitments for a user */
 export async function getCommitmentsByUser(userId) {
   const [rows] = await pool.execute(
     `SELECT commitment_id, commitment_type, commitment_amt
      FROM monthly_commitments
      WHERE user_id = ?
      ORDER BY commitment_id`,
-    [userId]
+    [Number(userId)]
   );
   return rows;
 }
 
-/** DELETE all commitments for a user (replace strategy) */
 export async function deleteCommitmentsForUser(conn, userId) {
-  await conn.execute(`DELETE FROM monthly_commitments WHERE user_id = ?`, [userId]);
+  await conn.execute(
+    `DELETE FROM monthly_commitments WHERE user_id = ?`,
+    [Number(userId)]
+  );
 }
 
-/** BULK INSERT commitments for a user (explicit placeholders; no hard-coding) */
 export async function insertCommitments(conn, userId, items) {
   if (!items?.length) return;
 
-  // items: [{ type, amount }, ...]
+  // Build a single multi-row INSERT with proper bindings
   const placeholders = items.map(() => '(?, ?, ?)').join(', ');
-  const flat = items.flatMap(i => [userId, String(i.type), Number(i.amount)]);
+  const flat = items.flatMap(i => [
+    Number(userId),
+    String(i.type),
+    Number(i.amount)
+  ]);
 
   const sql = `
     INSERT INTO monthly_commitments (user_id, commitment_type, commitment_amt)

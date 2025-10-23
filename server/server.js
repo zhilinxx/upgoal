@@ -1,12 +1,13 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
-import { connectDB } from "./config/db.js";   // ✅ import connectDB
+import { connectDB } from "./config/db.js";   // import connectDB
 import authRoutes from "./routes/auth.js";
 import incomeRoutes from "./routes/incomeRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 
 dotenv.config();
+await connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -51,3 +52,6 @@ connectDB()
     console.error("❌ Database connection failed:", err);
     process.exit(1);
   });
+
+import { errorHandler } from './middlewares/errorHandler.js';
+app.use(errorHandler);

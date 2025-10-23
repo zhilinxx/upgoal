@@ -1,7 +1,6 @@
 import pool from "../config/db.js";
 import {
-  insertIncome,
-  updateIncomeById,
+  upsertIncome,
   deleteCommitmentsForUser,
   insertCommitments,
   getLatestIncomeByUser,
@@ -44,7 +43,7 @@ export async function createIncomeWithCommitments(dto) {
   try {
     await conn.beginTransaction();
 
-    const incomeId = await insertIncome(conn, incomePayload);
+    const incomeId = await upsertIncome(conn, incomePayload);
     await deleteCommitmentsForUser(conn, userId);
     await insertCommitments(conn, userId, commitmentRows);
 
@@ -84,8 +83,7 @@ export async function editIncomeSetup(dto) {
       incomeId = latest.income_id;
     }
 
-    await updateIncomeById(conn, incomeId, base);
-
+    await upsertIncome(conn, { userId, ...base })
     await deleteCommitmentsForUser(conn, userId);
     await insertCommitments(conn, userId, commitmentRows);
 
@@ -107,7 +105,6 @@ export async function getIncomeSetup(userId) {
   const income = await getLatestIncomeByUser(uid);
   const commits = await getCommitmentsByUser(uid);
 
-  // Map monthly_commitments rows back into your UI fields
   let housingLoan = 0;
   let carLoan = 0;
   const others = [];
@@ -121,12 +118,9 @@ export async function getIncomeSetup(userId) {
 
   return {
     userId: uid,
+    incomeId: income ? income.income_id : null,   
     netIncome: income ? Number(income.net_income) : 0,
     lifestyle: income ? income.lifestyle : "None",
-    commitments: {
-      housingLoan,
-      carLoan,
-      other: others,
-    },
+    commitments: { housingLoan, carLoan, other: others },
   };
 }

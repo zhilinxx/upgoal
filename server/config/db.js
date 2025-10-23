@@ -1,42 +1,35 @@
-// import mysql from "mysql2/promise";
+import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
 
-// let pool;
-
-// export const connectDB = async () => {
-//   pool = mysql.createPool({
-//     host: process.env.DB_HOST,
-//     user: process.env.DB_USER,
-//     password: process.env.DB_PASS,
-//     database: process.env.DB_NAME,
-//     waitForConnections: true,
-//     connectionLimit: 10,
-//   });
-//   console.log("✅ MySQL Connected!");
-// };
-
-// export const getDB = () => pool;
-
-import mysql from "mysql2/promise";
-import dotenv from "dotenv";
 dotenv.config();
 
-let db;
+// Create a single shared pool
+const pool = mysql.createPool({
+  host: process.env.DB_HOST ?? 'localhost',
+  user: process.env.DB_USER ?? 'root',
+  password: process.env.DB_PASSWORD ?? '',
+  database: process.env.DB_DATABASE ?? 'upgoals',
+  port: Number(process.env.DB_PORT ?? 3306),
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
 
-export const connectDB = async () => {
-  if (!db) {
-    db = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-    });
-    console.log("✅ MySQL connected");
+// Optional: quick connectivity check on boot
+export async function connectDB() {
+  try {
+    await pool.query('SELECT 1');
+    console.log('✅ MySQL connected');
+  } catch (err) {
+    console.error('❌ MySQL connection failed:', err.message);
+    process.exit(1);
   }
-};
+}
 
-export const getDB = () => {
-  if (!db) throw new Error("Database not connected");
-  return db;
-};
+// If you prefer a named accessor instead of importing default
+export function getDB() {
+  return pool;
+}
 
-export default { connectDB, getDB };
+// Default export for places that do `import pool from ...`
+export default pool;
