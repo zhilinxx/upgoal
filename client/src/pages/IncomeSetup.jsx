@@ -18,23 +18,26 @@ export default function IncomeSetup() {
     (async () => {
       try {
         const { data } = await api.get("/income/setup", { params: { userId } });
-        setIncomeId(data.incomeId);
+        setIncomeId(data.incomeId ?? null);
         setNetIncome(data.netIncome ? String(data.netIncome) : "");
         setLifestyle(data.lifestyle || "None");
         setHousingLoan(data.commitments?.housingLoan ? String(data.commitments.housingLoan) : "");
         setCarLoan(data.commitments?.carLoan ? String(data.commitments.carLoan) : "");
+
+        // Map others from either [number] or [{name, amount}]
         const othersRaw = data.commitments?.other ?? [];
-        const others = othersRaw.map((o, i) => {
-          if (typeof o === "number") return { name: `Other ${i + 1}`, amount: String(o) }; // backward compat
-          return { name: o?.name ?? `Other ${i + 1}`, amount: String(o?.amount ?? 0) };
-        });
-        setOtherCommitments(others.length ? others : [{ name: "", amount: "" }]);
+        const normalized = othersRaw.map((o, i) =>
+          typeof o === "number"
+            ? { name: `Other ${i + 1}`, amount: String(o) }
+            : { name: o?.name ?? `Other ${i + 1}`, amount: String(o?.amount ?? "") }
+        );
+        setOtherCommitments(normalized.length ? normalized : [{ name: "", amount: "" }]);
       } catch (e) {
         console.error("Prefill failed", e);
         toast.error("Failed to load existing data!");
       }
     })();
-  }, []);
+  }, [userId]);
 
   const handleOtherChange = (index, field, value) => {
     const updated = [...otherCommitments];
@@ -42,7 +45,9 @@ export default function IncomeSetup() {
     setOtherCommitments(updated);
   };
 
-  const addOtherField = () => setOtherCommitments([...otherCommitments, { name: "", amount: "" }]);
+  const addOtherField = () =>
+    setOtherCommitments([...otherCommitments, { name: "", amount: "" }]);
+
   const removeOtherField = (idx) => {
     const updated = otherCommitments.filter((_, i) => i !== idx);
     setOtherCommitments(updated.length ? updated : [{ name: "", amount: "" }]);
@@ -50,6 +55,7 @@ export default function IncomeSetup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const payload = {
       userId,
       netIncome: Number(netIncome),
@@ -57,14 +63,17 @@ export default function IncomeSetup() {
       commitments: {
         housingLoan: Number(housingLoan || 0),
         carLoan: Number(carLoan || 0),
+        // IMPORTANT: send {name, amount}
         other: otherCommitments
-          .map(({ name, amount }) => ({ name: (name || "").trim(), amount: Number(amount) }))
-          .filter(x => x.amount > 0),
+          .map(({ name, amount }) => ({
+            name: (name || "").trim(),
+            amount: Number(amount),
+          }))
+          .filter((x) => x.amount > 0 && x.name.length > 0),
       },
     };
 
     try {
-      console.log("[IncomeSetup] saving…", { incomeId, payload });
       if (incomeId) {
         const { data } = await api.put("/income", { ...payload, incomeId });
         console.log("[IncomeSetup] PUT ok:", data);
@@ -77,7 +86,6 @@ export default function IncomeSetup() {
       }
       navigate("/budget-planner");
     } catch (err) {
-      // Show detailed diagnostics in DevTools
       if (err.response) {
         console.error("[IncomeSetup] Server responded with error:", {
           status: err.response.status,
@@ -85,23 +93,25 @@ export default function IncomeSetup() {
           url: err.config?.baseURL + err.config?.url,
           method: err.config?.method,
         });
-        toast.error(`${err.response.status}: ${typeof err.response.data === "string"
-          ? err.response.data
-          : err.response.data?.error || "Server error"
-          }`);
+        toast.error(
+          `${err.response.status}: ${
+            typeof err.response.data === "string"
+              ? err.response.data
+              : err.response.data?.error || "Server error"
+          }`
+        );
       } else if (err.request) {
         console.error("[IncomeSetup] No response received:", {
           url: err.config?.baseURL + err.config?.url,
           method: err.config?.method,
           request: err.request,
         });
-        toast.error("No response from server (network/preflight/server crash)");
+        toast.error("No response from server");
       } else {
         console.error("[IncomeSetup] Request setup error:", err.message);
         toast.error(err.message || "Failed to save income setup");
       }
     }
-
   };
 
   return (
@@ -144,26 +154,28 @@ export default function IncomeSetup() {
 
         <label>Other Commitments</label>
         {otherCommitments.map((item, idx) => (
-          <div key={idx} className="other-row" style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+          <div key={idx} className="other-row">
             <input
               type="text"
               placeholder="e.g., PTPTN Loan"
               value={item.name}
               onChange={(e) => handleOtherChange(idx, "name", e.target.value)}
-              style={{ flex: 1 }}
             />
             <input
               type="number"
               placeholder="e.g., 100.00"
               value={item.amount}
               onChange={(e) => handleOtherChange(idx, "amount", e.target.value)}
-              style={{ width: 140 }}
             />
-            <button type="button" onClick={() => removeOtherField(idx)} className="remove-other-btn">−</button>
+            <button type="button" onClick={() => removeOtherField(idx)} className="remove-other-btn">
+              −
+            </button>
           </div>
         ))}
 
-        <button type="button" onClick={addOtherField} className="add-other-btn">+</button>
+        <button type="button" onClick={addOtherField} className="add-other-btn">
+          +
+        </button>
         <button type="submit" className="save-btn">Save</button>
       </form>
     </div>

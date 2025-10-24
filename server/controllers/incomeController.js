@@ -6,6 +6,7 @@ import {
 
 export const createIncome = async (req, res, next) => {
   try {
+    console.log("POST /income body =", req.body);
     const r = await createIncomeWithCommitments(req.body);
     res.status(201).json({ message: "Saved", ...r });
   } catch (e) { next(e); }
@@ -13,6 +14,7 @@ export const createIncome = async (req, res, next) => {
 
 export const updateIncome = async (req, res, next) => {
   try {
+    console.log("PUT /income body =", req.body); 
     const dto = { ...req.body, incomeId: req.params.incomeId ? Number(req.params.incomeId) : undefined };
     const r = await editIncomeSetup(dto);
     res.json({ message: "Updated", ...r });
