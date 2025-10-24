@@ -50,3 +50,7 @@ export const resendVerificationEmail = (email) => API.post("/auth/resend-verific
 export const forgotPassword = (data) => API.post("/auth/forgot-password", data);
 export const resetPassword = (data) => API.post("/auth/reset-password", data);
 export const logoutUser = () => API.post("/auth/logout");
+
+// // === Profile functions ===
+// export const getProfile = () => API.get("/profile/me");
+// export const updateInsuranceProfile = (data) => API.put("/profile/insurance", data);

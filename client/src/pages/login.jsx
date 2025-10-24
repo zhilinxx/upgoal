@@ -68,7 +68,7 @@ export default function Login() {
                 onClick={togglePassword}
                 aria-label="Toggle password visibility"
               >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                {showPassword ? <FaEye /> : <FaEyeSlash />}
               </button>
             </div>
           </div>

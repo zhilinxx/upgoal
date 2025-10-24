@@ -1,78 +1,74 @@
 .profile-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: var(--bg-light-color);
+  margin: auto;
   padding: 20px;
+  background-color: var(--bg-light-color);
+  display: flex;
 }
 
-.profile-card {
-  width: 100%;
-  max-width: 400px;
+.profile-section {
+  flex-wrap: wrap;
+  flex: 1;
   background: #fff;
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.profile-card h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #d47c77;
-}
-
-.profile-info .info-row {
+.section-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  align-items: center;
+  cursor: pointer;
 }
 
-.section {
-  border-top: 1px solid #f2b7b1;
-  padding-top: 15px;
-  margin-top: 15px;
-}
-
-.input-group {
+.section-content {
   margin-top: 10px;
 }
 
-.input-wrapper {
-  display: flex;
-  align-items: center;
-  border: 1px solid #f2b7b1;
-  border-radius: 10px;
-  padding: 5px 10px;
-  margin-top: 5px;
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
 }
 
-.input-icon {
-  color: #d47c77;
-  margin-right: 8px;
-}
-
-input {
+.edit-btn {
+  margin-top: 10px;
+  background: var(--btn-colour);
+  color: white;
+  padding: 6px 12px;
   border: none;
-  outline: none;
-  flex: 1;
+  border-radius: 6px;
 }
 
-.change-btn,
+
+.loading {
+  text-align: center;
+  margin-top: 50px;
+}
+
 .logout-btn {
-  display: block;
-  width: 100%;
-  background: #d47c77;
+  background: var(--btn-color);
   color: white;
   border: none;
-  padding: 10px;
-  border-radius: 20px;
-  margin-top: 20px;
+  padding: 10px 20px;
+  font-weight: 600;
+  border-radius: 30px;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
   cursor: pointer;
-  font-weight: bold;
+  transition: all 0.3s ease;
 }
 
-.change-btn:hover,
 .logout-btn:hover {
-  background: #c46b66;
+  background: var(--btn-hover);
+}
+
+
+/* Mobile collapsible behavior */
+@media (max-width: 768px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
 }
