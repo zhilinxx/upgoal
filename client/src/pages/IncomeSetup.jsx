@@ -11,7 +11,7 @@ export default function IncomeSetup() {
   const [lifestyle, setLifestyle] = useState("None");
   const [housingLoan, setHousingLoan] = useState("");
   const [carLoan, setCarLoan] = useState("");
-  const [otherCommitments, setOtherCommitments] = useState([""]);
+  const [otherCommitments, setOtherCommitments] = useState([{ name: "", amount: "" }]);
   const userId = Number(localStorage.getItem("userId"));
 
   useEffect(() => {
@@ -23,8 +23,12 @@ export default function IncomeSetup() {
         setLifestyle(data.lifestyle || "None");
         setHousingLoan(data.commitments?.housingLoan ? String(data.commitments.housingLoan) : "");
         setCarLoan(data.commitments?.carLoan ? String(data.commitments.carLoan) : "");
-        const others = (data.commitments?.other || []).map(String);
-        setOtherCommitments(others.length ? others : [""]);
+        const othersRaw = data.commitments?.other ?? [];
+        const others = othersRaw.map((o, i) => {
+          if (typeof o === "number") return { name: `Other ${i + 1}`, amount: String(o) }; // backward compat
+          return { name: o?.name ?? `Other ${i + 1}`, amount: String(o?.amount ?? 0) };
+        });
+        setOtherCommitments(others.length ? others : [{ name: "", amount: "" }]);
       } catch (e) {
         console.error("Prefill failed", e);
         toast.error("Failed to load existing data!");
@@ -32,13 +36,17 @@ export default function IncomeSetup() {
     })();
   }, []);
 
-  const handleOtherChange = (index, value) => {
+  const handleOtherChange = (index, field, value) => {
     const updated = [...otherCommitments];
-    updated[index] = value;
+    updated[index] = { ...updated[index], [field]: value };
     setOtherCommitments(updated);
   };
 
-  const addOtherField = () => setOtherCommitments([...otherCommitments, ""]);
+  const addOtherField = () => setOtherCommitments([...otherCommitments, { name: "", amount: "" }]);
+  const removeOtherField = (idx) => {
+    const updated = otherCommitments.filter((_, i) => i !== idx);
+    setOtherCommitments(updated.length ? updated : [{ name: "", amount: "" }]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,7 +57,9 @@ export default function IncomeSetup() {
       commitments: {
         housingLoan: Number(housingLoan || 0),
         carLoan: Number(carLoan || 0),
-        other: otherCommitments.map((v) => Number(v)).filter((n) => Number.isFinite(n) && n > 0),
+        other: otherCommitments
+          .map(({ name, amount }) => ({ name: (name || "").trim(), amount: Number(amount) }))
+          .filter(x => x.amount > 0),
       },
     };
 
@@ -76,8 +86,8 @@ export default function IncomeSetup() {
           method: err.config?.method,
         });
         toast.error(`${err.response.status}: ${typeof err.response.data === "string"
-            ? err.response.data
-            : err.response.data?.error || "Server error"
+          ? err.response.data
+          : err.response.data?.error || "Server error"
           }`);
       } else if (err.request) {
         console.error("[IncomeSetup] No response received:", {
@@ -132,14 +142,25 @@ export default function IncomeSetup() {
           onChange={(e) => setCarLoan(e.target.value)}
         />
 
-        {otherCommitments.map((val, idx) => (
-          <input
-            key={idx}
-            type="number"
-            placeholder="Other..."
-            value={val}
-            onChange={(e) => handleOtherChange(idx, e.target.value)}
-          />
+        <label>Other Commitments</label>
+        {otherCommitments.map((item, idx) => (
+          <div key={idx} className="other-row" style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+            <input
+              type="text"
+              placeholder="e.g., PTPTN Loan"
+              value={item.name}
+              onChange={(e) => handleOtherChange(idx, "name", e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <input
+              type="number"
+              placeholder="e.g., 100.00"
+              value={item.amount}
+              onChange={(e) => handleOtherChange(idx, "amount", e.target.value)}
+              style={{ width: 140 }}
+            />
+            <button type="button" onClick={() => removeOtherField(idx)} className="remove-other-btn">−</button>
+          </div>
         ))}
 
         <button type="button" onClick={addOtherField} className="add-other-btn">+</button>
