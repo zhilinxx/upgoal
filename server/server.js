@@ -5,6 +5,7 @@ import { connectDB } from "./config/db.js";   // import connectDB
 import authRoutes from "./routes/auth.js";
 import incomeRoutes from "./routes/incomeRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
+import insuranceRoutes from "./routes/insuranceRoutes.js";
 
 dotenv.config();
 await connectDB();
@@ -37,6 +38,7 @@ connectDB()
 
     app.use("/api/auth", authRoutes);
     app.use("/api/profile", profileRoutes);
+    app.use("/api/insurance", insuranceRoutes);
     app.get("/api", (req, res) => {
       res.json({
         ok: true,

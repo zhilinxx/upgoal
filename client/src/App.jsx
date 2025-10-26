@@ -18,6 +18,8 @@ import ResetPassword from "./pages/resetPassword";
 import logo from "./assets/upgoal_logo.png";
 import IncomeSetup from "./pages/IncomeSetup";
 import Profile from "./pages/profile";
+import InsuranceRecommendations from "./pages/insuranceRecommendations";
+import InsuranceProfileSetup from "./pages/insuranceProfileSetup";
 
 // ✅ Page titles for mobile header
 const PAGE_TITLES = {
@@ -114,6 +116,7 @@ function App() {
       "/forgot-password",
       "/reset-password",
       "/verify-email",
+      "/insuranceProfileSetup"
     ];
 
     const hideLayout = hideLayoutRoutes.includes(location.pathname);
@@ -168,6 +171,12 @@ function App() {
             className={getLinkClass("/budget-planner")}
           >
             Budget Planner
+          </Link>
+          <Link
+            to="/insuranceRecommendations"
+            className={getLinkClass("/insuranceRecommendations")}
+          >
+            Insurance Recommendations
           </Link>
         </>
       );
@@ -237,6 +246,11 @@ function App() {
                             Budget Planner
                           </Link>
                         </li>
+                        <li>
+                          <Link to="/insuranceRecommendations" onClick={closeSidebar}>
+                            Insurance Recommendations
+                          </Link>
+                        </li>
                       </>
                     )
                   ) : (
@@ -291,6 +305,8 @@ function App() {
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/insuranceRecommendations" element={<InsuranceRecommendations />} />
+            <Route path="/insuranceProfileSetup" element={<InsuranceProfileSetup />} />
 
             {/* Protected routes */}
             <Route

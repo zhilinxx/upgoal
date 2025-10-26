@@ -1,9 +1,31 @@
 /* General layout */
 body {
   margin: 0;
-  font-family: "Inter", sans-serif;
-  background: #f6f7fb;
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg-light-color);
   color: #333;
+  height: 100%;
+  bottom: 0;
+}
+
+body button {
+  bottom: 20px;
+  margin-top: 10px;
+  background: var(--btn-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-weight: 600;
+  border-radius: 30px;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+body button:hover {
+  background: var(--btn-hover);
 }
 
 .header {
@@ -173,6 +195,10 @@ body {
   padding-right: 10px;
   padding-bottom: 5px;
   padding-top: 5px;
+}
+
+.menu-btn:hover {
+  background: none;
 }
 
 /* Main content */

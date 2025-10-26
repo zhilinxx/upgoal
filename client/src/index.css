@@ -19,16 +19,18 @@
   --error-msg: #ff4848;
   --green-msg: #4caf50;
   --main-pink: #f28b8b;
-  --light-pink: #f0baba;
+  --light-pink: #f0baba; 
+  --black-text: #555;
+  --lighter-pink: #F9DEDC;
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--main-pink);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  text-decoration: underline;
 }
 
 body {
@@ -41,7 +43,7 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
-
+/* 
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -55,7 +57,7 @@ button {
 }
 button:hover {
   border-color: #646cff;
-}
+} */
 
 
 @media (prefers-color-scheme: light) {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { resetPassword } from "../api/auth";
-import logo from "../assets/react.svg";
+import logo from "../assets/upgoal_logo.png";
 
 export default function ResetPassword() {
   const [params] = useSearchParams();
