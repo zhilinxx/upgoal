@@ -47,7 +47,7 @@ h4 {
 }
 
 .save-btn {
-  background: linear-gradient(90deg, #ff7b7b, #ffaf7b);
+  background: var(--main-pink);
   border: none;
   padding: 12px;
   font-size: 16px;

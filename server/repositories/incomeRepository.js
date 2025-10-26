@@ -7,13 +7,12 @@ export async function upsertIncome(conn, { userId, netIncome, lifestyle }) {
      ON DUPLICATE KEY UPDATE
        net_income = VALUES(net_income),
        lifestyle  = VALUES(lifestyle)`,
-    [userId, netIncome, lifestyle]
+    [Number(userId), Number(netIncome), String(lifestyle)]
   );
 
-  // Return the correct income_id
   const [rows] = await conn.execute(
     `SELECT income_id FROM income WHERE user_id = ? ORDER BY income_id DESC LIMIT 1`,
-    [userId]
+    [Number(userId)]
   );
   return rows[0]?.income_id;
 }
@@ -48,21 +47,27 @@ export async function deleteCommitmentsForUser(conn, userId) {
 }
 
 export async function insertCommitments(conn, userId, items) {
-  if (!items?.length) return;
+  if (!Array.isArray(items) || !items.length) return;
 
-  // Build a single multi-row INSERT with proper bindings
-  const placeholders = items.map(() => '(?, ?, ?)').join(', ');
-  const flat = items.flatMap(i => [
-    Number(userId),
-    String(i.type),
-    Number(i.amount)
-  ]);
+  // Normalize and validate
+  const cleaned = items
+    .map((i, idx) => ({
+      type: String(i.type ?? i.name ?? `Other ${idx + 1}`),
+      amount: Number(i.amount),
+    }))
+    .filter(i => i.type.trim().length > 0 && Number.isFinite(i.amount) && i.amount > 0);
+
+  if (!cleaned.length) return;
+
+  const placeholders = cleaned.map(() => '(?, ?, ?)').join(', ');
+  const params = cleaned.flatMap(i => [Number(userId), i.type.trim(), i.amount]);
 
   const sql = `
     INSERT INTO monthly_commitments (user_id, commitment_type, commitment_amt)
     VALUES ${placeholders}
   `;
-  await conn.execute(sql, flat);
+
+  await conn.execute(sql, params);
 }
 
 export default pool;
