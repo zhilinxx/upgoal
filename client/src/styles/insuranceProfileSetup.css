@@ -1,0 +1,122 @@
+.insurance-setup-container {
+  margin: 0 auto;
+  padding: 20px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.insurance-form {
+  gap: 20px;
+  margin-left: 150px;
+  margin-right: 150px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.insurance-setup-inner {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.insurance-setup-header {
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
+}
+
+.insurance-setup-header h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding-right: 30px;
+  width: 100%;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  margin: 0;
+  padding-left: 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--main-pink);
+}
+
+.back-btn:hover {
+    background: none;
+}
+
+.input-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.input-row .input-group {
+    flex: 1;
+}
+
+input {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+select {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 10px;
+  padding-right: 20px;
+  font-size: 14px; 
+  color: #555;
+}
+
+label {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.required {
+  color: red;
+  margin-left: 2px;
+  font-size: larger;
+}
+
+.save-btn {
+  width: 80px;
+  padding: 12px;
+  border: none;
+  border-radius: 30px;
+  background: var(--btn-color);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.save-btn:hover {
+  background: var(--btn-hover);
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .insurance-form {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+}

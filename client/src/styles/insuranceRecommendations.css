@@ -1,0 +1,50 @@
+.insurance-container {
+  padding: 15px;
+  font-family: 'Poppins', sans-serif;
+  background-color: #fff5f7;
+  min-height: 100vh;
+}
+
+.insurance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.insurance-card {
+  background: linear-gradient(135deg, #ffe3e3, #e6ffe6);
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.insurance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.premium {
+  color: #e74c3c;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.score {
+  color: #e74c3c;
+  font-weight: bold;
+  align-self: flex-end;
+}
+
+.compare-btn {
+  margin-top: 20px;
+  background: linear-gradient(to right, #ff9a9e, #fad0c4);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 30px;
+  font-size: 1rem;
+  cursor: pointer;
+}

@@ -49,28 +49,31 @@ export default function Profile() {
 
   return (
     <div className="profile-container">
-      <h2>My Profile</h2>
-
-      {/* Email & Password always visible */}
-      <div className="profile-section always">
-        <p><strong>Email:</strong> {profile.email}</p>
-      </div>
-
+    <div className="profile-inner">
       {/* Change Password */}
-      <div className="profile-section">
-        {isMobile ? (
-          <div className="section-header" onClick={() => toggleSection("password")}>
+        <div className="profile-section">
+          <div className="always">
+
+          <p><strong>Email:</strong> {profile.email}</p>
+        </div>
+        <div className="favourite" onClick={() => navigate("/forgot-password")}>
+                                   <hr />
+          <div className="section-header">
+
             <h3>Change Password</h3>
-            {openSection === "password" ? <FaChevronDown /> : <FaChevronRight />}
+            <FaChevronRight />
           </div>
-        ) : (
-          <h3>Change Password</h3>
-        )}
-        {(!isMobile || openSection === "password") && (
-          <div className="section-content">
-            <button onClick={() => navigate("/change-password")}>Change Password</button>
+        </div>
+
+          {/* Favourite list */}
+        <div className="favourite" onClick={() => navigate("/favourite")}>
+                                   <hr />
+          <div className="section-header">
+
+            <h3>Insurance Favourite List</h3>
+            <FaChevronRight />
           </div>
-        )}
+        </div>
       </div>
 
       {/* Income Setup */}
@@ -85,10 +88,15 @@ export default function Profile() {
         )}
         {(!isMobile || openSection === "income") && (
           <div className="section-content">
-            <p><strong>Monthly Income:</strong> {profile.income_monthly}</p>
-            <p><strong>Lifestyle:</strong> {profile.lifestyle_pref}</p>
-            <p><strong>Housing Loan:</strong> {profile.housing_loan}</p>
-            <p><strong>Car Loan:</strong> {profile.car_loan}</p>
+            <div className="info-grid">
+              <p>Monthly Income: {profile.income_monthly}</p>
+              <p>Lifestyle: {profile.lifestyle_pref}</p>
+              <p>Housing Loan: {profile.housing_loan}</p>
+              <p>Car Loan: {profile.car_loan}</p>
+            </div>
+            <button className="edit-btn" onClick={() => navigate("/insurance-edit")}>
+              <FaEdit /> Edit
+            </button>
           </div>
         )}
       </div>
@@ -106,20 +114,20 @@ export default function Profile() {
         {(!isMobile || openSection === "insurance") && (
           <div className="section-content">
             <div className="info-grid">
-              <p><strong>Gender:</strong> {profile.gender}</p>
-              <p><strong>Birth Date:</strong> {profile.birth_date}</p>
-              <p><strong>Height:</strong> {profile.height} cm</p>
-              <p><strong>Weight:</strong> {profile.weight} kg</p>
-              <p><strong>Exercise:</strong> {profile.exercise}</p>
-              <p><strong>Alcohol:</strong> {profile.alcohol}</p>
-              <p><strong>Smoke:</strong> {profile.smoke}</p>
-              <p><strong>Diabetes:</strong> {profile.diabetes}</p>
-              <p><strong>Cholesterol:</strong> {profile.cholesterol}</p>
-              <p><strong>Asthma:</strong> {profile.asthma}</p>
-              <p><strong>Family Cancer:</strong> {profile.family_cancer}</p>
-              <p><strong>Heart Disease:</strong> {profile.heart_disease}</p>
-              <p><strong>Occupation:</strong> {profile.occupation}</p>
-              <p><strong>Allowance:</strong> {profile.allowance}</p>
+              <p>Gender: {profile.gender}</p>
+              <p>Birth Date: {profile.birth_date}</p>
+              <p>Height: {profile.height} cm</p>
+              <p>Weight:{profile.weight} kg</p>
+              <p>Exercise: {profile.exercise}</p>
+              <p>Alcohol: {profile.alcohol}</p>
+              <p>Smoke:{profile.smoke}</p>
+              <p>Diabetes: {profile.diabetes}</p>
+              <p>Cholesterol: {profile.cholesterol}</p>
+              <p>Asthma: {profile.asthma}</p>
+              <p>Family Cancer: {profile.family_cancer}</p>
+              <p>Heart Disease: {profile.heart_disease}</p>
+              <p>Occupation: {profile.occupation}</p>
+              <p>Allowance: {profile.allowance}</p>
             </div>
             <button className="edit-btn" onClick={() => navigate("/insurance-edit")}>
               <FaEdit /> Edit
@@ -127,14 +135,7 @@ export default function Profile() {
           </div>
         )}
       </div>
-
-      {/* Favourite list */}
-      <div className="profile-section favourite" onClick={() => navigate("/favourite")}>
-        <div className="section-header">
-          <h3>Insurance Favourite List</h3>
-          <FaChevronRight />
-        </div>
-      </div>
+    </div>
 
       {/* ✅ Logout section */}
       <div className="profile-section logout">
