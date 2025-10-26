@@ -12,7 +12,7 @@ export const getUserProfile = async (req, res) => {
     `SELECT 
         u.user_id, u.email, u.role, u.theme,
         inc.net_income, inc.lifestyle,
-        ins.birth_date, ins.gender, ins.height, ins.weight, ins.exersice, ins.alcohol, ins.smoke,
+        ins.birth_date, ins.gender, ins.height, ins.weight, ins.exercise, ins.alcohol, ins.smoke,
         ins.diabetes, ins.cholesterol, ins.asthma, ins.fam_cancer, ins.heart_disease,
         ins.occupation, ins.allowance
     FROM user u

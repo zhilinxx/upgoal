@@ -10,7 +10,7 @@ body {
 
 body button {
   bottom: 20px;
-  margin-top: 10px;
+  margin: 10px;
   background: var(--btn-color);
   color: white;
   border: none;
@@ -204,6 +204,33 @@ body button:hover {
 /* Main content */
 .main-content {
   text-align: center;
+}
+
+.container {
+  display: flex;
+  top: 68px;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--bg-light-color);
+}
+
+.card {
+  background: #ffffff;
+  padding: 40px 30px;
+  border-radius: 25px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.logo {
+  width: 120px;
+  margin: 0 auto 20px;
+  display: block;
 }
 
 /* ===== Responsive ===== */

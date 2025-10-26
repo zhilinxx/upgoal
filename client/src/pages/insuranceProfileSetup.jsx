@@ -19,7 +19,7 @@ export default function InsuranceProfileSetup() {
     height: "",
     weight: "",
     exercise: "",
-    drinks_alcohol: "",
+    alcohol: "",
     smoke: "",
     diabetes: "",
     cholesterol: "",
@@ -81,8 +81,8 @@ export default function InsuranceProfileSetup() {
               <label>Birth Date<span className="required">*</span></label>
               <input
                 type="date"
-                name="birthDate"
-                value={formData.birthDate}
+                name="birth_date"
+                value={formData.birth_date}
                 onChange={handleChange}
                 required
               />
@@ -114,7 +114,6 @@ export default function InsuranceProfileSetup() {
               <label>Exercise<span className="required">*</span></label>
               <select name="exercise" value={formData.exercise} onChange={handleChange} required>
                 <option value="">Select</option>
-                <option>Never</option>
                 <option>Rarely</option>
                 <option>Sometimes</option>
                 <option>Often</option>
@@ -187,7 +186,7 @@ export default function InsuranceProfileSetup() {
 
             <div className="input-group">
               <label>Family Cancer<span className="required">*</span></label>
-              <select name="familyCancer" value={formData.family_cancerr} onChange={handleChange} required>
+              <select name="family_cancer" value={formData.family_cancer} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option>No</option>
                 <option>Yes</option>
@@ -196,7 +195,7 @@ export default function InsuranceProfileSetup() {
 
             <div className="input-group">
               <label>Heart Disease<span className="required">*</span></label>
-              <select name="heartDisease" value={formData.heart_disease} onChange={handleChange} required>
+              <select name="heart_disease" value={formData.heart_disease} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option>No</option>
                 <option>Yes</option>
@@ -206,12 +205,11 @@ export default function InsuranceProfileSetup() {
             <div className="input-group">
               <label>Occupation<span className="required">*</span></label>
               <select name="occupation" value={formData.occupation} onChange={handleChange} required>
-                <option value="">Select</option>
+                <option value="">Select Occupation Type</option>
                 <option>Unemployed</option>
-                <option>Office Worker</option>
-                <option>Student</option>
-                <option>Manual Worker</option>
-                <option>Self-Employed</option>
+                <option>Low Risk e.g.Office Worker/Techer/Government</option>
+                <option>Moderate Risk e.g.Driver/Security Guard/Chef</option>
+                <option>High Risk e.g.Manual,Industrial Worker/Police/Army</option>
               </select>
             </div>
           </div>
