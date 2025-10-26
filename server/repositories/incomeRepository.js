@@ -52,7 +52,7 @@ export async function insertCommitments(conn, userId, items) {
   // Normalize and validate
   const cleaned = items
     .map((i, idx) => ({
-      type: String(i.type ?? i.name ?? `Other ${idx + 1}`),
+      type: String(i.type ?? i.name),
       amount: Number(i.amount),
     }))
     .filter(i => i.type.trim().length > 0 && Number.isFinite(i.amount) && i.amount > 0);
