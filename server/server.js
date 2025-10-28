@@ -6,6 +6,8 @@ import authRoutes from "./routes/auth.js";
 import incomeRoutes from "./routes/incomeRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 import insuranceRoutes from "./routes/insuranceRoutes.js";
+import budgetRoutes from "./routes/budgetRoutes.js";
+
 
 dotenv.config();
 await connectDB();
@@ -46,6 +48,7 @@ connectDB()
         at: new Date().toISOString(),
       });
     });
+    app.use("/api/budget", budgetRoutes);
     app.use("/api/income", incomeRoutes);
 
     app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
