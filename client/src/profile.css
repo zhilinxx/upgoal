@@ -28,13 +28,16 @@
 .profile-inner .profile-section {
   /* display: flex;
   flex-direction: column;
-  justify-content: space-between; */
-  flex: 1 1 300px; /* grow and shrink nicely */ /* 👈 ensures all boxes have same base height */
+  justify-content: stretch; */
+  flex: 1 1 300px;
   border-radius: 15px;
   padding: 20px;
   background-color: white;
 }
 
+.chevron-icon{
+  color: var(--main-pink);
+}
 
 .always{
   padding: 0;
@@ -47,7 +50,7 @@
 }
 
 .profile-container hr {
-  height: 1.5px;
+  height: 2px;
   border: none;
   margin: 15px 0px 15px 0px;
   background-color: var(--light-pink);
@@ -81,10 +84,35 @@
   margin-top: 10px;
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 5px;
+.info-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-top: 1px solid var(--light-pink);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--light-pink);
+}
+
+.info-label {
+  font-weight: 600;
+  color: var(--black-text);
+  font-size: 13px;
+  flex: 1;
+  text-align: left;
+}
+
+.info-value {
+  font-weight: 500;
+  color: var(--black-text);
+  font-size: 13px;
+  flex: 1;
+  text-align: right;
 }
 
 .edit-btn {
@@ -105,6 +133,10 @@
   background: var(--btn-hover);
 }
 
+FaChevronDown {
+  color: var(--main-pink);
+}
+
 .loading {
   text-align: center;
   margin-top: 50px;
@@ -116,12 +148,12 @@
   background: var(--btn-color);
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 14px 20px;
   font-weight: 600;
   border-radius: 30px;
   align-items: center;
   gap: 8px;
-  font-size: 15px;
+  font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
 }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { forgotPassword } from "../api/auth";
-import logo from "../assets/react.svg";
+import logo from "../assets/upgoal_logo.png";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");

@@ -15,5 +15,9 @@ export const getRecommendations = async (userId, filters = {}) => {
 
 //insurance profile setup
 export const saveInsuranceProfile = async (profileData) => {
-  return API.post("/insuranceProfile/save", profileData);
+  return API.post("/insurance/save", profileData);
+};
+
+export const getInsuranceProfile = async (userId) => {
+  return API.get(`/insurance/${userId}`);
 };
