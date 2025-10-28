@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getProfile } from "../api/profileAPI";
 import { logoutUser } from "../api/auth"; // ✅ import logout API
 import { useNavigate } from "react-router-dom";
-import "../profile.css";
+import "../styles/profile.css";
 import { FaChevronRight, FaChevronDown, FaEdit } from "react-icons/fa";
 
 export default function Profile() {

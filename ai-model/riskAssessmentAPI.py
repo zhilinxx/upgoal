@@ -41,21 +41,6 @@ def predict_risk():
             "family_cancer": 1 if data["family_cancer"] == "Yes" else 0
         }])
 
-        # # Scale and predict
-        # X_scaled = scaler.transform(features)
-        # cluster = model.predict(X_scaled)[0]
-        # risk_level = mapping.get(cluster, "Medium")
-        
-        # print("\n--- DEBUG ---")
-        # print("Raw Input:", data)
-        # print("Scaler feature order:", scaler.feature_names_in_)
-        # print("Prediction dataframe columns:", pd.columns)
-        # print("Prepared features:\n", features)
-        # print("Scaled:\n", X_scaled)
-        # print("Predicted cluster:", cluster)
-        # print("Mapped risk level:", risk_level)
-        # print("---------------\n")
-
         # ✅ Step 2: Reorder columns to match the scaler’s expected order
         expected_cols = list(scaler.feature_names_in_)
         features = features[expected_cols]

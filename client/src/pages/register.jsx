@@ -3,7 +3,7 @@ import { registerUser } from "../api/auth";
 import { Link } from "react-router-dom";
 import logo from "../assets/upgoal_logo.png"; // replace with your upgoal logo (e.g. "../assets/upgoal-logo.png")
 import { FaEnvelope, FaKey, FaEye, FaEyeSlash } from "react-icons/fa";
-import "../register.css";
+import "../styles/register.css";
 
 export default function Register() {
   const [email, setEmail] = useState("");
