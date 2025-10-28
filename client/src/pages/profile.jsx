@@ -157,12 +157,11 @@ export default function Profile() {
                 </div>
               )}
             </div>
-          </div> 
-        )}       
-
-        <button className="edit-btn" onClick={() => navigate("/incomeSetup")}>
+                    <button className="edit-btn" onClick={() => navigate("/incomeSetup")}>
               <FaEdit /> Edit
         </button>
+          </div>
+        )}       
       </div>
 
       {/* Insurance Profile */}
