@@ -89,13 +89,15 @@ export default function IncomeSetup() {
         const { data } = await api.put("/income", { ...payload, incomeId });
         console.log("[IncomeSetup] PUT ok:", data);
         toast.info("Income setup updated successfully!");
+        navigate("/profile");
       } else {
         const { data } = await api.post("/income", payload);
         console.log("[IncomeSetup] POST ok:", data);
         setIncomeId(data.incomeId);
         toast.success("Income setup saved successfully!");
+        navigate("/budgetPlanner");
       }
-      navigate("/budgetPlanner");
+      
     } catch (err) {
       if (err.response) {
         console.error("[IncomeSetup] Server responded with error:", {
