@@ -3,7 +3,7 @@ import { loginUser } from "../api/auth";
 import { Link } from "react-router-dom";
 import logo from "../assets/upgoal_logo.png";
 import { FaEnvelope, FaKey, FaEye, FaEyeSlash } from "react-icons/fa";
-import "../register.css";
+import "../styles/register.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
