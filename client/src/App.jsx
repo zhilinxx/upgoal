@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 // Pages
 import BudgetPlanner from "./pages/budgetPlanner";
-import AccountManagement from "./pages/account-management";
+import AccountManagement from "./pages/accountManagement";
 import InsurancePlanManagement from "./pages/insurancePlanManagement";
 import Login from "./pages/login";
 import Register from "./pages/register";
