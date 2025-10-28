@@ -108,11 +108,11 @@ function App() {
     const hideLayoutRoutes = [
       "/login",
       "/register",
-      "/forgot-password",
-      "/reset-password",
-      "/verify-email",
+      "/forgotPassword",
+      "/resetPassword",
+      "/verifyEmail",
       "/insuranceProfileSetup",
-      "/IncomeSetup", 
+      "/incomeSetup", 
     ];
 
     const hideLayout = hideLayoutRoutes.includes(location.pathname);
@@ -132,7 +132,7 @@ function App() {
               Register
             </Link>
             <Link
-              to="/forgot-password"
+              to="/forgotPassword"
               className={getLinkClass("/forgotPassword")}
             >
               Forgot Password
@@ -145,13 +145,13 @@ function App() {
         return (
           <>
             <Link
-              to="/account-management"
+              to="/accountManagement"
               className={getLinkClass("/accountManagement")}
             >
               Account Management
             </Link>
             <Link
-              to="/insurance-plan"
+              to="/insurancePlan"
               className={getLinkClass("/insurancePlanManagement")}
             >
               Insurance Plans
