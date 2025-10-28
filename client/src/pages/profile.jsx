@@ -135,25 +135,32 @@ export default function Profile() {
             <div className="info-list">
               <div className="info-row">
                 <span className="info-label">Monthly Income:</span>
-                <span className="info-value">{profile.income_monthly}</span>
+                <span className="info-value">RM {profile.net_income}</span>
               </div>
               <div className="info-row">
                 <span className="info-label">Lifestyle:</span>
-                <span className="info-value">{profile.lifestyle_pref}</span>
+                <span className="info-value">{profile.lifestyle}</span>
               </div>
-              <div className="info-row">
-                <span className="info-label">Housing Loan:</span>
-                <span className="info-value">{profile.housing_loan}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Car Loan:</span>
-                <span className="info-value">{profile.car_loan}</span>
-              </div>
+
+              {/* ✅ Dynamically display all commitments */}
+              {profile.commitments && profile.commitments.length > 0 ? (
+                profile.commitments.map((c, index) => (
+                  <div key={index} className="info-row">
+                    <span className="info-label">{c.type}:</span>
+                    <span className="info-value">RM {c.amt}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="info-row">
+                  <span className="info-label">Monthly Commitments:</span>
+                  <span className="info-value">None</span>
+                </div>
+              )}
             </div>
-            
-          </div>
-        )}
-        <button className="edit-btn" onClick={() => navigate("/insurance-edit")}>
+          </div> 
+        )}       
+
+        <button className="edit-btn" onClick={() => navigate("/incomeSetup")}>
               <FaEdit /> Edit
         </button>
       </div>

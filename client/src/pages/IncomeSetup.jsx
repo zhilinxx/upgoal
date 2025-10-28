@@ -95,7 +95,7 @@ export default function IncomeSetup() {
         setIncomeId(data.incomeId);
         toast.success("Income setup saved successfully!");
       }
-      navigate("/budget-planner");
+      navigate("/budgetPlanner");
     } catch (err) {
       if (err.response) {
         console.error("[IncomeSetup] Server responded with error:", {
