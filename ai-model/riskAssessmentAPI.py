@@ -20,8 +20,6 @@ model = joblib.load(model_path)
 mapping = joblib.load(mapping_path)
 scaler = joblib.load(scaler_path)
 
-# Mapping clusters to risk labels
-RISK_MAPPING = {0: "Low", 1: "Medium", 2: "High"}  # adjust based on your training
 
 @app.route("/api/predict_risk", methods=["POST"])
 def predict_risk():
@@ -30,11 +28,10 @@ def predict_risk():
 
         # Extract and structure input
         features = pd.DataFrame([{
-            "sex": 1 if data["gender"] == "Male" else 0,
-            "age": data["age"],
-            "cholesterol": 1 if data["cholesterol"] == "Yes" else 0,
+            "age": int(data["age"]),
+            "cholesterol": int(data["cholesterol"]),
             "occup_danger": int(data["occupation"]),
-            "bmi": data["bmi"],
+            "bmi": float(data["bmi"]) / 500,
             "smoker": 1 if data["smoke"] == "Yes" else 0,
             "diabetes": 1 if data["diabetes"] == "Yes" else 0,
             "hds": 1 if data["heart_disease"] == "Yes" else 0,
@@ -44,10 +41,41 @@ def predict_risk():
             "family_cancer": 1 if data["family_cancer"] == "Yes" else 0
         }])
 
-        # Scale and predict
+        # # Scale and predict
+        # X_scaled = scaler.transform(features)
+        # cluster = model.predict(X_scaled)[0]
+        # risk_level = mapping.get(cluster, "Medium")
+        
+        # print("\n--- DEBUG ---")
+        # print("Raw Input:", data)
+        # print("Scaler feature order:", scaler.feature_names_in_)
+        # print("Prediction dataframe columns:", pd.columns)
+        # print("Prepared features:\n", features)
+        # print("Scaled:\n", X_scaled)
+        # print("Predicted cluster:", cluster)
+        # print("Mapped risk level:", risk_level)
+        # print("---------------\n")
+
+        # ✅ Step 2: Reorder columns to match the scaler’s expected order
+        expected_cols = list(scaler.feature_names_in_)
+        features = features[expected_cols]
+
+        # ✅ Step 3: Scale and predict
         X_scaled = scaler.transform(features)
-        cluster = model.predict(X_scaled)[0]
-        risk_level = RISK_MAPPING.get(cluster, "Medium")
+        cluster = int(model.predict(X_scaled)[0])
+        risk_level = mapping.get(cluster, "Medium")
+
+        # ✅ Step 4: Helpful debug info
+        print("\n--- DEBUG ---")
+        print("Raw Input:", data)
+        print("Scaler feature order:", scaler.feature_names_in_)
+        print("Prediction DataFrame columns:", list(features.columns))
+        print("Prepared features:\n", features)
+        print("Scaled values:\n", X_scaled)
+        print("Predicted cluster:", cluster)
+        print("Mapped risk level:", risk_level)
+        print("---------------\n")
+
 
         return jsonify({"risk_level": risk_level})
     except Exception as e:
@@ -55,4 +83,5 @@ def predict_risk():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(port=5001, debug=True)
+    app.run(port=5001, debug=True, use_reloader=False)
+

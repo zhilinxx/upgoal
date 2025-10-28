@@ -7,17 +7,50 @@ function calculateAge(birth_date) {
   return Math.abs(new Date(diff).getUTCFullYear() - 1970);
 }
 
+function mapGender(value) {
+  if (value.toLowerCase() === "male") return "M";
+  if (value.toLowerCase() === "female") return "F";
+}
+
+function mapYesNo(value) {
+  if (typeof value === "string") {
+    return value.toLowerCase() === "yes" ? 1 : 0;
+  }
+  return value ? 1 : 0;
+}
+
 // ✅ Utility for payment rule-based suggestion
 function getPaymentSuggestion(age, allowance) {
-  if (age >= 18 && allowance < 4000)
-    return "Flat rate and lower premium until coverage term";
-  if (age >= 18 && allowance >= 4000)
-    return "Flat rate but higher payment for a short term";
-  if (age < 30 && allowance < 4000)
-    return "Increase with age growth";
-  if (age >= 35 && allowance >= 5000)
-    return "Start with higher premium and lower after certain age";
-  return "Standard payment structure";
+  if (age < 30) {
+    if (allowance < 4000) {
+      return "Flat rate low premium and increase with age growth";
+    } else {
+      return "Flat rate but higher premium for a short term";
+    }
+  }
+
+  // Age 30–34
+  if (age < 35) {
+    if (allowance < 4000) {
+      return "Flat rate and lower premium until coverage term";
+    } else {
+      return "Flat rate but higher premium for a short term";
+    }
+  }
+
+  // Age ≥ 35
+  if (age >= 35) {
+    if (allowance >= 5000) {
+      return "High premium but lower after certain age";
+    } else if (allowance < 4000) {
+      return "Flat rate and low premium until coverage term";
+    } else {
+      return "Flat rate but high premium for a short term";
+    }
+  }
+
+  // Default fallback
+  return "Flat rate and lower premium until coverage term";
 }
 
 function mapFrequency(value) {
@@ -26,6 +59,16 @@ function mapFrequency(value) {
     case "Rarely": return 1;
     case "Sometimes": return 2;
     case "Often": return 3;
+    default: return 0;
+  }
+}
+
+function mapOccupationDB(value) {
+  switch (value) {
+    case "Unemployed": return 0;
+    case "Low Risk e.g.Office Worker/Techer/Government": return 1;
+    case "Moderate Risk e.g.Driver/Security Guard/Chef": return 2;
+    case "High Risk e.g.Manual,Industrial Worker/Police/Army": return 3;
     default: return 0;
   }
 }
@@ -39,10 +82,12 @@ function mapOccupation(value){
   }
 }
 
+
+
+
 export const saveInsuranceProfile = async (req, res) => {
   try {
     const {
-      user_id,
       gender,
       birth_date,
       height,
@@ -58,30 +103,19 @@ export const saveInsuranceProfile = async (req, res) => {
       occupation,
       allowance,
     } = req.body;
-
-    if (
-      !user_id ||
-      !gender ||
-      !birth_date ||
-      !height ||
-      !weight ||
-      !exercise ||
-      !alcohol ||
-      !smoke ||
-      !diabetes ||
-      !cholesterol ||
-      !asthma ||
-      !family_cancer ||
-      !heart_disease ||
-      !occupation ||
-      !allowance
-    ) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
+    const user_id = req.user?.user_id || req.body.user_id;
 
     const db = getDB();
     const age = calculateAge(birth_date);
     const bmi = (weight / ((height / 100) ** 2)).toFixed(2);
+    const parsedHeight = parseFloat(height);
+    const parsedWeight = parseFloat(weight);
+    const parsedAllowance = parseFloat(allowance);
+    const today = new Date();
+
+    if (birth_date > today || age < 18 || age > 70) {
+      return res.status(400).json({ message: "Invalid birth date (must be 18–70 years old)" });
+    }
 
     // Check if profile exists
     const [existing] = await db.query(
@@ -96,20 +130,20 @@ export const saveInsuranceProfile = async (req, res) => {
          smoke=?, diabetes=?, cholesterol=?, asthma=?, fam_cancer=?, heart_disease=?, occupation=?, allowance=? 
          WHERE user_id=?`,
         [
-          gender,
+          mapGender(gender),
           birth_date,
-          height,
-          weight,
-          exercise,
-          alcohol,
-          smoke,
-          diabetes,
+          parsedHeight.toFixed(2),
+          parsedWeight.toFixed(2),
+          mapFrequency(exercise),
+          mapFrequency(alcohol),
+          mapYesNo(smoke),
+          mapYesNo(diabetes),
           cholesterol,
-          asthma,
-          family_cancer,
-          heart_disease,
-          occupation,
-          allowance,
+          mapYesNo(asthma),
+          mapYesNo(family_cancer),
+          mapYesNo(heart_disease),
+          mapOccupationDB(occupation),
+          parsedAllowance.toFixed(2),
           user_id,
         ]
       );
@@ -120,20 +154,20 @@ export const saveInsuranceProfile = async (req, res) => {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           user_id,
-          gender,
+          mapGender(gender),
           birth_date,
-          height,
-          weight,
-          exercise,
-          alcohol,
-          smoke,
-          diabetes,
+          parsedHeight.toFixed(2),
+          parsedWeight.toFixed(2),
+          mapFrequency(exercise),
+          mapFrequency(alcohol),
+          mapYesNo(smoke),
+          mapYesNo(diabetes),
           cholesterol,
-          asthma,
-          family_cancer,
-          heart_disease,
-          occupation,
-          allowance,
+          mapYesNo(asthma),
+          mapYesNo(family_cancer),
+          mapYesNo(heart_disease),
+          mapOccupationDB(occupation),
+          parsedAllowance.toFixed(2),
         ]
       );
     }
@@ -142,7 +176,6 @@ export const saveInsuranceProfile = async (req, res) => {
     let risk_level = "Low"; // default
     try {
       const aiRes = await axios.post("http://localhost:5001/api/predict_risk", {
-        gender,
         age,
         cholesterol,
         occupation: mapOccupation(occupation),
@@ -170,12 +203,35 @@ export const saveInsuranceProfile = async (req, res) => {
     );
 
     res.status(200).json({
-      message: "Profile saved successfully",
+      message: "Insurance Profile saved successfully",
       risk_level,
       payment_suggestion,
     });
   } catch (err) {
     console.error("Profile Save Error:", err);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+export const getInsuranceProfile = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) return res.status(400).json({ message: "User ID required" });
+
+    const db = getDB();
+    const [rows] = await db.query(
+      "SELECT * FROM insurance_profile WHERE user_id = ?",
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      return res.json({}); // frontend will treat this as “no data yet”
+    }
+    
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("❌ getInsuranceProfile Error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };

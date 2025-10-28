@@ -2,7 +2,7 @@ import { getDB } from "../config/db.js";
 
 export const getInsuranceRecommendations = async (req, res) => {
   try {
-    const { user_id } = req.params;
+    const { user_id } = req.user?.user_id;
     const db = getDB();
 
     // 1️⃣ Fetch user profile

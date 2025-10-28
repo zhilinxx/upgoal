@@ -31,7 +31,8 @@ const PAGE_TITLES = {
   "/forgot-password": "Forgot Password",
   "/profile": "Profile",
   "/settings": "Settings",
-  "/income-setup": "Income Setup"
+  "/income-setup": "Income Setup",
+  "/insuranceRecommendations": "Insurance Recommendations",
 };
 
 import axios from "axios";
@@ -199,7 +200,7 @@ function App() {
                 <nav className="top-nav">{renderNavLinks()}</nav>
               </div>
 
-              <div className="logo">
+              <div className="page-title">
                 <span>{PAGE_TITLES[location.pathname] || "UPGOAL"}</span>
               </div>
 

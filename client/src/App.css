@@ -42,7 +42,7 @@ body button:hover {
 
 /* Left section (logo + nav links) */
 .left-section {
-  display: flex;
+  width: 40px;
   align-items: center;
   gap: 20px;
 }
@@ -229,8 +229,15 @@ body button:hover {
 
 .logo {
   width: 120px;
-  margin: 0 auto 20px;
   display: block;
+}
+
+.page-title {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #333;
 }
 
 /* ===== Responsive ===== */
@@ -242,18 +249,29 @@ body button:hover {
   .sidebar {
     display: none;
   }
+  .left-section {
+    display: flex;
+    width: auto;
+  }
 
   .top-nav {
     display: flex;
     gap: 12px;
   }
+
   .logo {
   display: block;
   }
+
   #logo {
   display: block;
   }
+
   .logo span{
     display: none;
+  }
+
+  .page-title {
+    display: none; /* hide on desktop since logo already shows */
   }
 }
