@@ -9,7 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 // Pages
 import BudgetPlanner from "./pages/budgetPlanner";
 import AccountManagement from "./pages/account-management";
-import InsurancePlanManagement from "./pages/insurance-plan-management";
+import InsurancePlanManagement from "./pages/insurancePlanManagement";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import VerifyEmail from "./pages/verifyEmail";
