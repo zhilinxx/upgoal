@@ -47,7 +47,7 @@ export default function BudgetPlanner() {
     return (
       <div className="budget-planner-error">
         <p>You haven’t completed your income setup yet.</p>
-        <button className="setup-btn" onClick={() => navigate("/IncomeSetup")}>
+        <button className="setup-btn" onClick={() => navigate("/incomeSetup")}>
           Go to Setup
         </button>
       </div>
