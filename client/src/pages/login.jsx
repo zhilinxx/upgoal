@@ -76,7 +76,7 @@ export default function Login() {
 
           <p className="forget-psw">
             Forgot your password?{" "}
-            <Link to="/forgot-password" className="login-link">Reset here</Link>
+            <Link to="/forgotPassword" className="login-link">Reset here</Link>
           </p>
           <p className="login-text">
             Don’t have an account? <Link to="/register" className="login-link">Register</Link>

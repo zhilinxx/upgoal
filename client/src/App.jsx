@@ -23,15 +23,15 @@ import InsuranceProfileSetup from "./pages/insuranceProfileSetup";
 
 // ✅ Page titles for mobile header
 const PAGE_TITLES = {
-  "/budget-planner": "Budget Planner",
-  "/account-management": "Account Management",
-  "/insurance-plan": "Insurance Plan Management",
+  "/budgetPlanner": "Budget Planner",
+  "/accountManagement": "Account Management",
+  "/insurancePlanManagement": "Insurance Plan Management",
   "/login": "Login",
   "/register": "Register",
-  "/forgot-password": "Forgot Password",
+  "/forgotPassword": "Forgot Password",
   "/profile": "Profile",
   "/settings": "Settings",
-  "/income-setup": "Income Setup",
+  "/incomeSetup": "Income Setup",
   "/insuranceRecommendations": "Insurance Recommendations",
 };
 
@@ -93,19 +93,13 @@ function App() {
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
 
-  // ✅ Protected route component
+  // Protected route component
   const ProtectedRoute = ({ children, allowedRoles }) => {
     if (!isLoggedIn) return <Navigate to="/login" replace />;
     if (allowedRoles && !allowedRoles.includes(role))
       return <Navigate to="/" replace />;
     return children;
   };
-
-//   const accessToken = localStorage.getItem("accessToken");
-
-// const res = await API.get("/protected", {
-//   headers: { Authorization: `Bearer ${accessToken}` },
-// });
 
   const AppContent = () => {
     const location = useLocation();
@@ -139,7 +133,7 @@ function App() {
             </Link>
             <Link
               to="/forgot-password"
-              className={getLinkClass("/forgot-password")}
+              className={getLinkClass("/forgotPassword")}
             >
               Forgot Password
             </Link>
@@ -152,13 +146,13 @@ function App() {
           <>
             <Link
               to="/account-management"
-              className={getLinkClass("/account-management")}
+              className={getLinkClass("/accountManagement")}
             >
               Account Management
             </Link>
             <Link
               to="/insurance-plan"
-              className={getLinkClass("/insurance-plan")}
+              className={getLinkClass("/insurancePlanManagement")}
             >
               Insurance Plans
             </Link>
@@ -169,8 +163,8 @@ function App() {
       return (
         <>
           <Link
-            to="/budget-planner"
-            className={getLinkClass("/budget-planner")}
+            to="/budgetPlanner"
+            className={getLinkClass("/budgetPlanner")}
           >
             Budget Planner
           </Link>
@@ -231,12 +225,12 @@ function App() {
                     role === 1 ? (
                       <>
                         <li>
-                          <Link to="/account-management" onClick={closeSidebar}>
+                          <Link to="/accountManagement" onClick={closeSidebar}>
                             Account Management
                           </Link>
                         </li>
                         <li>
-                          <Link to="/insurance-plan" onClick={closeSidebar}>
+                          <Link to="/insurancePlanManagement" onClick={closeSidebar}>
                             Insurance Plans
                           </Link>
                         </li>
@@ -244,7 +238,7 @@ function App() {
                     ) : (
                       <>
                         <li>
-                          <Link to="/budget-planner" onClick={closeSidebar}>
+                          <Link to="/budgetPlanner" onClick={closeSidebar}>
                             Budget Planner
                           </Link>
                         </li>
@@ -268,7 +262,7 @@ function App() {
                         </Link>
                       </li>
                       <li>
-                        <Link to="/forgot-password" onClick={closeSidebar}>
+                        <Link to="/forgotPassword" onClick={closeSidebar}>
                           Forgot Password
                         </Link>
                       </li>
@@ -291,9 +285,9 @@ function App() {
                   <div>Loading...</div>
                 ) : isLoggedIn ? (
                   role === 1 ? (
-                    <Navigate to="/account-management" replace />
+                    <Navigate to="/accountManagement" replace />
                   ) : (
-                    <Navigate to="/budget-planner" replace />
+                    <Navigate to="/budgetPlanner" replace />
                   )
                 ) : (
                   <Navigate to="/login" replace />
@@ -304,16 +298,13 @@ function App() {
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/insuranceRecommendations" element={<InsuranceRecommendations />} />
-            <Route path="/insuranceProfileSetup" element={<InsuranceProfileSetup />} />
-            <Route path="/IncomeSetup" element={<IncomeSetup />} />
+            <Route path="/verifyEmail" element={<VerifyEmail />} />
+            <Route path="/forgotPassword" element={<ForgotPassword />} />
+            <Route path="/resetPassword" element={<ResetPassword />} />
 
             {/* Protected routes */}
             <Route
-              path="/budget-planner"
+              path="/budgetPlanner"
               element={
                 <ProtectedRoute allowedRoles={[0]}>
                   <BudgetPlanner />
@@ -321,14 +312,26 @@ function App() {
               }
             />
 
-            <Route path="/income-setup" element={
+            <Route path="/incomeSetup" element={
               <ProtectedRoute allowedRoles={[0]}>
                 <IncomeSetup />
               </ProtectedRoute>} 
-              />
+            />
+
+            <Route path="/insuranceRecommendations" element={
+              <ProtectedRoute allowedRoles={[0]}>
+                <InsuranceRecommendations />
+              </ProtectedRoute>}
+            />
+
+            <Route path="/insuranceProfileSetup" element={
+              <ProtectedRoute allowedRoles={[0]}>
+                <InsuranceProfileSetup />
+              </ProtectedRoute>}
+            />
 
             <Route
-              path="/account-management"
+              path="/accountManagement"
               element={
                 <ProtectedRoute allowedRoles={[1]}>
                   <AccountManagement />
@@ -336,7 +339,7 @@ function App() {
               }
             />
             <Route
-              path="/insurance-plan"
+              path="/insurancePlanManagement"
               element={
                 <ProtectedRoute allowedRoles={[1]}>
                   <InsurancePlanManagement />
