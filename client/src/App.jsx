@@ -117,7 +117,8 @@ function App() {
       "/forgot-password",
       "/reset-password",
       "/verify-email",
-      "/insuranceProfileSetup"
+      "/insuranceProfileSetup",
+      "/IncomeSetup", 
     ];
 
     const hideLayout = hideLayoutRoutes.includes(location.pathname);
@@ -308,6 +309,7 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/insuranceRecommendations" element={<InsuranceRecommendations />} />
             <Route path="/insuranceProfileSetup" element={<InsuranceProfileSetup />} />
+            <Route path="/IncomeSetup" element={<IncomeSetup />} />
 
             {/* Protected routes */}
             <Route

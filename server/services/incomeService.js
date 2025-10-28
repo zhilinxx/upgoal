@@ -99,10 +99,10 @@ export async function editIncomeSetup(dto) {
 }
 
 export async function getIncomeSetup(userId) {
-  const uid = Number(userId ?? 0);
+  const uid = Number(userId);
   if (!uid) throw new Error("userId is required");
 
-  const income = await getLatestIncomeByUser(uid);
+  const income  = await getLatestIncomeByUser(uid);
   const commits = await getCommitmentsByUser(uid);
 
   let housingLoan = 0;
@@ -110,10 +110,24 @@ export async function getIncomeSetup(userId) {
   const others = [];
 
   for (const c of commits) {
-    const t = (c.commitment_type || "").toLowerCase();
-    if (t.includes("housing")) housingLoan = Number(c.commitment_amt || c.commitment_amount || 0);
-    else if (t.includes("car")) carLoan = Number(c.commitment_amt || c.commitment_amount || 0);
-    else others.push(Number(c.commitment_amt || c.commitment_amount || 0));
+    const typeRaw = (c.commitment_type || "").trim();
+    const t = typeRaw.toLowerCase();
+
+    // only treat exact "housing loan" / "car loan" as the fixed fields
+    if (t === "housing loan") {
+      housingLoan = Number(c.commitment_amt || 0);
+      continue;
+    }
+    if (t === "car loan") {
+      carLoan = Number(c.commitment_amt || 0);
+      continue;
+    }
+
+    // Everything else is an "other" with a real name
+    others.push({
+      name: typeRaw,
+      amount: Number(c.commitment_amt || 0),
+    });
   }
 
   return {
@@ -121,6 +135,11 @@ export async function getIncomeSetup(userId) {
     incomeId: income ? income.income_id : null,
     netIncome: income ? Number(income.net_income) : 0,
     lifestyle: income ? income.lifestyle : "None",
-    commitments: { housingLoan, carLoan, other: others },
+    commitments: {
+      housingLoan,
+      carLoan,
+      other: others,           
+    },
   };
 }
+
