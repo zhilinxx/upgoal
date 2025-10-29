@@ -22,6 +22,7 @@ export default function Login() {
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("role", res.data.role);
       localStorage.setItem("userId", res.data.userId);
+      localStorage.setItem("email", res.data.email)
       window.location.href = "/"; // redirect to homepage
 
     } catch (err) {

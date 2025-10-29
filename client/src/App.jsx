@@ -4,7 +4,8 @@ import { FiMenu, FiX, FiUser, FiSettings } from "react-icons/fi";
 import "./App.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { logoutUser } from "./api/auth";
+import { useNavigate } from "react-router-dom";
 
 // Pages
 import BudgetPlanner from "./pages/budgetPlanner";
@@ -48,7 +49,10 @@ function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // ✅ Added
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [showAdminMenu, setShowAdminMenu] = useState(false);
+  const [adminEmail, setAdminEmail] = useState("");
+
 
   // Test backend connection
   useEffect(() => {
@@ -77,6 +81,8 @@ function App() {
           setIsLoggedIn(true);
         }
         if (storedRole !== null) setRole(parseInt(storedRole));
+        const storedEmail = localStorage.getItem("email");
+        if (storedEmail) setAdminEmail(storedEmail);
       } catch (err) {
         console.warn("Auto login failed:", err);
         setIsLoggedIn(false);
@@ -89,6 +95,17 @@ function App() {
     checkAuth();
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      localStorage.removeItem("accessToken");
+      setIsLoggedIn(false);
+      setShowAdminMenu(false);
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
 
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
@@ -103,7 +120,7 @@ function App() {
 
   const AppContent = () => {
     const location = useLocation();
-
+    const navigate = useNavigate(); 
     // ===== Hide header/sidebar on these routes =====
     const hideLayoutRoutes = [
       "/login",
@@ -201,9 +218,45 @@ function App() {
 
               <div className="right-icons">
                 {isLoggedIn ? (
-                  <Link to="/profile" className="icon-btn" title="Profile">
-                    <FiUser />
-                  </Link>
+                  role === 1 ? (
+                    // ✅ ADMIN DROPDOWN PROFILE MENU
+                    <div className="admin-profile-menu">
+                      <button
+                        className="icon-btn"
+                        onClick={() => setShowAdminMenu(!showAdminMenu)}
+                        title="Admin Profile"
+                      >
+                        <FiUser />
+                      </button>
+
+                      {showAdminMenu && (
+                        <div className="admin-dropdown">
+                          <p className="admin-email">{adminEmail}</p>
+                          <hr />
+                          <button
+                            className="dropdown-item"
+                            onClick={() => {
+                              setShowAdminMenu(false);
+                              navigate("/forgotPassword");
+                            }}
+                          >
+                            Change Password
+                          </button>
+                          <button
+                            className="dropdown-item logout"
+                            onClick={handleLogout}
+                          >
+                            Logout
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    // ✅ NORMAL USER
+                    <Link to="/profile" className="icon-btn" title="Profile">
+                      <FiUser />
+                    </Link>
+                  )
                 ) : (
                   <Link to="/login" className="icon-btn" title="Login">
                     <span id="login-btn">Login</span>
@@ -216,9 +269,12 @@ function App() {
             </header>
 
             <aside className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-              <button className="close-btn" onClick={closeSidebar}>
-                <FiX />
-              </button>
+              <div className="sidebar-header">
+                  <img src={logo} alt="UpGoal" id="sidelogo" />
+                  <button className="close-btn" onClick={closeSidebar}>
+                    <FiX />
+                  </button>
+              </div>
               <nav>
                 <ul>
                   {isLoggedIn ? (

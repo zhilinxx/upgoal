@@ -100,7 +100,7 @@ export default function Profile() {
 
           <h3>Email: {profile.email}</h3>
         </div>
-        <div className="favourite" onClick={() => navigate("/forgot-password")}>
+        <div className="favourite" onClick={() => navigate("/forgotPassword")}>
                                    <hr />
           <div className="section-header">
 

@@ -28,6 +28,26 @@ body button:hover {
   background: var(--btn-hover);
 }
 
+body p {
+  font-size: 15px;
+}
+
+
+@media (max-width: 768px) {
+  body button {
+    bottom: 20px;
+    margin: 10px;
+    padding: 8px 15px;
+    font-weight: 600;
+    border-radius: 30px;
+    align-items: center;
+    font-size: 13px;
+  }
+  body p{
+   font-size: 13px;
+  }
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -48,13 +68,23 @@ body button:hover {
 }
 
 .logo {
-  display: block;
+  display: none;
   align-items: center;
 }
 
 #logo {
   width: 120px;
   display: none;
+}
+
+.sidebar-header{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+#sidelogo {
+  width: 180px;
 }
 
 .logo span{
@@ -124,15 +154,14 @@ body button:hover {
   font-weight: 500;
   transition: 0.2s ease;
   stroke-width: 4;
-  
 }
 
 .icon-btn:hover {
   color: #F5878A;
   filter: drop-shadow(0 0 0.8px currentColor);
 }
-/* Sidebar (mobile only) */
 
+/* Sidebar (mobile only) */
 .sidebar {
   position: fixed;
   top: 0;
@@ -151,9 +180,7 @@ body button:hover {
 }
 
 .sidebar .close-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
+  padding: 0;
   background: none;
   border: none;
   color: #F5878A;
@@ -168,7 +195,8 @@ body button:hover {
 }
 
 .sidebar nav ul li {
-  margin: 18px 0;
+  padding: 15px 0;
+  border-bottom: 1.5px solid var(--main-pink);
 }
 
 .sidebar nav ul li a {
@@ -240,6 +268,69 @@ body button:hover {
   color: #333;
 }
 
+.admin-profile-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.admin-email {
+  color: var(--black-text);
+}
+
+.admin-profile-menu button.icon-btn {
+  color: #F5878A;
+  font-size: 1.2rem;
+  font-weight: 500;
+  transition: 0.2s ease;
+  stroke-width: 4;
+  background: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-dropdown {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 10px 15px;
+  width: 200px;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.admin-dropdown p.admin-email {
+  font-weight: 500;
+  margin: 0 0 8px 0;
+  text-align: center;
+}
+
+.admin-dropdown .dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--black-text);
+  margin: 0;
+}
+
+.admin-dropdown .dropdown-item:hover {
+  color: var(--main-pink);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
 /* ===== Responsive ===== */
 @media (min-width: 768px) {
   .menu-btn {
@@ -274,4 +365,5 @@ body button:hover {
   .page-title {
     display: none; /* hide on desktop since logo already shows */
   }
+
 }
