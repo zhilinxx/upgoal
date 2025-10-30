@@ -133,10 +133,6 @@
   background: var(--btn-hover);
 }
 
-FaChevronDown {
-  color: var(--main-pink);
-}
-
 .loading {
   text-align: center;
   margin-top: 50px;

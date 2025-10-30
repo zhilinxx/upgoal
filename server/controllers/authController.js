@@ -137,6 +137,7 @@ export const login = async (req, res) => {
       accessToken,
       role: user.role,
       userId: user.user_id,
+      email,
       message: "Login successful",
     });
   } catch (error) {

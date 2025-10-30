@@ -100,7 +100,7 @@ export default function Profile() {
 
           <h3>Email: {profile.email}</h3>
         </div>
-        <div className="favourite" onClick={() => navigate("/forgot-password")}>
+        <div className="favourite" onClick={() => navigate("/forgotPassword")}>
                                    <hr />
           <div className="section-header">
 
@@ -157,12 +157,11 @@ export default function Profile() {
                 </div>
               )}
             </div>
-          </div> 
-        )}       
-
-        <button className="edit-btn" onClick={() => navigate("/incomeSetup")}>
+                    <button className="edit-btn" onClick={() => navigate("/incomeSetup")}>
               <FaEdit /> Edit
         </button>
+          </div>
+        )}       
       </div>
 
       {/* Insurance Profile */}
