@@ -1,43 +1,84 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// data fetch (same pattern as your working version)
-import { fetchDashboardData } from "../api/budgetAPI.js";
+import { fetchDashboardData, postAlerts, postAdjustBudgets } from "../api/budgetAPI.js";
 
 // existing sections
 import BudgetSummary from "../components/BudgetSummary.jsx";
 import SavingsGoals from "../components/SavingsGoals.jsx";
 import ExpensesList from "../components/Expenses.jsx";
+import RuleControls from "../components/RuleControls.jsx";
 
-// styles (we'll add a few rules below)
 import "../styles/BudgetPlanner.css";
 
 export default function BudgetPlanner() {
   const navigate = useNavigate();
 
-  // header back (same UX you used elsewhere)
-  const handleBack = () => navigate(-1);
-
   const [data, setData] = useState(null);
+  const [plan, setPlan] = useState(null);          // { Essentials, Savings, Insurance, Other }
+  const [spending, setSpending] = useState(null);  // same keys as plan
+  const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   useEffect(() => {
-    // keep the responsive flag in sync
-    const onResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener("resize", onResize);
+    let mounted = true;
+    (async () => {
+      try {
+        const d = await fetchDashboardData();
+        if (!mounted) return;
+        setData(d);
 
-    // fetch the dashboard payload
-    fetchDashboardData()
-      .then((d) => setData(d))
-      .catch((err) => {
+        // convert breakdown to map
+        const p = {};
+        (d?.breakdown ?? []).forEach(b => (p[b.name] = Number(b.amount || 0)));
+        setPlan(p);
+
+        // default spending by bucket (user can key in)
+        setSpending({
+          Essentials: 0, Savings: 0, Insurance: 0, Other: 0,
+        });
+      } catch (err) {
         console.error("Error fetching budget data:", err);
         setData(null);
-      })
-      .finally(() => setLoading(false));
-
-    return () => window.removeEventListener("resize", onResize);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
   }, []);
+
+  const income = data?.income ?? 0;
+  const currency = data?.currency ?? "RM";
+  const aiSegment = data?.ai?.segment ?? "fallback";
+
+  const planTotal = useMemo(
+    () => Object.values(plan ?? {}).reduce((s, v) => s + Number(v || 0), 0),
+    [plan]
+  );
+
+  // --- rules: alerts
+  const handleCheckAlerts = async (limits) => {
+    try {
+      const { data: res } = await postAlerts({
+        income,
+        limits,
+        spending: spending ?? {},
+      });
+      setAlerts(res.alerts || []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // --- rules: auto-reallocate
+  const handleAutoAdjust = async () => {
+    try {
+      const { data: res } = await postAdjustBudgets({ plan, spending: spending ?? {} });
+      setPlan(res.adjusted);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   if (loading) {
     return <div className="budget-planner-loading">Loading Budget Planner…</div>;
@@ -54,30 +95,41 @@ export default function BudgetPlanner() {
     );
   }
 
-  const { income, breakdown, savingsGoals, expenses, currency } = data;
-
   return (
     <div className="budget-page-container">
-      {/* Header styled like your Insurance pages */}
+      {/* Header (kept like your Insurance pages) */}
       <div className="budget-header">
-        <button className="back-btn" onClick={handleBack} aria-label="Back">
-          ‹
-        </button>
         <h2>Budget Planner</h2>
+        <div className={`ai-chip ${aiSegment.replace(/\s+/g, "-").toLowerCase()}`}>
+          AI Segment: <b>{aiSegment}</b>
+        </div>
       </div>
 
-      {/* Content grid similar to your Insurance layout */}
+      {/* 3-card grid */}
       <div className="budget-grid">
+        {/* Card 1: Doughnut + RuleControls */}
         <section className="budget-card">
-          <BudgetSummary income={income} breakdown={breakdown} currency={currency} />
+          <BudgetSummary income={income} breakdown={data.breakdown} currency={currency} />
+          {/* <RuleControls
+            currency={currency}
+            income={income}
+            plan={plan}
+            spending={spending}
+            setSpending={setSpending}
+            alerts={alerts}
+            onCheckAlerts={handleCheckAlerts}
+            onAutoAdjust={handleAutoAdjust}
+          /> */}
         </section>
 
+        {/* Card 2: Savings Goals */}
         <section className="budget-card">
-          <SavingsGoals goals={savingsGoals} currency={currency} />
+          <SavingsGoals goals={data.savingsGoals} currency={currency} />
         </section>
 
+        {/* Card 3: Expenses (full width) */}
         <section className="budget-card budget-card--full">
-          <ExpensesList expenses={expenses} currency={currency} />
+          <ExpensesList expenses={data.expenses} currency={currency} />
         </section>
       </div>
     </div>

@@ -36,18 +36,53 @@
 
 // export default api;
 
+//-------------------------------------------------------------------------------------
+// import axios from "axios";
+
+// const api = axios.create({
+//   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
+// });
+
+// // GET /api/budget/dashboard?userId=123
+// export async function fetchDashboardData() {
+//   const userId = Number(localStorage.getItem("userId") || 0);
+//   const { data } = await api.get("/budget/dashboard", { params: { userId } });
+//   return data; // { income, currency, breakdown, savingsGoals, expenses }
+// }
+
+// export default api;
+//-----------------------------------------------------------------------------------------------
+
+// client/src/api/budgetAPI.js
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
-});
+// ✅ Use your existing VITE_API_URL first (not VITE_API_BASE)
+const ROOT = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
-// GET /api/budget/dashboard?userId=123
-export async function fetchDashboardData() {
-  const userId = Number(localStorage.getItem("userId") || 0);
-  const { data } = await api.get("/budget/dashboard", { params: { userId } });
-  return data; // { income, currency, breakdown, savingsGoals, expenses }
-}
-
+// This covers all APIs like /api/income, /api/budget, etc.
+const API_BASE = `${ROOT}/api`;
+const api = axios.create({ baseURL: API_BASE });
 export default api;
 
+// Budget-specific routes
+const BUDGET_BASE = `${API_BASE}/budget`;
+
+// GET /api/budget/dashboard?userId=...
+export const getDashboard = (userId) =>
+  axios.get(`${BUDGET_BASE}/dashboard`, { params: { userId } });
+
+// POST /api/budget/rules/alerts
+export const postAlerts = (payload) =>
+  axios.post(`${BUDGET_BASE}/rules/alerts`, payload);
+
+// POST /api/budget/rules/adjust-budgets
+export const postAdjustBudgets = (payload) =>
+  axios.post(`${BUDGET_BASE}/rules/adjust-budgets`, payload);
+
+// Convenience helper for BudgetPlanner page
+export async function fetchDashboardData() {
+  const userId = Number(localStorage.getItem("userId"));
+  if (!userId) throw new Error("Missing userId in localStorage");
+  const { data } = await getDashboard(userId);
+  return data;
+}

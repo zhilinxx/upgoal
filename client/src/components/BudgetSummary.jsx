@@ -12,15 +12,16 @@ function BudgetSummary({ income, breakdown, currency }) {
       {
         data: breakdown.map(item => item.amount),
         backgroundColor: breakdown.map(item => item.color),
-        // Set a constant borderWidth to reserve space and use transparent color
         borderWidth: 5,
-        borderColor: 'rgba(255, 255, 255, 0)', 
-        hoverOffset: 0, 
+        borderColor: 'rgba(255, 255, 255, 0)',
+        hoverOffset: 0,
         hoverBorderWidth: 5,
-        hoverBorderColor: 'white', // Ensure the hover color is visible against the background
+        hoverBorderColor: 'white',
       },
     ],
   };
+
+  const monthLabel = new Date().toLocaleString(undefined, { month: "short" });
 
   return (
     <div className="budget-summary-section">
@@ -33,10 +34,10 @@ function BudgetSummary({ income, breakdown, currency }) {
               legend: { display: false },
               tooltip: {
                 callbacks: {
-                  label: (context) => {
-                    let label = context.label || '';
-                    if (label) { label += ': '; }
-                    label += `${currency} ${context.formattedValue}`;
+                  label: (ctx) => {
+                    let label = ctx.label || '';
+                    if (label) label += ': ';
+                    label += `${currency} ${ctx.formattedValue}`;
                     return label;
                   }
                 }
@@ -45,19 +46,19 @@ function BudgetSummary({ income, breakdown, currency }) {
           }}
         />
         <div className="chart-center">
-          <p className="chart-label">Aug Income</p>
-          <h3 className="chart-amount">{currency} {income.toLocaleString()}</h3>
+          <p className="chart-label">{monthLabel} Income</p>
+          <h3 className="chart-amount">{currency} {Number(income || 0).toLocaleString()}</h3>
         </div>
       </div>
 
       <div className="legend-area">
         <ul className="legend-list">
-          {breakdown.map((item, index) => (
+          {breakdown.map((item) => (
             <li key={item.name} className="legend-item">
               <span className="color-dot" style={{ backgroundColor: item.color }}></span>
               <div className="legend-details">
                 <span className="legend-name">{item.name}</span>
-                <span className="legend-value">{currency} {item.amount.toLocaleString()}</span>
+                <span className="legend-value">{currency} {Number(item.amount).toLocaleString()}</span>
               </div>
             </li>
           ))}

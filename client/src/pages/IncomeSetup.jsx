@@ -1,5 +1,6 @@
+// client/src/pages/IncomeSetup.jsx
 import React, { useEffect, useState } from "react";
-import api from "../api/budgetAPI";
+import api from "../api/budgetAPI";               // default export exists in your file
 import "../styles/IncomeSetup.css";
 import { useNavigate } from "react-router-dom";
 import { FaChevronLeft } from "react-icons/fa";
@@ -7,28 +8,37 @@ import { toast } from "react-toastify";
 
 export default function IncomeSetup() {
   const navigate = useNavigate();
-  const handleBack = () => {
-    navigate(-1); // Go back to previous page
-  };
+  const handleBack = () => navigate(-1);
+
   const [incomeId, setIncomeId] = useState(null);
   const [netIncome, setNetIncome] = useState("");
   const [lifestyle, setLifestyle] = useState("None");
   const [housingLoan, setHousingLoan] = useState("");
   const [carLoan, setCarLoan] = useState("");
-  const [otherCommitments, setOtherCommitments] = useState([{ name: "", amount: "" }]);
+  const [otherCommitments, setOtherCommitments] = useState([
+    { name: "", amount: "" },
+  ]);
+
   const userId = Number(localStorage.getItem("userId"));
 
   useEffect(() => {
     (async () => {
       try {
         const { data } = await api.get("/income/setup", { params: { userId } });
+
         setIncomeId(data.incomeId ?? null);
         setNetIncome(data.netIncome ? String(data.netIncome) : "");
         setLifestyle(data.lifestyle || "None");
-        setHousingLoan(data.commitments?.housingLoan ? String(data.commitments.housingLoan) : "");
-        setCarLoan(data.commitments?.carLoan ? String(data.commitments.carLoan) : "");
+        setHousingLoan(
+          data.commitments?.housingLoan
+            ? String(data.commitments.housingLoan)
+            : ""
+        );
+        setCarLoan(
+          data.commitments?.carLoan ? String(data.commitments.carLoan) : ""
+        );
 
-        // Map others from either [number] or [{name, amount}]
+        // Normalize "other" commitments from either numbers or {name, amount}
         const othersRaw = data.commitments?.other ?? [];
         const normalized = othersRaw.map((o, i) => {
           if (typeof o === "number") {
@@ -42,7 +52,10 @@ export default function IncomeSetup() {
             o?.amount !== undefined && o.amount !== null ? String(o.amount) : "";
           return { name, amount };
         });
-        setOtherCommitments(normalized.length ? normalized : [{ name: "", amount: "" }]);
+
+        setOtherCommitments(
+          normalized.length ? normalized : [{ name: "", amount: "" }]
+        );
       } catch (e) {
         console.error("Prefill failed", e);
         toast.error("Failed to load existing data!");
@@ -61,7 +74,9 @@ export default function IncomeSetup() {
 
   const removeOtherField = (idx) => {
     const updated = otherCommitments.filter((_, i) => i !== idx);
-    setOtherCommitments(updated.length ? updated : [{ name: "", amount: "" }]);
+    setOtherCommitments(
+      updated.length ? updated : [{ name: "", amount: "" }]
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -74,7 +89,7 @@ export default function IncomeSetup() {
       commitments: {
         housingLoan: Number(housingLoan || 0),
         carLoan: Number(carLoan || 0),
-        // IMPORTANT: send {name, amount}
+        // ALWAYS send { name, amount }
         other: otherCommitments
           .map(({ name, amount }) => ({
             name: (name || "").trim(),
@@ -97,7 +112,6 @@ export default function IncomeSetup() {
         toast.success("Income setup saved successfully!");
         navigate("/budgetPlanner");
       }
-      
     } catch (err) {
       if (err.response) {
         console.error("[IncomeSetup] Server responded with error:", {
@@ -107,9 +121,10 @@ export default function IncomeSetup() {
           method: err.config?.method,
         });
         toast.error(
-          `${err.response.status}: ${typeof err.response.data === "string"
-            ? err.response.data
-            : err.response.data?.error || "Server error"
+          `${err.response.status}: ${
+            typeof err.response.data === "string"
+              ? err.response.data
+              : err.response.data?.error || "Server error"
           }`
         );
       } else if (err.request) {
@@ -134,14 +149,18 @@ export default function IncomeSetup() {
         </button>
         <h2>Income Setup</h2>
       </div>
-      <form onSubmit={handleSubmit} className="income-form">
 
-        {/* Row 1 - Monthly Income only */}
+      <form onSubmit={handleSubmit} className="income-form">
+        {/* Row 1 - Monthly Income */}
         <div className="row">
           <div className="form-group">
-            <label>Monthly Net Income (RM)<span className="required">*</span></label>
+            <label>
+              Monthly Net Income (RM)<span className="required">*</span>
+            </label>
             <input
               type="number"
+              step="0.01"
+              min="0"
               value={netIncome}
               onChange={(e) => setNetIncome(e.target.value)}
               required
@@ -152,7 +171,9 @@ export default function IncomeSetup() {
         {/* Row 2 - Lifestyle */}
         <div className="row">
           <div className="form-group">
-            <label>Lifestyle Preferences<span className="required">*</span></label>
+            <label>
+              Lifestyle Preferences<span className="required">*</span>
+            </label>
             <select
               value={lifestyle}
               onChange={(e) => setLifestyle(e.target.value)}
@@ -169,12 +190,14 @@ export default function IncomeSetup() {
         {/* Monthly Commitments Title */}
         <h4 className="commitment-title">Monthly Commitments :</h4>
 
-        {/* Row 3 - Housing & Car Loans on same row */}
+        {/* Row 3 - Housing & Car Loans */}
         <div className="row">
           <div className="form-group">
             <label>Housing Loans (RM)</label>
             <input
               type="number"
+              step="0.01"
+              min="0"
               placeholder="e.g., 500"
               value={housingLoan}
               onChange={(e) => setHousingLoan(e.target.value)}
@@ -185,6 +208,8 @@ export default function IncomeSetup() {
             <label>Car Loans (RM)</label>
             <input
               type="number"
+              step="0.01"
+              min="0"
               placeholder="e.g., 500"
               value={carLoan}
               onChange={(e) => setCarLoan(e.target.value)}
@@ -192,10 +217,18 @@ export default function IncomeSetup() {
           </div>
         </div>
 
-        {/* Other Commitments Title */}
-        <label>Other Commitments <button type="button" className="add-other-btn" onClick={addOtherField}>+</button></label>
+        {/* Other Commitments */}
+        <label>
+          Other Commitments{" "}
+          <button
+            type="button"
+            className="add-other-btn"
+            onClick={addOtherField}
+          >
+            +
+          </button>
+        </label>
 
-        {/* Other Commitment Fields */}
         {otherCommitments.map((item, idx) => (
           <div className="row other-row" key={idx}>
             <input
@@ -206,6 +239,8 @@ export default function IncomeSetup() {
             />
             <input
               type="number"
+              step="0.01"
+              min="0"
               placeholder="e.g., 100.00"
               value={item.amount}
               onChange={(e) => handleOtherChange(idx, "amount", e.target.value)}
@@ -221,10 +256,11 @@ export default function IncomeSetup() {
         ))}
 
         <div className="button-row">
-          <button type="submit" className="save-btn">Save</button>
+          <button type="submit" className="save-btn">
+            Save
+          </button>
         </div>
       </form>
-
     </div>
   );
 }
