@@ -32,6 +32,10 @@ body p {
   font-size: 15px;
 }
 
+body input:focus {
+  border-color: var(--light-pink);
+}
+
 
 @media (max-width: 768px) {
   body button {

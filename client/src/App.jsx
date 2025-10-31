@@ -21,6 +21,7 @@ import IncomeSetup from "./pages/IncomeSetup";
 import Profile from "./pages/profile";
 import InsuranceRecommendations from "./pages/insuranceRecommendations";
 import InsuranceProfileSetup from "./pages/insuranceProfileSetup";
+import AddInsurancePlan from "./pages/addInsurancePlan";
 
 // ✅ Page titles for mobile header
 const PAGE_TITLES = {
@@ -129,7 +130,8 @@ function App() {
       "/resetPassword",
       "/verifyEmail",
       "/insuranceProfileSetup",
-      "/incomeSetup", 
+      "/incomeSetup",
+      "/addInsurancePlan"
     ];
 
     const hideLayout = hideLayoutRoutes.includes(location.pathname);
@@ -168,7 +170,7 @@ function App() {
               Account Management
             </Link>
             <Link
-              to="/insurancePlan"
+              to="/insurancePlanManagement"
               className={getLinkClass("/insurancePlanManagement")}
             >
               Insurance Plans
@@ -399,6 +401,22 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={[1]}>
                   <InsurancePlanManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/addInsurancePlan/:id"
+              element={
+                <ProtectedRoute allowedRoles={[1]}>
+                  <AddInsurancePlan />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/addInsurancePlan"
+              element={
+                <ProtectedRoute allowedRoles={[1]}>
+                  <AddInsurancePlan />
                 </ProtectedRoute>
               }
             />

@@ -1,4 +1,5 @@
 import express from "express";
+import path from "path";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";   // import connectDB
@@ -8,8 +9,7 @@ import profileRoutes from "./routes/profileRoutes.js";
 import insuranceRoutes from "./routes/insuranceRoutes.js";
 import budgetRoutes from "./routes/budgetRoutes.js";
 import accountRoutes from "./routes/accountRoutes.js";
-
-
+import insurancePlanRoutes from "./routes/insurancePlanRoutes.js";
 
 dotenv.config();
 await connectDB();
@@ -24,6 +24,7 @@ connectDB()
 
     app.use(express.json());
     app.use(cookieParser());
+    app.use("/uploads", express.static(path.join(process.cwd(), "src/uploads")));
 
     // CORS + routes (keep your previous CORS config)
     const ALLOWED = new Set(["http://localhost:5173"]);
@@ -53,6 +54,8 @@ connectDB()
     app.use("/api/budget", budgetRoutes);
     app.use("/api/income", incomeRoutes);
     app.use("/api/accounts", accountRoutes);
+    app.use("/api/insurancePlans", insurancePlanRoutes);
+
 
     app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
   })
