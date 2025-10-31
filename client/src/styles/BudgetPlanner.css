@@ -109,3 +109,39 @@
     grid-column: auto;
   }
 }
+
+/* small AI chip in the header */
+.ai-chip {
+  margin-left: auto;
+  font-size: 14px;
+  background: #f5f7ff;
+  border: 1px solid #dfe6ff;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+.ai-chip.conservative-saver { background: #eefbf1; border-color: #c9f0d3; }
+.ai-chip.balanced-spender   { background: #f5f7ff; border-color: #dfe6ff; }
+.ai-chip.frequent-over-spender { background: #fff5f4; border-color: #ffd9d6; }
+
+/* rule controls block inside card */
+.rule-controls { border-top: 1px solid #eee; margin-top: 14px; padding-top: 14px; }
+.rc-title { margin: 0 0 8px 0; font-size: 16px; }
+.rc-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.rc-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rc-left { display: flex; flex-direction: column; }
+.rc-label { font-weight: 600; }
+.rc-sub { font-size: 12px; color: #666; }
+.rc-right { flex: 1; }
+.rc-input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; }
+
+.rc-actions { display: flex; gap: 10px; margin-top: 12px; }
+.btn { padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; }
+.btn.primary { background: #1f7aec; border-color: #1f7aec; color: #fff; }
+
+.rc-alerts { margin-top: 12px; padding: 12px; background: #fff8e6; border: 1px solid #ffe08a; border-radius: 8px; }
+.rc-alerts ul { margin: 6px 0 0 16px; }
+
+.rc-footer { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid #eee; }
+
+/* keep your existing budget-card, header, grid, etc. */
+
