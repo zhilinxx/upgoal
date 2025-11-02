@@ -102,8 +102,7 @@
 
 .table-container .edit-btn:hover {
   background: none;
-  color: var(--main-pink);
-  filter: drop-shadow(0 0 0.8px currentColor);
+  color: var(--mid-pink);
 }
 
 .delete-btn,
@@ -131,8 +130,7 @@
 
 .delete-btn:hover {
   background: none;
-  color: #F5878A;
-  filter: drop-shadow(0 0 0.8px currentColor);
+  color: var(--mid-pinkk);
 }
 
 .pagination {

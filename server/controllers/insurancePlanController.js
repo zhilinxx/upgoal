@@ -65,12 +65,13 @@ export const getAllPlans = async (req, res) => {
       params.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
-    // 🧩 Filter by plan_type if not All
+    // filter
     if (type && type !== "All") {
-      baseQuery += " AND plan_type = ?";
+      baseQuery += " AND LOWER(REPLACE(REPLACE(plan_type, ' ', ''), '+', '')) = LOWER(REPLACE(REPLACE(?, ' ', ''), '+', ''))";
       params.push(type);
     }
 
+    console.log("🔍 Filter received from frontend:", type);
     // 📊 Count total records
     const [countRows] = await db.query(`SELECT COUNT(*) AS total ${baseQuery}`, params);
     const totalRecords = countRows[0].total;

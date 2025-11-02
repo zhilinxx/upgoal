@@ -12,6 +12,7 @@ export default function InsurancePlanManagement() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0); 
   const [selectAll, setSelectAll] = useState(false);
   const limit = 10;
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ export default function InsurancePlanManagement() {
 
       setPlans(filteredPlans || []);
       setTotalPages(data.pagination?.totalPages || 1);
+      setTotalRecords(data.pagination?.totalRecords || 0); 
       setSelectedIds([]);
       setSelectAll(false);
     } catch (err) {
@@ -39,7 +41,17 @@ export default function InsurancePlanManagement() {
 
   useEffect(() => {
     fetchPlans();
-  }, [search, page, planType]);
+  }, [page]); // 🔹 fetch when page changes
+
+  // 🔹 When search or filter changes → reset to page 1
+  useEffect(() => {
+    setPage(1);
+  }, [search, planType]);
+
+  // 🔹 Re-fetch when search or filter changes (after reset)
+  useEffect(() => {
+    fetchPlans();
+  }, [search, planType, page]);
 
   const handleSelect = (planId) => {
     setSelectedIds((prev) =>
@@ -97,7 +109,7 @@ export default function InsurancePlanManagement() {
           >
             <option value="All">All</option>
             <option value="Life">Life</option>
-            <option value="Medical">Medical</option>
+            <option value="Life + Medical">Life + Medical</option>
           </select>
         </div>
 
@@ -114,7 +126,7 @@ export default function InsurancePlanManagement() {
         </div>
       </div>
 
-      <p className="record-line">{plans.length} records found.</p>
+      <p className="record-line">{totalRecords} records found.</p>
 
       {/* ===== Table Section ===== */}
       <div className="table-container">

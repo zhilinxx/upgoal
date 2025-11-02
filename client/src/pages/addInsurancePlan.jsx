@@ -29,6 +29,7 @@ export default function AddInsurancePlan() {
   const [logo, setLogo] = useState(null);
   const [brochure, setBrochure] = useState(null);
   const [existingPlans, setExistingPlans] = useState([]);
+  const [isFormDirty, setIsFormDirty] = useState(false); // Track unsaved changes
 
   const coverageOptions = [
     "Death",
@@ -67,7 +68,11 @@ export default function AddInsurancePlan() {
     init();
   }, [id]);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  // Track form edits
+  const handleChange = (e) => {
+    setIsFormDirty(true);
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleMultiSelect = (field, value) => {
     setFormData((prev) => {
@@ -76,6 +81,41 @@ export default function AddInsurancePlan() {
         ? { ...prev, [field]: arr.filter((v) => v !== value) }
         : { ...prev, [field]: [...arr, value] };
     });
+  };
+
+  // ✅ Confirm before leaving
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isFormDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    const handlePopState = (e) => {
+      if (isFormDirty && !window.confirm("Discard changes and go back?")) {
+        e.preventDefault();
+        window.history.pushState(null, "", window.location.pathname);
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [isFormDirty]);
+
+  const handleCancel = () => {
+    if (isFormDirty) {
+      if (window.confirm("Are you sure you want to discard changes and go back?")) {
+        navigate(-1);
+      }
+    } else {
+      navigate(-1);
+    }
   };
 
   const validateForm = () => {
@@ -193,7 +233,7 @@ export default function AddInsurancePlan() {
               <select name="plan_type" value={formData.plan_type} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option value="Life">Life</option>
-                <option value="Medical">Medical</option>
+                <option value="Life + Medical">Life + Medical</option>
               </select>
             </div>
           </div>
@@ -229,10 +269,14 @@ export default function AddInsurancePlan() {
               </>
             )}
 
-            {formData.plan_type === "Medical" && (
+            {formData.plan_type === "Life + Medical" && (
               <>
                 <div className="input-group">
-                  <label>Annual Limit (RM)</label>
+                  <label>Sum Assured (RM)<span className="required">*</span></label>
+                  <input type="number" name="sum_assured" value={formData.sum_assured} onChange={handleChange} step="0.1" required />
+                </div>
+                <div className="input-group">
+                  <label>Annual Limit (RM) *empty if no limit</label>
                   <input type="number" name="annual_limit" value={formData.annual_limit} onChange={handleChange} step="0.1" />
                 </div>
                 <div className="input-group">
@@ -241,7 +285,7 @@ export default function AddInsurancePlan() {
                 </div>
                 <div className="input-group">
                   <label>Hospital Room & Board (RM)</label>
-                  <input type="number" name="hp_room_board" value={formData.hp_room_board} onChange={handleChange} step="0.1" />
+                  <input type="number" name="hp_room_board" value={formData.hp_room_board} onChange={handleChange} step="0.1" required />
                 </div>
               </>
             )}
@@ -283,7 +327,7 @@ export default function AddInsurancePlan() {
         </div>
 
         <div className="button-row">
-          <button type="button" className="cancel-btn" onClick={() => navigate(-1)}>Cancel</button>
+          <button type="button" className="cancel-btn" onClick={handleCancel}>Cancel</button>
           <button type="submit" className="save-btn">{isEditMode ? "Update" : "Add"}</button>
         </div>
       </form>
