@@ -6,7 +6,7 @@
 // const GoalItem = ({ goal, currency }) => {
 //   const amountLeft = goal.target - goal.current;
 //   const progressPercent = (goal.current / goal.target) * 100;
-  
+
 //   return (
 //     <div className="goal-card">
 //       <div className="goal-header">
@@ -47,7 +47,7 @@
 //           <div className="add-goal-icon">+</div>
 //           <p className="add-goal-label">Add Another Goal</p>
 //         </div>
-        
+
 //         {/* Render Goals */}
 //         {goals.map(g => <GoalItem key={g.id} goal={g} currency={currency} />)}
 //       </div>
@@ -64,7 +64,7 @@
 
 // export default SavingsGoals;
 //------------------------------------------------------------------
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import GoalDialog from "./GoalDialog.jsx";
 import { createGoal, updateGoal, deleteGoal, listGoals } from "../api/budgetAPI.js";
@@ -102,7 +102,9 @@ const GoalItem = ({ goal, currency, onEdit, onDelete }) => {
       </div>
 
       <p className="goal-progress-text">
-        <span className="current-amount">{fmtMoney(goal.current, currency)}</span> / {fmtMoney(goal.target, currency)}
+        <span className="current-amount">{fmtMoney(goal.current, currency)}</span>
+        {" / "}
+        {fmtMoney(goal.target, currency)}
         <span className="amount-left">{fmtMoney(amountLeft, currency)} left</span>
       </p>
 
@@ -133,7 +135,11 @@ export default function SavingsGoals({ currency = "RM" }) {
   const [mode, setMode] = useState("create"); // "create" | "edit"
   const [initial, setInitial] = useState({});
 
-  // Load from API
+  // ✅ hooks that were outside must live here
+  const scrollerRef = useRef(null);
+  const [active, setActive] = useState(0);
+  const [press, setPress] = useState({ x: 0, y: 0 });
+
   useEffect(() => {
     (async () => {
       try {
@@ -145,6 +151,45 @@ export default function SavingsGoals({ currency = "RM" }) {
       }
     })();
   }, []);
+
+  // --- Add button: tap vs drag detection ---
+  const handleAddPointerDown = (e) => {
+    const p = e.touches?.[0] ?? e;
+    setPress({ x: p.clientX, y: p.clientY });
+  };
+  const handleAddPointerUp = (e) => {
+    const p = e.changedTouches?.[0] ?? e;
+    const dx = Math.abs(p.clientX - press.x);
+    const dy = Math.abs(p.clientY - press.y);
+    if (dx < 6 && dy < 6) startCreate();
+  };
+
+  // --- Carousel measurement (match your CSS) ---
+  const RAIL = 56; // .add-goal-box width
+  const GAP  = 18; // gap between slides
+
+  const slideWidth = () => {
+    const el = scrollerRef.current;
+    return el ? el.clientWidth - (RAIL + GAP) : 0;
+  };
+  const stride = () => slideWidth() + GAP;
+
+  // --- Scroll -> update active dot ---
+  const handleScroll = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const offset = Math.max(0, el.scrollLeft - (RAIL + GAP));
+    const idx = Math.round(offset / stride());
+    if (idx !== active) setActive(idx);
+  };
+
+  // --- Dot click -> smooth scroll to slide ---
+  const goToSlide = (i) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const target = (RAIL + GAP) + i * stride();
+    el.scrollTo({ left: target, behavior: "smooth" });
+  };
 
   const startCreate = () => {
     setMode("create");
@@ -158,9 +203,9 @@ export default function SavingsGoals({ currency = "RM" }) {
       id: goal.id,
       name: goal.name,
       target: goal.target,
-      saved: goal.current,      // dialog uses "saved" for the editable current
+      saved: goal.current,
       description: goal.description || "",
-      dueDate: goal.deadline,   // dialog accepts dueDate
+      dueDate: goal.deadline,
     });
     setOpen(true);
   };
@@ -177,7 +222,6 @@ export default function SavingsGoals({ currency = "RM" }) {
     }
   };
 
-  // Dialog save handler (called with payload from GoalDialog)
   const handleSave = async (payload) => {
     if (mode === "create") {
       const { data } = await createGoal(payload);
@@ -191,14 +235,13 @@ export default function SavingsGoals({ currency = "RM" }) {
       };
       setItems((xs) => [created, ...xs]);
     } else {
-      // mode === "edit"
       const id = initial.id;
       const apiPayload = {
         name: payload.name,
         target: payload.target,
         description: payload.description,
         dueDate: payload.dueDate,
-        saved: payload.saved ?? 0, // GoalDialog provides saved only in edit
+        saved: payload.saved ?? 0,
       };
       const { data } = await updateGoal(id, apiPayload);
       const updated = data || {
@@ -230,14 +273,27 @@ export default function SavingsGoals({ currency = "RM" }) {
     <section className="savings-goals-section">
       <h3 className="section-title">My Savings Goals</h3>
 
-      <div className="goals-carousel">
-        {/* Add Another Goal UI */}
-        <div className="add-goal-box" onClick={startCreate} role="button" tabIndex={0}>
+      {/* ✅ ref & onScroll belong on the opening tag */}
+      <div
+        className="goals-carousel"
+        ref={scrollerRef}
+        onScroll={handleScroll}
+      >
+        {/* Add Another Goal rail */}
+        <button
+          type="button"
+          className="add-goal-box"
+          onPointerDown={handleAddPointerDown}
+          onPointerUp={handleAddPointerUp}
+          onTouchStart={handleAddPointerDown}
+          onTouchEnd={handleAddPointerUp}
+          aria-label="Add Another Goal"
+        >
           <div className="add-goal-icon">+</div>
           <p className="add-goal-label">Add Another Goal</p>
-        </div>
+        </button>
 
-        {/* Render Goals */}
+        {/* Slides */}
         {items.map((g) => (
           <GoalItem
             key={g.id}
@@ -249,14 +305,19 @@ export default function SavingsGoals({ currency = "RM" }) {
         ))}
       </div>
 
-      {/* Simple paginator dots */}
+      {/* ✅ Clickable dots to scroll horizontally */}
       <div className="paginator">
         {items.map((_, i) => (
-          <span key={i} className={`dot ${i === 0 ? "active" : ""}`} />
+          <button
+            key={i}
+            type="button"
+            className={`dot ${active === i ? "active" : ""}`}
+            onClick={() => goToSlide(i)}
+            aria-label={`Go to goal ${i + 1}`}
+          />
         ))}
       </div>
 
-      {/* Dialog */}
       <GoalDialog
         mode={mode}
         open={open}

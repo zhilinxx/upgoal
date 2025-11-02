@@ -15,7 +15,7 @@ function Expenses({ expenses, currency }) {
     <section className="expenses-section">
       <div className="expenses-header">
         <h3 className="section-title">My Expenses</h3>
-        <span className="view-all" onClick={() => navigate("/monthly-expenses")}>View all</span>
+        <span className="view-all" onClick={() => navigate("/monthlyExpenses")}>View all</span>
       </div>
       
       <ul className="expenses-list">

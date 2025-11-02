@@ -1,4 +1,4 @@
-.expenses-container {
+/* .expenses-container {
   width: 360px;
   margin: auto;
   background: #fff;
@@ -125,4 +125,302 @@
 
 .page-number {
   font-weight: bold;
+} */
+
+.doughnut-container {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  margin: 0 auto;
+}
+
+.chart-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.chart-label {
+  margin: 0;
+  color: #666;
+  font-size: 12px;
+}
+
+.chart-total {
+  margin: 0;
+}
+
+/* ===================== */
+/* Monthly Expenses ONLY */
+/* ===================== */
+
+.expenses-container {
+  /* Responsive shell */
+  max-width: min(1100px, 92vw);
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  color: #333;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+}
+
+/* ---------- Header row ---------- */
+.expenses-container .topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.expenses-container .back-btn {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  font-size: 18px;
+  color: #ff7a7a;
+}
+
+.expenses-container .title {
+  margin: 0;
+  font-size: clamp(18px, 2.2vw, 22px);
+  font-weight: 700;
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+/* ---------- Filters / controls ---------- */
+.expenses-container .top-controls {
+  margin-top: 6px;
+  display: grid;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Mobile-first: two rows (month full width, then search/category/actions) */
+.expenses-container .month-picker,
+.expenses-container .search-input,
+.expenses-container .category-filter {
+  height: 36px;
+  padding: 6px 10px;
+  border: 1px solid #f0e6e6;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 13px;
+  outline: none;
+}
+
+.expenses-container .icon-actions {
+  display: flex;
+  gap: 8px;
+  justify-self: end;
+}
+
+.expenses-container .icon-btn {
+  border: none;
+  background: #f7f2f2;
+  border-radius: 10px;
+  padding: 7px 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.expenses-container .add-btn { background: #ffe6e6; }
+.expenses-container .delete-btn { background: #ffefef; }
+.expenses-container .icon-btn:hover { filter: brightness(.98); }
+
+/* ---------- Chart + legend ---------- */
+.expenses-container .chart-section {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr;   /* stack on phones */
+  gap: 12px;
+  align-items: center;
+}
+
+.expenses-container .doughnut-container {
+  position: relative;
+  width: clamp(180px, 28vw, 280px);
+  height: clamp(180px, 28vw, 280px);
+  margin: 0 auto;
+}
+
+.expenses-container .chart-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.expenses-container .chart-label {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.expenses-container .chart-total {
+  margin: 0;
+  font-size: clamp(16px, 2vw, 20px);
+  font-weight: 700;
+  color: #333;
+}
+
+.expenses-container .legend {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 420px;
+}
+
+.expenses-container .legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 13px;
+}
+
+.expenses-container .legend .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.expenses-container .legend-label { font-weight: 600; color: #444; }
+.expenses-container .legend-amount { color: #777; }
+
+/* ---------- Table (with horizontal scroll) ---------- */
+.expenses-container .table-scroll-x {
+  margin-top: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 10px;
+}
+
+.expenses-container .table-scroll-x::-webkit-scrollbar { height: 8px; }
+.expenses-container .table-scroll-x::-webkit-scrollbar-thumb { background: #eec3c3; border-radius: 999px; }
+.expenses-container .table-scroll-x::-webkit-scrollbar-track { background: #faf6f6; }
+
+.expenses-container .expense-table {
+  min-width: 760px;        /* ensures scroll on narrow screens */
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.expenses-container .expense-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #ffe5e6;     /* soft pink header */
+  color: #555;
+  text-align: left;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.expenses-container .expense-table tbody td {
+  padding: 10px;
+  border-bottom: 1px solid #f3ecec;
+  font-size: 13px;
+  color: #333;
+}
+
+.expenses-container .expense-table tbody tr:nth-child(even) td {
+  background: #fffafa;     /* super light zebra */
+}
+
+.expenses-container .edit-btn {
+  background: #ffe8ea;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Pagination ---------- */
+.expenses-container .pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.expenses-container .page-btn {
+  background: #ffb6b6;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 14px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.expenses-container .page-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.expenses-container .page-number {
+  background: #ffd7d7;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  color: #444;
+  min-width: 34px;
+  text-align: center;
+}
+
+/* ===================== */
+/* Desktop refinements   */
+/* ===================== */
+@media (min-width: 768px) {
+  /* Controls in one line on desktop */
+  .expenses-container .top-controls {
+    grid-template-columns: 220px 1fr 200px auto auto; /* month | search | category | trash | add */
+    align-items: center;
+  }
+
+  .expenses-container .month-picker { grid-column: auto; }
+
+  /* Chart + legend side-by-side on desktop */
+  .expenses-container .chart-section {
+    grid-template-columns: minmax(260px, 360px) 1fr;
+    align-items: center;
+  }
+
+  .expenses-container .legend {
+    margin: 0;            /* align with chart */
+    max-width: none;
+  }
+}
+
+/* ===================== */
+/* Focus ring subtle     */
+/* ===================== */
+.expenses-container .month-picker:focus,
+.expenses-container .search-input:focus,
+.expenses-container .category-filter:focus {
+  border-color: #ffb9c0;
+  box-shadow: 0 0 0 3px rgba(255,137,155,.15);
 }
