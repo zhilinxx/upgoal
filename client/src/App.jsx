@@ -21,6 +21,7 @@ import IncomeSetup from "./pages/IncomeSetup";
 import Profile from "./pages/profile";
 import InsuranceRecommendations from "./pages/insuranceRecommendations";
 import InsuranceProfileSetup from "./pages/insuranceProfileSetup";
+import AddInsurancePlan from "./pages/addInsurancePlan";
 import MonthlyExpenses from "./pages/MonthlyExpenses";
 
 // ✅ Page titles for mobile header
@@ -130,6 +131,8 @@ function App() {
       "/resetPassword",
       "/verifyEmail",
       "/insuranceProfileSetup",
+      "/incomeSetup",
+      "/addInsurancePlan"
       "/incomeSetup", 
       "/monthlyExpenses",
     ];
@@ -170,7 +173,7 @@ function App() {
               Account Management
             </Link>
             <Link
-              to="/insurancePlan"
+              to="/insurancePlanManagement"
               className={getLinkClass("/insurancePlanManagement")}
             >
               Insurance Plans
@@ -407,6 +410,22 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={[1]}>
                   <InsurancePlanManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/addInsurancePlan/:id"
+              element={
+                <ProtectedRoute allowedRoles={[1]}>
+                  <AddInsurancePlan />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/addInsurancePlan"
+              element={
+                <ProtectedRoute allowedRoles={[1]}>
+                  <AddInsurancePlan />
                 </ProtectedRoute>
               }
             />

@@ -1,0 +1,181 @@
+.add-plan-container {
+  margin: 0 auto;
+  padding: 20px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.add-plan-header {
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
+  margin-bottom: 10px;
+}
+
+.add-plan-header h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  width: 100%;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  margin: 0;
+  padding-left: 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--main-pink);
+}
+
+.back-btn:hover {
+  background: none;
+}
+
+.plan-form {
+  gap: 20px;
+  margin: 0 150px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-weight: 500;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.required {
+  color: red;
+  margin-left: 2px;
+}
+
+input,
+select,
+textarea {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+textarea {
+  resize: none;
+}
+
+.upload-box {
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  text-align: center;
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.upload-box:hover {
+  border-color: var(--main-pink);
+}
+
+.upload-box img,
+.upload-box svg {
+  font-size: 2rem;
+  color: var(--main-pink);
+  margin-bottom: 5px;
+}
+
+.upload-box p {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.existing-file {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+.existing-file a {
+  color: var(--main-pink);
+  margin-left: 4px;
+  text-decoration: underline;
+}
+
+.input-group label {
+  color: black;
+}
+
+.checkbox-group label {
+  color: var(--black-text);
+}
+
+.save-btn {
+  width: 90px;
+  padding: 13px;
+  border: none;
+  border-radius: 30px;
+  background: var(--btn-color);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.save-btn:hover {
+  background: var(--btn-hover);
+}
+
+.cancel-btn {
+  width: 90px;
+  padding: 12px;
+  border: 1.5px solid var(--btn-border);
+  border-radius: 30px;
+  background: white;
+  color: var(--btn-border);
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-right: 10px;
+}
+
+.cancel-btn:hover {
+  background: var(--bg-light-color);
+}
+
+.button-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-form {
+    margin: 0 10px;
+  }
+
+  .button-row {
+    gap: 10px;
+  }
+  .input-group label {
+    font-size: 12px;
+  }
+}

@@ -15,6 +15,7 @@
   /* variable */
   --btn-color: linear-gradient(90deg, #f9a8d4, #fcd5ce);
   --btn-hover: linear-gradient(90deg, #fb9dbe, #fcaba0);
+  --btn-border: #fb9dbe;
   --bg-light-color: #fff8f9;
   --error-msg: #ff4848;
   --green-msg: #4caf50;
@@ -44,8 +45,35 @@ h1 {
   line-height: 1.1;
 }
 
+h2,h3 {
+  color: var(--black-text);
+}
+
 P {
   font-size: 15px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border: 1px solid var(--main-pink);
+  box-shadow: 0 0 5px var(--light-pink);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* optional: default input styling for consistency */
+input,
+textarea,
+select {
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--btn-border);
+  cursor: pointer;
 }
 
 
