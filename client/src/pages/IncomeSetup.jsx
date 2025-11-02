@@ -266,6 +266,7 @@
 // }
 //-----------------------------------------------------------------------
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import api from "../api/budgetAPI";
 import "../styles/IncomeSetup.css";
 import { useNavigate } from "react-router-dom";
@@ -433,6 +434,7 @@ export default function IncomeSetup() {
         const { data } = await api.put("/income", { ...payload, incomeId });
         console.log("[IncomeSetup] PUT ok:", data);
         navigate("/profile");
+        toast.success("Income setup saved successfully!");
       } else {
         const { data } = await api.post("/income", payload);
         console.log("[IncomeSetup] POST ok:", data);

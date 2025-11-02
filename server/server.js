@@ -8,6 +8,7 @@ import profileRoutes from "./routes/profileRoutes.js";
 import insuranceRoutes from "./routes/insuranceRoutes.js";
 import budgetRoutes from "./routes/budgetRoutes.js";
 import accountRoutes from "./routes/accountRoutes.js";
+import expensesRoutes from "./routes/expensesRoutes.js";
 
 
 
@@ -53,6 +54,7 @@ connectDB()
     app.use("/api/budget", budgetRoutes);
     app.use("/api/income", incomeRoutes);
     app.use("/api/accounts", accountRoutes);
+    app.use("/api/expenses", expensesRoutes);
 
     app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
   })

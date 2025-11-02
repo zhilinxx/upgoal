@@ -21,6 +21,7 @@ import IncomeSetup from "./pages/IncomeSetup";
 import Profile from "./pages/profile";
 import InsuranceRecommendations from "./pages/insuranceRecommendations";
 import InsuranceProfileSetup from "./pages/insuranceProfileSetup";
+import MonthlyExpenses from "./pages/MonthlyExpenses";
 
 // ✅ Page titles for mobile header
 const PAGE_TITLES = {
@@ -130,6 +131,7 @@ function App() {
       "/verifyEmail",
       "/insuranceProfileSetup",
       "/incomeSetup", 
+      "/monthlyExpenses",
     ];
 
     const hideLayout = hideLayoutRoutes.includes(location.pathname);
@@ -371,6 +373,12 @@ function App() {
             <Route path="/incomeSetup" element={
               <ProtectedRoute allowedRoles={[0]}>
                 <IncomeSetup />
+              </ProtectedRoute>} 
+            />
+
+            <Route path="/monthlyExpenses" element={
+              <ProtectedRoute allowedRoles={[0]}>
+                <MonthlyExpenses />
               </ProtectedRoute>} 
             />
 
