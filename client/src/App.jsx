@@ -132,8 +132,7 @@ function App() {
       "/verifyEmail",
       "/insuranceProfileSetup",
       "/incomeSetup",
-      "/addInsurancePlan"
-      "/incomeSetup", 
+      "/addInsurancePlan",
       "/monthlyExpenses",
     ];
 
