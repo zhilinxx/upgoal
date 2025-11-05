@@ -2,7 +2,7 @@
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
-  background: var(--bg-light-color);
+  background: var(--bg-color);
   color: #333;
   height: 100%;
   bottom: 0;

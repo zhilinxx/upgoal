@@ -97,12 +97,12 @@ export default function BudgetPlanner() {
   return (
     <div className="budget-page-container">
       {/* Header (kept like your Insurance pages) */}
-      <div className="budget-header">
+      {/* <div className="budget-header">
         <h2>Budget Planner</h2>
         <div className={`ai-chip ${aiSegment.replace(/\s+/g, "-").toLowerCase()}`}>
           AI Segment: <b>{aiSegment}</b>
         </div>
-      </div>
+      </div> */}
 
       {/* 3-card grid */}
       <div className="budget-grid">
