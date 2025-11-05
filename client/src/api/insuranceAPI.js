@@ -7,11 +7,15 @@ export const getProviders = async () => {
 };
 
 // retrieve insurance plan at insurance recommendations page
-export const getRecommendations = async (userId, filters = {}) => {
+export const getInsuranceRecommendations = async (userId, filters = {}) => {
   return API.get(`/insurance/recommendations/${userId}`, {
     params: filters, // pass filter options to backend
   });
 };
+export const getPlanScore = (planId, userId, sumMax) => 
+  API.get("/insurance/planScore", {
+    params: { planId, userId, sumMax },
+  });
 
 //insurance profile setup
 export const saveInsuranceProfile = async (profileData) => {
@@ -20,4 +24,10 @@ export const saveInsuranceProfile = async (profileData) => {
 
 export const getInsuranceProfile = async (userId) => {
   return API.get(`/insurance/${userId}`);
+};
+
+export const getPlanById = async (planId, userId) => {
+  return API.get(`/insurance/plan/${planId}`, {
+    params: { userId },
+  });
 };

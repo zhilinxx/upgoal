@@ -23,6 +23,8 @@ import InsuranceRecommendations from "./pages/insuranceRecommendations";
 import InsuranceProfileSetup from "./pages/insuranceProfileSetup";
 import AddInsurancePlan from "./pages/addInsurancePlan";
 import MonthlyExpenses from "./pages/MonthlyExpenses";
+import InsurancePlanDetails from "./pages/planDetails";
+import FavouriteList from "./pages/insuranceFavouriteList";
 
 // ✅ Page titles for mobile header
 const PAGE_TITLES = {
@@ -36,6 +38,8 @@ const PAGE_TITLES = {
   "/settings": "Settings",
   "/incomeSetup": "Income Setup",
   "/insuranceRecommendations": "Insurance Recommendations",
+  "/planDetails" : "Plan Details",
+  "/favouriteList" : "Favourite List",
 };
 
 import axios from "axios";
@@ -361,6 +365,8 @@ function App() {
             <Route path="/verifyEmail" element={<VerifyEmail />} />
             <Route path="/forgotPassword" element={<ForgotPassword />} />
             <Route path="/resetPassword" element={<ResetPassword />} />
+            <Route path="/plan/:planId" element={<InsurancePlanDetails />} />
+            <Route path="/favouriteList" element={<FavouriteList />} />
 
             {/* Protected routes */}
             <Route

@@ -80,7 +80,7 @@ export const getAllPlans = async (req, res) => {
     // 📋 Fetch plans
     const [plans] = await db.query(
       `SELECT plan_id, plan_name, provider, plan_type, premium, brochure_path, provider_logo, provider_phone, provider_email,
-              sum_assured, coverage_age, coverage_scope, annual_limit, lifetime_limit, hp_room_board, payment_structure
+              sum_assured, coverage_age, coverage_scope, CI, annual_limit, lifetime_limit, hp_room_board, payment_structure
        ${baseQuery}
        ORDER BY CAST(${sort} AS UNSIGNED) ASC
        LIMIT ? OFFSET ?`,
@@ -132,6 +132,7 @@ export const addPlan = async (req, res) => {
       annual_limit,
       lifetime_limit,
       hp_room_board,
+      CI,
     } = req.body;
 
     const logoPath = req.files?.logo?.[0]
@@ -145,12 +146,12 @@ export const addPlan = async (req, res) => {
     await db.query(
       `INSERT INTO insurance_plan 
       (plan_name, plan_type, provider, provider_logo, provider_phone, provider_email, premium, payment_structure, brochure_path, 
-       sum_assured, coverage_age, coverage_scope, annual_limit, lifetime_limit, hp_room_board)
+       sum_assured, coverage_age, coverage_scope, CI, annual_limit, lifetime_limit, hp_room_board)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        plan_name, plan_type, provider, logoPath, provider_phone, provider_email,
+        plan_name, plan_type, provider, logoPath, provider_phone, provider_email || null,
         premium, payment_structure, brochurePath,
-        sum_assured || null, coverage_age || null, coverage_scope || null,
+        sum_assured, coverage_age, coverage_scope, CI || 0,
         annual_limit || null, lifetime_limit || null, hp_room_board || null,
       ]
     );
@@ -180,6 +181,7 @@ export const updatePlan = async (req, res) => {
       annual_limit,
       lifetime_limit,
       hp_room_board,
+      CI,
     } = req.body;
 
     const logoPath = req.files?.logo?.[0]
@@ -193,12 +195,12 @@ export const updatePlan = async (req, res) => {
     await db.query(
       `UPDATE insurance_plan SET
         plan_name=?, plan_type=?, provider=?, provider_phone=?, provider_email=?, premium=?, payment_structure=?,
-        sum_assured=?, coverage_age=?, coverage_scope=?, annual_limit=?, lifetime_limit=?, hp_room_board=?,
+        sum_assured=?, coverage_age=?, coverage_scope=?, CI=?, annual_limit=?, lifetime_limit=?, hp_room_board=?,
         provider_logo=COALESCE(?, provider_logo), brochure_path=COALESCE(?, brochure_path)
       WHERE plan_id=?`,
       [
         plan_name, plan_type, provider, provider_phone, provider_email, premium, payment_structure,
-        sum_assured || null, coverage_age || null, coverage_scope || null,
+        sum_assured, coverage_age, coverage_scope, CI || 0,
         annual_limit || null, lifetime_limit || null, hp_room_board || null,
         logoPath, brochurePath, id,
       ]

@@ -11,8 +11,7 @@ import budgetRoutes from "./routes/budgetRoutes.js";
 import accountRoutes from "./routes/accountRoutes.js";
 import insurancePlanRoutes from "./routes/insurancePlanRoutes.js";
 import expensesRoutes from "./routes/expensesRoutes.js";
-
-
+import favouriteRoutes from "./routes/favouritePlanRoutes.js";
 
 dotenv.config();
 await connectDB();
@@ -58,7 +57,7 @@ connectDB()
     app.use("/api/income", incomeRoutes);
     app.use("/api/accounts", accountRoutes);
     app.use("/api/insurancePlans", insurancePlanRoutes);
-
+    app.use("/api/favourites", favouriteRoutes);
     app.use("/api/expenses", expensesRoutes);
 
     app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));

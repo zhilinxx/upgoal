@@ -93,6 +93,7 @@ export default function Profile() {
 
   return (
     <div className="profile-container">
+      <h2>Profile</h2>
     <div className="profile-inner">
       {/* Change Password */}
         <div className="profile-section">
@@ -110,7 +111,7 @@ export default function Profile() {
         </div>
 
           {/* Favourite list */}
-        <div className="favourite" onClick={() => navigate("/favourite")}>
+        <div className="favourite" onClick={() => navigate("/favouriteList")}>
                                    <hr />
           <div className="section-header">
 

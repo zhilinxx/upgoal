@@ -24,12 +24,15 @@ export default function AddInsurancePlan() {
     annual_limit: "",
     lifetime_limit: "",
     hp_room_board: "",
+    CI: 0,
   });
 
   const [logo, setLogo] = useState(null);
   const [brochure, setBrochure] = useState(null);
   const [existingPlans, setExistingPlans] = useState([]);
   const [isFormDirty, setIsFormDirty] = useState(false); // Track unsaved changes
+  const [message, setMessage] = useState("");
+  const [validation, setValidation] = useState("");
 
   const coverageOptions = [
     "Death",
@@ -58,6 +61,7 @@ export default function AddInsurancePlan() {
             ...plan,
             coverage_scope: plan.coverage_scope ? plan.coverage_scope.split(", ") : [],
             payment_structure: plan.payment_structure ? plan.payment_structure.split(", ") : [],
+            CI: plan.CI ? 1 : 0,
           });
         }
       } catch (err) {
@@ -266,6 +270,19 @@ export default function AddInsurancePlan() {
                     ))}
                   </div>
                 </div>
+                <div className="input-group">
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="CI"
+                      checked={!!formData.CI}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, CI: e.target.checked ? 1 : 0 }))
+                      }
+                    />
+                    Critical Illness Rider
+                  </label>
+                </div>
               </>
             )}
 
@@ -276,12 +293,44 @@ export default function AddInsurancePlan() {
                   <input type="number" name="sum_assured" value={formData.sum_assured} onChange={handleChange} step="0.1" required />
                 </div>
                 <div className="input-group">
+                  <label>Coverage Age<span className="required">*</span></label>
+                  <input type="number" name="coverage_age" value={formData.coverage_age} onChange={handleChange} max="100" required />
+                </div>
+                <div className="input-group">
+                  <label>Coverage Scope (select one or more)<span className="required">*</span></label>
+                  <div className="checkbox-group">
+                    {coverageOptions.map((opt) => (
+                      <label key={opt}>
+                        <input
+                          type="checkbox"
+                          checked={formData.coverage_scope.includes(opt)}
+                          onChange={() => handleMultiSelect("coverage_scope", opt)}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="input-group">
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="CI"
+                      checked={!!formData.CI}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, CI: e.target.checked ? 1 : 0 }))
+                      }
+                    />
+                    Critical Illness Rider
+                  </label>
+                </div>
+                <div className="input-group">
                   <label>Annual Limit (RM) *empty if no limit</label>
-                  <input type="number" name="annual_limit" value={formData.annual_limit} onChange={handleChange} step="0.1" />
+                  <input type="number" name="annual_limit" value={formData.annual_limit} onChange={handleChange} step="0.1" required />
                 </div>
                 <div className="input-group">
                   <label>Lifetime Limit (RM) *empty if no limit</label>
-                  <input type="number" name="lifetime_limit" value={formData.lifetime_limit} onChange={handleChange} step="0.1" />
+                  <input type="number" name="lifetime_limit" value={formData.lifetime_limit} onChange={handleChange} step="0.1" required />
                 </div>
                 <div className="input-group">
                   <label>Hospital Room & Board (RM)</label>

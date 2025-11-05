@@ -7,6 +7,12 @@
   padding: 20px;
 }
 
+.profile-container h2 {
+  display: block;
+  margin-top: 10px;
+  color: var(--main-pink);
+}
+
 .profile-inner {
   display: flex;
   flex-wrap: wrap;
@@ -172,5 +178,9 @@
   .logout-btn {
     position: relative;
     bottom: 0;
+  }
+
+  .profile-container h2{
+    display: none;
   }
 }
