@@ -29,10 +29,10 @@
 }
 
 .insurance-setup-header h2 {
-  font-size: 1.3rem;
   font-weight: 600;
   padding-right: 30px;
   width: 100%;
+  color: var(--main-pink);
 }
 
 .back-btn {

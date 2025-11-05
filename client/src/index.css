@@ -27,7 +27,11 @@
 
   --btn-color: linear-gradient(90deg, #f9a8d4, #fcd5ce);
   --btn-hover: linear-gradient(90deg, #fb9dbe, #fcaba0);
+  --light-gradient: linear-gradient(135deg, #ffe3e3, #e8ffe9);
   --btn-border: #fb9dbe;
+  --bg-light-color: #fff8f9;
+  --error-msg: #ff4848;
+  --green-msg: #7ecc3e;
 
   --input-bg: #fff;
   --input-border: #e3e3e3;

@@ -69,6 +69,11 @@
   background-color: #ffffff;
 }
 
+.input-wrapper input:focus {
+  border: none;
+  box-shadow: none;
+}
+
 .toggle-password {
   right: 8px;
   background: none;
