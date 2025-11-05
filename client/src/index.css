@@ -1,29 +1,90 @@
+/* =========================
+   Global + Theme Variables
+   ========================= */
+
 :root {
+  /* Font + rendering */
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  /* color-scheme: light dark;
-  color: rgba(35, 35, 35, 0.87); */
-  background-color: #fff7f8;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* variable */
+  /* ===== Light Theme Colors ===== */
+  --bg-color: #fff8f9;
+  --section-bg: #fff;
+  --text-color: #555;
+  --box-shadow: rgba(0, 0, 0, 0.03);
+
+  --main-pink: #f28b8b;
+  --light-pink: #F9DEDC;
+  --lighter-pink: #F9DEDC;
+  --mid-pink: #febfbb;
+  --green-msg: #7ecc3e;
+  --error-msg: #ff4848;
+
   --btn-color: linear-gradient(90deg, #f9a8d4, #fcd5ce);
   --btn-hover: linear-gradient(90deg, #fb9dbe, #fcaba0);
   --btn-border: #fb9dbe;
-  --bg-light-color: #fff8f9;
-  --error-msg: #ff4848;
-  --green-msg: #4caf50;
+
+  --input-bg: #fff;
+  --input-border: #e3e3e3;
+  --input-text: var(--text-color);
+}
+
+/* ===== Dark Theme Overrides ===== */
+:root[data-theme="dark"] {
+  /* Font + rendering */
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* background and text */
+  --bg-color: #5c5151;           /* softer charcoal background */
+  --text-color: #f3f4f6;         /* off-white text */
+  
+  /* section cards */
+  --section-bg: #3d393b;         /* dark blue-gray card */
+  --section-border: #3a3f4a;     /* subtle border */
+  --box-shadow: rgba(255, 255, 255, 0.1);
+
+  /* brand tones (slightly neon pink/peach for contrast) */
   --main-pink: #f28b8b;
-  --light-pink: #F9DEDC; 
-  --black-text: #555;
+  --light-pink: #F9DEDC;
   --lighter-pink: #F9DEDC;
   --mid-pink: #febfbb;
+  --btn-color: linear-gradient(90deg, #f9a8d4, #fcd5ce);
+  --btn-hover: linear-gradient(90deg, #fb9dbe, #fcaba0);
+  --btn-border: #fb9dbe;
+
+  /* inputs */
+  --input-bg: #2a2f3a;
+  --input-border: #3e4553;
+  --input-text: var(--text-color);
+
+  /* feedback colors */
+  --error-msg: #ff748b;
+  --green-msg: #7ed77a;
+}
+
+
+/* =========================
+   Base elements
+   ========================= */
+
+html, body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 a {
@@ -31,27 +92,23 @@ a {
   color: var(--main-pink);
   text-decoration: inherit;
 }
-a:hover {
-  text-decoration: underline;
-}
+a:hover { text-decoration: underline; }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-}
+h1 { font-size: 3.2em; line-height: 1.1; }
+h2, h3 { color: var(--text-color); }
+p { font-size: 15px; }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
+/* =========================
+   Inputs
+   ========================= */
 
-h2,h3 {
-  color: var(--black-text);
-}
-
-P {
-  font-size: 15px;
+input, textarea, select {
+  border: 1.5px solid var(--input-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: var(--input-bg);
+  color: var(--input-text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 input:focus,
@@ -60,16 +117,6 @@ select:focus {
   outline: none;
   border: 1px solid var(--main-pink);
   box-shadow: 0 0 5px var(--light-pink);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* optional: default input styling for consistency */
-input,
-textarea,
-select {
-  border: 1.5px solid #ddd;
-  border-radius: 6px;
-  padding: 8px 10px;
 }
 
 input[type="checkbox"] {
@@ -77,16 +124,23 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
+/* =========================
+   Buttons
+   ========================= */
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.btn,
+.save-btn {
+  width: 80px;
+  padding: 12px;
+  border: none;
+  border-radius: 30px;
+  background: var(--btn-color);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.btn:hover,
+.save-btn:hover {
+  background: var(--btn-hover);
 }

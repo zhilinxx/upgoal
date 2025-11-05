@@ -1,38 +1,43 @@
 /* Global Page Container */
 .budget-planner-page {
-    max-width: 450px; 
-    margin: 0 auto;
-    background-color: #f7f5f9; /* Light, slightly off-white background */
-    min-height: 100vh;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-    padding-bottom: 30px;
+  max-width: 450px;
+  margin: 0 auto;
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  padding-bottom: 30px;
 }
 
 /* Header */
 .budget-planner-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background-color: white;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: var(--bg-color);
+  border-bottom: 1px solid #eee;
+  margin-bottom: 20px;
 }
-
 .budget-planner-header .title {
-    font-size: 1.2em;
-    font-weight: 600;
-    margin: 0;
+  font-size: 1.2em;
+  font-weight: 600;
+  margin: 0;
 }
 
-/* Page chrome (matches Insurance page vibe) */
+/* Page chrome (container) */
 .budget-page-container {
   margin: 0 auto;
   padding: 20px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.08);
+  /* remove edge “frame/line” */
+  box-shadow: none;
+
+  /* contain width & prevent horizontal overflow */
+  max-width: 1120px;     /* adjust to taste (980–1200px works well) */
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Header */
+/* Header inside page */
 .budget-header {
   display: flex;
   align-items: center;
@@ -56,21 +61,29 @@
   color: var(--main-pink);
 }
 
-/* Grid like your insurance two-column layout */
+/* Grid (no fixed margins; tracks can shrink) */
 .budget-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* shrinkable columns */
   gap: 20px;
-  margin-left: 150px;
-  margin-right: 150px;
+
+  /* remove hard side margins that caused overflow */
+  margin-left: 0;
+  margin-right: 0;
+
+  min-width: 0; /* allow children to shrink inside */
 }
 
 /* Cards to hold each section */
 .budget-card {
-  background: #fff;
+  background: var(--section-bg);
   border: 1px solid #e7e7e7;
   border-radius: 12px;
   padding: 16px;
+
+  /* prevent charts/carousels from forcing overflow */
+  min-width: 0;
+  overflow: hidden;
 }
 .budget-card--full {
   grid-column: 1 / -1; /* expenses spans full width */
@@ -92,18 +105,16 @@
   cursor: pointer;
 }
 
-/* Responsive (same breakpoints idea as Insurance) */
+/* Responsive */
 @media (max-width: 1024px) {
   .budget-grid {
-    margin-left: 40px;
-    margin-right: 40px;
+    margin-left: 0;  /* container padding gives gutter */
+    margin-right: 0;
   }
 }
 @media (max-width: 768px) {
   .budget-grid {
-    grid-template-columns: 1fr;
-    margin-left: 10px;
-    margin-right: 10px;
+    grid-template-columns: minmax(0, 1fr); /* stack */
   }
   .budget-card--full {
     grid-column: auto;
@@ -119,29 +130,6 @@
   padding: 6px 10px;
   border-radius: 999px;
 }
-.ai-chip.conservative-saver { background: #eefbf1; border-color: #c9f0d3; }
-.ai-chip.balanced-spender   { background: #f5f7ff; border-color: #dfe6ff; }
-.ai-chip.frequent-over-spender { background: #fff5f4; border-color: #ffd9d6; }
-
-/* rule controls block inside card */
-.rule-controls { border-top: 1px solid #eee; margin-top: 14px; padding-top: 14px; }
-.rc-title { margin: 0 0 8px 0; font-size: 16px; }
-.rc-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-.rc-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.rc-left { display: flex; flex-direction: column; }
-.rc-label { font-weight: 600; }
-.rc-sub { font-size: 12px; color: #666; }
-.rc-right { flex: 1; }
-.rc-input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; }
-
-.rc-actions { display: flex; gap: 10px; margin-top: 12px; }
-.btn { padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; }
-.btn.primary { background: #1f7aec; border-color: #1f7aec; color: #fff; }
-
-.rc-alerts { margin-top: 12px; padding: 12px; background: #fff8e6; border: 1px solid #ffe08a; border-radius: 8px; }
-.rc-alerts ul { margin: 6px 0 0 16px; }
-
-.rc-footer { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid #eee; }
-
-/* keep your existing budget-card, header, grid, etc. */
-
+.ai-chip.conservative-saver     { background: #eefbf1; border-color: #c9f0d3; }
+.ai-chip.balanced-spender       { background: #f5f7ff; border-color: #dfe6ff; }
+.ai-chip.frequent-over-spender  { background: #fff5f4; border-color: #ffd9d6; }

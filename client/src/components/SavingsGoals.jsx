@@ -65,8 +65,10 @@
 // export default SavingsGoals;
 //------------------------------------------------------------------
 import React, { useEffect, useRef, useState } from "react";
+import { FiEdit2, FiTrash2} from "react-icons/fi";
 import { toast } from "react-toastify";
 import GoalDialog from "./GoalDialog.jsx";
+import ConfirmDialog from "./ConfirmDialog.jsx";
 import { createGoal, updateGoal, deleteGoal, listGoals } from "../api/budgetAPI.js";
 import "../styles/SavingsGoals.css";
 
@@ -86,7 +88,7 @@ const toPercent = (cur = 0, tgt = 0) => {
   return Math.max(0, Math.min(100, p));
 };
 
-const GoalItem = ({ goal, currency, onEdit, onDelete }) => {
+const GoalItem = ({ goal, currency, onEdit, onAskDelete }) => {
   const amountLeft = Math.max(0, (goal.target || 0) - (goal.current || 0));
   const progressPercent = toPercent(goal.current, goal.target);
 
@@ -95,9 +97,8 @@ const GoalItem = ({ goal, currency, onEdit, onDelete }) => {
       <div className="goal-header">
         <h4>{goal.name}</h4>
         <div className="goal-actions">
-          <button title="Update Progress" onClick={() => onEdit(goal)}>↻</button>
-          <button title="Edit Goal" onClick={() => onEdit(goal)}>✎</button>
-          <button title="Delete Goal" onClick={() => onDelete(goal.id)}>🗑️</button>
+          <button title="Edit Goal" onClick={() => onEdit(goal)}><FiEdit2 /></button>
+          <button title="Delete Goal" onClick={() => onAskDelete(goal)}><FiTrash2 /></button>
         </div>
       </div>
 
@@ -134,6 +135,10 @@ export default function SavingsGoals({ currency = "RM" }) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState("create"); // "create" | "edit"
   const [initial, setInitial] = useState({});
+
+  // Delete confirm state
+  const [openDelete, setOpenDelete] = useState(false);
+  const [deleting, setDeleting] = useState(null); // goal object being deleted
 
   // ✅ hooks that were outside must live here
   const scrollerRef = useRef(null);
@@ -210,15 +215,25 @@ export default function SavingsGoals({ currency = "RM" }) {
     setOpen(true);
   };
 
-  const removeGoal = async (id) => {
-    if (!window.confirm("Remove this goal?")) return;
+  // Open delete confirmation
+  const askDelete = (goal) => {
+    setDeleting(goal);
+    setOpenDelete(true);
+  };
+
+  // Confirm deletion (called by ConfirmDialog)
+  const confirmDelete = async () => {
+    if (!deleting) return;
     try {
-      await deleteGoal(id);
-      setItems((xs) => xs.filter((g) => g.id !== id));
-      toast.success("Goal removed.");
+      await deleteGoal(deleting.id);
+      setItems((xs) => xs.filter((g) => g.id !== deleting.id));
+      toast.success("Goal deleted.");
     } catch (e) {
       console.error(e);
-      toast.error(e?.response?.data?.error || "Failed to remove goal.");
+      toast.error(e?.response?.data?.error || "Failed to delete goal.");
+    } finally {
+      setOpenDelete(false);
+      setDeleting(null);
     }
   };
 
@@ -234,6 +249,7 @@ export default function SavingsGoals({ currency = "RM" }) {
         description: payload.description,
       };
       setItems((xs) => [created, ...xs]);
+      toast.success("Goal created");
     } else {
       const id = initial.id;
       const apiPayload = {
@@ -266,6 +282,7 @@ export default function SavingsGoals({ currency = "RM" }) {
             : g
         )
       );
+      toast.success("Goal updated");
     }
   };
 
@@ -273,7 +290,7 @@ export default function SavingsGoals({ currency = "RM" }) {
     <section className="savings-goals-section">
       <h3 className="section-title">My Savings Goals</h3>
 
-      {/* ✅ ref & onScroll belong on the opening tag */}
+      {/* Carousel */}
       <div
         className="goals-carousel"
         ref={scrollerRef}
@@ -300,12 +317,12 @@ export default function SavingsGoals({ currency = "RM" }) {
             goal={g}
             currency={currency}
             onEdit={startEdit}
-            onDelete={removeGoal}
+            onAskDelete={askDelete}
           />
         ))}
       </div>
 
-      {/* ✅ Clickable dots to scroll horizontally */}
+      {/* Paginator dots */}
       <div className="paginator">
         {items.map((_, i) => (
           <button
@@ -318,12 +335,28 @@ export default function SavingsGoals({ currency = "RM" }) {
         ))}
       </div>
 
+      {/* Create/Edit dialog */}
       <GoalDialog
         mode={mode}
         open={open}
         onClose={() => setOpen(false)}
         onSave={handleSave}
         initial={initial}
+      />
+
+      {/* Delete confirmation dialog */}
+      <ConfirmDialog
+        open={openDelete}
+        action="delete"
+        subject={deleting ? `"${deleting.name}"` : "this goal"}
+        variant="danger"
+        cancelText="Cancel"
+        confirmText="Confirm"
+        onCancel={() => {
+          setOpenDelete(false);
+          setDeleting(null);
+        }}
+        onConfirm={confirmDelete}
       />
     </section>
   );

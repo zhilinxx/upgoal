@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import '../styles/Expenses.css';
 
 /* ---------- Validation helpers (R1 & R2) ---------- */
 const amountOK = (v) => /^(\d{1,3}(,\d{3})*|\d+)(\.\d{1,2})?$/.test(String(v).trim());
@@ -161,7 +162,7 @@ export default function ExpenseDialog({
 
         <div className="modal-actions">
           <button className="btn" onClick={cancel}>Cancel</button>
-          <button className="btn primary" onClick={handleSave}>Save</button>
+          <button className="save-btn" onClick={handleSave}>Save</button>
         </div>
       </div>
     </div>

@@ -7,7 +7,6 @@ import { fetchDashboardData, postAlerts, postAdjustBudgets } from "../api/budget
 import BudgetSummary from "../components/BudgetSummary.jsx";
 import SavingsGoals from "../components/SavingsGoals.jsx";
 import ExpensesList from "../components/Expenses.jsx";
-import RuleControls from "../components/RuleControls.jsx";
 
 import "../styles/BudgetPlanner.css";
 

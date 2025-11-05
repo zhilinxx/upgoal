@@ -19,6 +19,10 @@
   margin: 0;
 }
 
+.commitment-title {
+  color: var(--text-color);
+}
+
 /* back button same style */
 .back-btn {
   background: none;
@@ -70,18 +74,19 @@
 /* Inputs & selects = insurance look */
 .income-form input,
 .income-form select {
-  background: #fff;
+  background: var(--section-bg);
   border: 1px solid #ccc;
   border-radius: 12px;
   padding: 10px;
   font-size: 14px;
-  color: #555;
+  color: var(--text-color);
   width: 100%;
   box-sizing: border-box;
 }
 .income-form label {
   font-weight: 500;
   margin-bottom: 4px;
+  color: var(--text-color);
 }
 
 /* === Other commitments row (name | amount | -) === */

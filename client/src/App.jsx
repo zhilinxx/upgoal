@@ -23,6 +23,7 @@ import InsuranceRecommendations from "./pages/insuranceRecommendations";
 import InsuranceProfileSetup from "./pages/insuranceProfileSetup";
 import AddInsurancePlan from "./pages/addInsurancePlan";
 import MonthlyExpenses from "./pages/MonthlyExpenses";
+import Settings from "./pages/settings";
 
 // ✅ Page titles for mobile header
 const PAGE_TITLES = {
@@ -361,6 +362,7 @@ function App() {
             <Route path="/verifyEmail" element={<VerifyEmail />} />
             <Route path="/forgotPassword" element={<ForgotPassword />} />
             <Route path="/resetPassword" element={<ResetPassword />} />
+            <Route path="/settings" element={<Settings />} />
 
             {/* Protected routes */}
             <Route

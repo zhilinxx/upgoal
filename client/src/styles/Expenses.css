@@ -23,9 +23,9 @@
     list-style: none;
     padding: 0;
     margin: 0;
-    background-color: white;
+    background-color: var(--section-bg);
     border-radius: 12px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 2px 5px var(--box-shadow);
 }
 
 .expense-item {
@@ -42,10 +42,23 @@
 
 .expense-name {
     font-weight: 500;
-    color: #555;
+    color: var(--text-color);
 }
 
 .expense-amount {
-    color: #333;
+    color: var(--text-color);
     font-weight: 600;
 }
+
+.save-btn {
+  width: 80px;
+  padding: 12px;
+  border: none;
+  border-radius: 30px;
+  background: var(--btn-color);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.save-btn:hover { background: var(--btn-hover); }

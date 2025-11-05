@@ -29,22 +29,21 @@ function BudgetSummary({ income, breakdown, currency }) {
         <Doughnut
           data={chartData}
           options={{
+            maintainAspectRatio: false,
             cutout: "70%",
             plugins: {
               legend: { display: false },
               tooltip: {
+                displayColors: false,
                 callbacks: {
-                  label: (ctx) => {
-                    let label = ctx.label || '';
-                    if (label) label += ': ';
-                    label += `${currency} ${ctx.formattedValue}`;
-                    return label;
-                  }
-                }
-              }
+                  title: () => "", // hide the auto title
+                  label: (ctx) => `${ctx.label}: ${currency} ${ctx.formattedValue}`,
+                },
+              },
             },
           }}
         />
+
         <div className="chart-center">
           <p className="chart-label">{monthLabel} Income</p>
           <h3 className="chart-amount">{currency} {Number(income || 0).toLocaleString()}</h3>
