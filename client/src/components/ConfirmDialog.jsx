@@ -54,7 +54,7 @@ export default function ConfirmDialog({
         <h3>Confirm</h3>
         <p style={{ marginTop: 6, color: "var(--text-color)" }}>{message ?? defaultMessage}</p>
 
-        <div className="modal-actions">
+        <div className="modal-actions" style={{ display:"flex", justifyContent:"center" }}>
           <button className="btn-cancel" onClick={onCancel}>
             {cancelText}
           </button>
