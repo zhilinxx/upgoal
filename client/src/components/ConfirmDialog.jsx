@@ -51,7 +51,7 @@ export default function ConfirmDialog({
       aria-label="Confirmation dialog"
     >
       <div className="modal-card">
-        <h3>Confirm</h3>
+        <h3 style={{color:"var(--main-pink)"}}>Confirm</h3>
         <p style={{ marginTop: 6, color: "var(--text-color)" }}>{message ?? defaultMessage}</p>
 
         <div className="modal-actions" style={{ display:"flex", justifyContent:"center" }}>
