@@ -1,19 +1,5 @@
 import React, { useEffect, useRef } from "react";
 
-/**
- * Reusable confirm dialog
- *
- * Props:
- * - open: boolean
- * - action: string                // e.g., "go back", "cancel", "save", "edit", "delete"
- * - subject?: string              // e.g., "3 selected expenses", "this goal", "changes"
- * - message?: ReactNode           // if provided, overrides the default "Do you confirm to ..."
- * - variant?: "default" | "danger"// "danger" colors the confirm button (for delete, etc.)
- * - confirmText?: string          // override confirm button text (default computed)
- * - cancelText?: string           // default "Cancel"
- * - onConfirm: () => void
- * - onCancel: () => void
- */
 export default function ConfirmDialog({
   open,
   action = "proceed",
@@ -37,10 +23,14 @@ export default function ConfirmDialog({
   const computedConfirmText =
     confirmText ||
     (variant === "danger"
-      ? (normalizedAction || "Delete").charAt(0).toUpperCase() + (normalizedAction || "delete").slice(1)
-      : (normalizedAction || "Confirm").charAt(0).toUpperCase() + (normalizedAction || "confirm").slice(1));
+      ? (normalizedAction || "Delete").charAt(0).toUpperCase() +
+        (normalizedAction || "delete").slice(1)
+      : (normalizedAction || "Confirm").charAt(0).toUpperCase() +
+        (normalizedAction || "confirm").slice(1));
 
-  const defaultMessage = `Do you confirm to ${normalizedAction}${subject ? ` ${subject}` : ""}?`;
+  const defaultMessage = `Do you confirm to ${normalizedAction}${
+    subject ? ` ${subject}` : ""
+  }?`;
 
   const onOverlayMouseDown = (e) => {
     if (e.target === e.currentTarget) onCancel?.();
@@ -62,12 +52,16 @@ export default function ConfirmDialog({
     >
       <div className="modal-card">
         <h3>Confirm</h3>
-        <p style={{ marginTop: 6 }}>{message ?? defaultMessage}</p>
+        <p style={{ marginTop: 6, color: "var(--text-color)" }}>{message ?? defaultMessage}</p>
 
         <div className="modal-actions">
-          <button className="btn" onClick={onCancel}> {cancelText} </button>
+          <button className="btn-cancel" onClick={onCancel}>
+            {cancelText}
+          </button>
           <button
-            className={`btn ${variant === "danger" ? "danger" : "primary"}`}
+            className={`btn-confirm ${
+              variant === "danger" ? "danger" : "primary"
+            }`}
             onClick={onConfirm}
             ref={confirmBtnRef}
           >
@@ -78,3 +72,4 @@ export default function ConfirmDialog({
     </div>
   );
 }
+

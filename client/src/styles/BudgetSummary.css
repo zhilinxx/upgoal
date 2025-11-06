@@ -1,87 +1,68 @@
+/* ===== Budget Summary (Chart + Legend) ===== */
+
+/* Side-by-side layout; stays side-by-side on mobile too */
 .budget-summary-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 10px 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
 }
 
-/* Doughnut Chart Styling */
+/* Chart column (slightly wider) */
 .doughnut-container {
-    width: 48%;
-    position: relative;
+  position: relative;
+  flex: 0 1 55%;
+  min-width: 0;
+  max-width: 100%;
 }
 
-.chart-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    padding: 5px;
-}
-
-.chart-label {
-    font-size: 0.8em;
-    color: #888;
-    margin: 0;
-}
-
-.chart-amount {
-    font-size: 1.2em;
-    font-weight: 700;
-    color: #333;
-    line-height: 1.2;
-    margin: 0;
-}
-
-/* Legend Area */
+/* Legend column */
 .legend-area {
-    width: 48%;
-    padding-top: 10px;
+  flex: 1 1 45%;
+  min-width: 0;
+  max-width: 100%;
+  padding-top: 10px;
 }
 
-.legend-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+/* Center overlay inside the ring (never overflow) */
+.chart-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 5px;
+  max-width: 70%;
+  width: 70%;
+  pointer-events: none;
 }
 
-.legend-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-    font-size: 0.9em;
-}
+/* Responsive text in the chart center */
+.chart-center .chart-label  { font-size: clamp(10px, 3.2vw, 12px); color: #999; margin: 0; }
+.chart-amount { font-size: clamp(16px, 6vw, 24px);  color: var(--text-color); font-weight: 700; line-height: 1.15; margin: 0; }
 
-.color-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 3px;
-    margin-right: 8px;
-    flex-shrink: 0;
-}
+/* Legend list */
+.legend-list { list-style: none; padding: 0; margin: 0; }
+.legend-item  { display: flex; align-items: center; margin-bottom: 10px; font-size: clamp(10px, 2.8vw, 14px); }
+.color-dot    { width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; flex-shrink: 0; }
+.legend-details { display: flex; justify-content: space-between; width: 100%; min-width: 0; }
+.legend-name  { color: var(--text-color); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.legend-value { color: var(--text-color); font-weight: 600; margin-left: auto; margin-inline-start: 12px; }
 
-.legend-details {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
-
-.legend-name {
-    color: #555;
-    font-weight: 500;
-}
-
-.legend-value {
-    color: #333;
-    font-weight: 600;
-    margin-left: auto;
-}
-
+/* Note text */
 .follow-text {
-    font-size: 0.8em;
-    color: #999;
-    margin-top: 15px;
-    border-top: 1px dashed #ddd;
-    padding-top: 10px;
+  font-size: clamp(9px, 2.5vw, 12px);
+  color: #999;
+  margin-top: 15px;
+  border-top: 1px dashed #ddd;
+  padding-top: 10px;
+}
+
+/* Media safety */
+canvas, img, svg, video { max-width: 100%; height: auto; display: block; }
+
+/* Slight compaction for very narrow phones */
+@media (max-width: 420px) {
+  .doughnut-container { flex-basis: 52%; }
+  .legend-area        { flex-basis: 48%; }
 }

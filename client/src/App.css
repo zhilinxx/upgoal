@@ -2,7 +2,7 @@
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
-  background: var(--bg-light-color);
+  background: var(--bg-color);
   color: #333;
   height: 100%;
   bottom: 0;
@@ -40,7 +40,7 @@ body input:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
+  background: var(--section-bg);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   padding: 12px 24px;
   position: sticky;
@@ -92,7 +92,7 @@ body input:focus {
 
 .top-nav a {
   text-decoration: none;
-  color: #333;
+  color: var(--text-color);
   font-weight: 600;
   padding: 8px 12px;
   border-radius: 6px;
@@ -254,7 +254,7 @@ body input:focus {
   text-align: center;
   font-weight: 600;
   font-size: 1.1rem;
-  color: #333;
+  color: var(--text-color);
 }
 
 .admin-profile-menu {
@@ -406,6 +406,50 @@ label {
     display: none; /* hide on desktop since logo already shows */
   }
 
+}
+
+/* Cancel button */
+.btn-cancel {
+  border: 1.5px solid var(--btn-border);
+  border-radius: 30px;
+  background: white;
+  color: var(--btn-border);
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-right: 10px;
+}
+
+.btn-cancel:hover {
+  background: var(--btn-border);
+  color: whitesmoke;
+  border-color: var(--btn-border);
+}
+
+/* Confirm button */
+.btn-confirm {
+  border: none;
+  border-radius: 30px;
+  background: var(--btn-border);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  padding: 8px 18px;
+}
+
+/* Confirm button hover */
+.btn-confirm:hover {
+  opacity: 0.8;
+}
+
+/* Danger variant */
+.btn-confirm.danger {
+  background: #d9534f;
+}
+
+.btn-confirm.danger:hover {
+  background: #c9302c;
 }
 
 

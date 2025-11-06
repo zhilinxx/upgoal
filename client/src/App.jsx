@@ -25,6 +25,7 @@ import AddInsurancePlan from "./pages/addInsurancePlan";
 import MonthlyExpenses from "./pages/MonthlyExpenses";
 import InsurancePlanDetails from "./pages/planDetails";
 import FavouriteList from "./pages/insuranceFavouriteList";
+import Settings from "./pages/settings";
 import ComparePlan from "./pages/comparePlan";
 
 // ✅ Page titles for mobile header
@@ -368,6 +369,7 @@ function App() {
             <Route path="/resetPassword" element={<ResetPassword />} />
             <Route path="/plan/:planId" element={<InsurancePlanDetails />} />
             <Route path="/favouriteList" element={<FavouriteList />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/comparePlans" element={<ComparePlan />} />
 
             {/* Protected routes */}

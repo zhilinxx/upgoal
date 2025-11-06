@@ -1,37 +1,35 @@
 /* section title spacing */
 .section-title {
-  font-size: 32px;
-  font-weight: 700;
-  margin: 8px 0 16px;
+  font-size: 1.0em;
+  font-weight: 600;
+  margin: 0;
 }
 
-/* NEW: prevent page-level horizontal scroll */
+/* Prevent page-level horizontal scroll */
 .savings-goals-section {
   max-width: 100%;
-  overflow-x: hidden;           /* ⬅️ stops body/page from scrolling sideways */
+  overflow-x: hidden;
 }
 
-/* horizontal scroller container */
+/* -------- Horizontal scroller container -------- */
 .goals-carousel {
   position: relative;
   display: flex;
   gap: 18px;
-  overflow-x: auto;             /* ⬅️ only this scrolls horizontally */
-  overflow-y: hidden;           /* ⬅️ avoid vertical bounce affecting width */
-  max-width: 100%;              /* ⬅️ never exceed the page width */
+  overflow-x: auto;             /* only this scrolls horizontally */
+  overflow-y: hidden;
+  max-width: 100%;
+  min-width: 0;                 /* ✅ allow shrink */
   padding: 6px 6px 14px 6px;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
-  /* hide scrollbars (visual only) */
   -ms-overflow-style: none;     /* IE/Edge */
   scrollbar-width: none;        /* Firefox */
 }
-.goals-carousel::-webkit-scrollbar {  /* Chrome/Safari/Opera */
-  display: none;
-}
+.goals-carousel::-webkit-scrollbar { display: none; } /* Chrome/Safari/Opera */
 
-/* left vertical pill (Add Another Goal) */
+/* -------- Left vertical pill (Add Another Goal) -------- */
 .add-goal-box {
   flex: 0 0 56px;               /* fixed narrow rail */
   position: sticky;
@@ -45,53 +43,56 @@
   justify-content: center;
 
   border-radius: 999px;
-  background: linear-gradient(180deg, #eef7f1 0%, #ffecef 100%);
+  background: linear-gradient(180deg, #e4faef 0%, #f7dfeb 100%);
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   user-select: none;
   cursor: pointer;
   padding: 8px 0;
 
-  /* make sure taps/clicks fire immediately on mobile */
   touch-action: manipulation;
   pointer-events: auto;
 
-  /* NEW: ensure borders/padding don’t push width */
-  box-sizing: border-box;
+  box-sizing: border-box;       /* borders/padding don’t push width */
   flex-shrink: 0;
 }
-
+.add-goal-box:hover {
+  opacity: 0.8;
+  background: linear-gradient(180deg, #e4faef 0%, #f7dfeb 100%);
+}
 .add-goal-icon {
   font-size: 22px;
   line-height: 1;
   color: #222;
   margin-bottom: 8px;
-  border: none;                 /* remove old circle border */
+  border: none;
 }
-
 .add-goal-label {
   font-size: 12px;
   color: #666;
   white-space: nowrap;
-  writing-mode: vertical-rl;    /* vertical text like screenshot */
+  writing-mode: vertical-rl;
   transform: rotate(180deg);
 }
 
-/* individual goal card */
+/* -------- Individual goal card -------- */
 .goal-card {
   scroll-snap-align: start;
   flex: 0 0 min(640px, 92vw);
 
-  background: #fff;
+  background: var(--section-bg);
   border: 2px solid #ffb6c1;   /* soft pink outline */
   border-radius: 22px;
   padding: 16px 18px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  box-shadow: 0 2px 10px var(--box-shadow);
 
-  /* NEW: keep card within scroller width no matter content */
   box-sizing: border-box;       /* include padding/border in width */
   flex-shrink: 0;               /* don’t shrink; they slide */
   overflow: hidden;             /* clip inner overflow */
   word-break: break-word;       /* long text won’t force widen */
+
+  /* ✅ never cause horizontal overflow */
+  max-width: 100%;
+  min-width: 0;
 }
 
 /* header row: title + actions */
@@ -101,17 +102,15 @@
   justify-content: space-between;
   margin-bottom: 6px;
 }
-
 .goal-header h4 {
   font-size: 20px;
   font-weight: 700;
-  color: #222;
+  color: var(--text-color);
   margin: 0;
   display: flex;
   align-items: center;
   gap: 6px;
 }
-
 .goal-actions button {
   background: transparent;
   border: none;
@@ -120,25 +119,22 @@
   cursor: pointer;
   padding: 4px;
 }
-.goal-actions button:hover { opacity: 0.85; }
+.goal-actions button:hover { opacity: 0.75; color: #ff8ea1; background: transparent;}
 
-/* amount row */
+/* -------- Amount row -------- */
 .goal-progress-text {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  gap: 8px;                     /* ✅ helps wrapping on small widths */
+  flex-wrap: wrap;              /* ✅ allow wrap */
   margin: 8px 0 8px;
   font-size: 16px;
-  color: #333;
+  color: var(--text-color);
 }
-
-.current-amount {
-  font-weight: 600;
-  margin-right: 6px;
-}
-
+.current-amount { font-weight: 600; margin-right: 6px; }
 .amount-left {
-  color: #59b25a;       /* green like screenshot */
+  color: #59b25a;
   font-weight: 700;
   margin-left: auto;
 }
@@ -158,17 +154,24 @@
 }
 
 /* deadline line */
-.goal-deadline {
-  font-size: 15px;
-  color: #555;
-  margin-top: 6px;
-}
-.goal-deadline .date {
-  color: #e26076;       /* red/pink date accent */
-  font-weight: 600;
-}
+.goal-deadline { font-size: 15px; color: #999; margin-top: 6px; }
+.goal-deadline .date { color: #e26076; font-weight: 600; }
 
-/* paginator: long pink pill (first dot) + small black dots */
+/* Save btn (unchanged) */
+.save-btn {
+  width: 80px;
+  padding: 12px;
+  border: none;
+  border-radius: 30px;
+  background: var(--btn-color);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.save-btn:hover { background: var(--btn-hover); }
+
+/* -------- Paginator -------- */
 .paginator {
   display: flex;
   justify-content: center;
@@ -192,19 +195,61 @@
   opacity: 1;
 }
 
-/* small screens */
+/* -------- Small screens -------- */
+@media (max-width: 480px) {
+  .amount-left {
+    flex-basis: 100%;           /* ✅ move to next line if tight */
+    text-align: right;
+    margin-left: 0;
+  }
+}
 @media (max-width: 420px) {
   .goal-card { flex-basis: 92vw; }
 }
+@media (max-width: 768px) {
+  /* Disable sticky so the rail won’t sit on top of the card border */
+  .add-goal-box {
+    position: static;           /* ✅ no overlap on small screens */
+    width: 48px;
+    min-width: 48px;
+  }
+  .goal-card {
+    flex: 0 0 100%;             /* card uses the full track width */
+  }
+}
 
-/* Overlay modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:9999;}
-.modal-card{width:min(480px,92vw);background:#fff;border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+/* -------- Media elements safety (global-safe) -------- */
+img, canvas, svg, video { max-width: 100%; height: auto; display: block; }
+
+/* -------- Modal styles (unchanged) -------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+.modal-card {
+  width: clamp(320px, 92vw, 720px);
+  max-height: 90vh;
+  overflow: auto;
+  background: var(--bg-color);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
 .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .modal-card h3{margin:0}
-.modal-card label{display:block;font-size:.9rem;margin-top:10px;margin-bottom:4px}
-.modal-card input,.modal-card textarea{width:100%;padding:10px;border:1px solid #e3e3e3;border-radius:10px}
+.modal-card label{display:block;font-size:.9rem;margin-left:20px;margin-top:10px;margin-bottom:4px;text-align:left;color: var(--text-color);}
+.modal-card input,.modal-card textarea{width:90%;padding:10px;border:1px solid #e3e3e3;border-radius:10px;background: var(--section-bg); color:var(--text-color);}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
-.btn{border:none;border-radius:999px;padding:8px 14px;background:#eee;cursor:pointer}
-.btn.primary{background:#f5a08e;color:#fff}
 .req{color:#f66}
+@media (max-width: 480px) {
+  .modal-card { width: 100%; max-height: 92vh; border-radius: 14px; padding: 14px; }
+}
+@media (min-width: 1200px) {
+  .modal-card { width: clamp(420px, 46vw, 820px); padding: 22px; }
+}

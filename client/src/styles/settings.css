@@ -1,0 +1,169 @@
+/* Title row spacing (sits above the card list) */
+.settings-page-title {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto 8px;
+  padding: 0 4px;
+  text-align: center;   
+}
+
+.settings-page-title h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--main-pink);  
+  text-align: center;
+  margin: 10px 0 10px 0;       
+}
+
+/* Outer container */
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 80vh;
+  margin: auto;
+  padding: 20px;
+}
+
+/* Cards wrapper */
+.settings-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 12px;                 
+  margin-bottom: 15px;
+}
+
+/* Individual card/section */
+.settings-section {
+  flex: 1 1 300px;
+  border-radius: 15px;
+  padding: 20px;
+  background-color: var(--section-bg);
+  border: 1px solid var(--section-border);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Section header row (title + chevron) */
+.settings-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.settings-chevron-icon {
+  color: var(--main-pink);
+}
+
+/* Divider inside a section */
+.settings-container hr {
+  height: 2px;
+  border: none;
+  margin: 12px 0;
+  background-color: var(--light-pink);
+}
+
+/* Headings & text inside Settings */
+.settings-container h3 {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 15px;
+  text-align: start;
+  margin: 0;
+  width: max-content;
+}
+.settings-container p {
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 14px;
+  margin: 6px 0 0 0;
+  text-align: start;
+}
+
+/* Section body */
+.settings-section-content {
+  margin-top: 10px;
+  color: var(--text-color);
+}
+
+/* ===== THEME RADIO BUTTONS ===== */
+.settings-radio-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* radio input */
+.settings-radio-row input[type="radio"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--main-pink);
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+/* remove the site-wide focus border/shadow that makes a square */
+.settings-radio-row input[type="radio"]:focus,
+.settings-radio-row input[type="radio"]:focus-visible,
+.settings-radio-row input[type="radio"]:-moz-focusring {
+  outline: none !important;
+  box-shadow: none !important;
+  border: 1px solid var(--main-pink) !important; /* keep your circular border */
+}
+
+/* hover effect */
+.settings-radio-row input[type="radio"]:hover {
+  box-shadow: 0 0 4px var(--main-pink);
+  transform: scale(1.05);
+}
+
+/* checked fill */
+.settings-radio-row input[type="radio"]:checked::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--main-pink);
+  transform: translate(-50%, -50%);
+}
+
+/* dark theme glow */
+:root[data-theme="dark"] .settings-radio-row input[type="radio"]:checked::before {
+  box-shadow: 0 0 6px var(--main-pink);
+}
+
+/* inline label styling */
+.settings-inline-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+/* ===== RESPONSIVE ===== */
+.settings-page-title,
+.settings-section {
+  flex: 0 0 100%;
+}
+
+/* Hide the Settings title on mobile */
+@media (max-width: 768px) {
+  .settings-page-title {
+    display: none;
+  }
+}
+
+
+
+
+
+
