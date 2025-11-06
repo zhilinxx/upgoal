@@ -35,20 +35,6 @@
   color: var(--main-pink);
 }
 
-.back-btn {
-  background: none;
-  border: none;
-  margin: 0;
-  padding-left: 10px;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: var(--main-pink);
-}
-
-.back-btn:hover {
-    background: none;
-}
-
 .input-group {
   margin-bottom: 15px;
   display: flex;
@@ -63,52 +49,6 @@
 
 .input-row .input-group {
     flex: 1;
-}
-
-input {
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  padding: 10px;
-  font-size: 14px;
-  color: #555;
-}
-
-select {
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  padding: 10px;
-  padding-right: 20px;
-  font-size: 14px; 
-  color: #555;
-}
-
-label {
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-
-.required {
-  color: red;
-  margin-left: 2px;
-  font-size: larger;
-}
-
-.save-btn {
-  width: 80px;
-  padding: 12px;
-  border: none;
-  border-radius: 30px;
-  background: var(--btn-color);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.save-btn:hover {
-  background: var(--btn-hover);
 }
 
 @media (max-width: 768px) {

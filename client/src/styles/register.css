@@ -95,12 +95,6 @@
   font-size: 13px;
 }
 
-.validation {
-  color: var(--error-msg);
-  font-size: 13px;
-  margin-bottom: 0px;
-}
-
 /* Login text */
 .login-text {
   font-size: 13px;

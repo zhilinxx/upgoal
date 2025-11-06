@@ -22,19 +22,7 @@
   margin-bottom: 15px;
 }
 
-/* .profile-inner .profile-section {
-  flex: 1;
-  height: max-content;
-  border-radius: 12px;
-  padding: 20px;
-  background-color: white;
-  height:;
-} */
-
 .profile-inner .profile-section {
-  /* display: flex;
-  flex-direction: column;
-  justify-content: stretch; */
   flex: 1 1 300px;
   border-radius: 15px;
   padding: 20px;
@@ -123,20 +111,6 @@
 
 .edit-btn {
   margin-top: 20px;
-  background: var(--btn-color);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-weight: 600;
-  border-radius: 30px;
-  align-items: center;
-  gap: 8px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.edit-btn:hover {
-  background: var(--btn-hover);
 }
 
 .loading {
@@ -182,5 +156,16 @@
 
   .profile-container h2{
     display: none;
+  }
+  .input-group input,
+  .input-group select {
+    font-size: 12px;
+  }
+  .profile-container h3 {
+    font-size: 14px;
+  }
+  .logout-btn {
+    padding: 12px 18px;
+    font-size: 14px;
   }
 }

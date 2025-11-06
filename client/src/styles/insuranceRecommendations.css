@@ -21,6 +21,7 @@ h2 {
   gap: 20px;
 }
 
+
 @media (max-width: 768px) {
   .insurance-content {
     display: block;
@@ -195,7 +196,7 @@ h2 {
   transition: transform 0.25s, box-shadow 0.25s;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .insurance-card:hover {
@@ -203,22 +204,28 @@ h2 {
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
 }
 
-.insurance-header {
+.insurance-card-header h3 {
+  margin: 0;
+  font-size: 16px;
+  text-align: start;
+}
+
+.insurance-card-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 15px;
 }
 
-.insurance-header h3 {
-  font-size: 16px;
+.insurance-card-content h3 {
+  font-size: 14px;
   color: var(--black-text);
   margin-bottom: 0px;
   margin-top: 0;
   text-align: start;
 }
 
-.insurance-header img {
+.insurance-card-content img {
   width: 100px;
   height: 50px;
   object-fit: contain;
@@ -239,11 +246,12 @@ h2 {
   text-align: start;
 }
 
-.score {
-  align-self: flex-end;
+.insurance-card-content .score {
+  align-self: flex-start;
   margin-top: 8px;
   font-weight: 600;
   color: #e74c3c;
+  width: 100px;
 }
 
 /* 🧭 Top Bar (Mobile) */
@@ -353,16 +361,6 @@ h2 {
   }
 }
 
-.close-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: transparent;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
 /* 🎯 Floating Compare Button (Mobile) */
 .compare-btn {
   position: fixed;
@@ -395,4 +393,84 @@ h2 {
 
 .setup-btn:hover {
   opacity: 0.85;
+}
+
+
+.compare-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.compare-dialog {
+  background: var(--bg-light-color);
+  border-radius: 20px;
+  padding: 30px;
+  width: 100%;
+  margin: 20px;
+  max-width: 400px;
+  text-align: left;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease;
+}
+
+.choose-plan-type {
+  margin-right: 10px;
+  font-weight: 600;
+  color: var(--black-text);
+}
+
+.compare-dialog p {
+  margin-bottom: 0;
+}
+
+.compare-dialog .validation {
+  margin-top: 5px;
+}
+
+.compare-plan-list {
+  margin: 1rem 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.plan-option {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--black-text);
+}
+
+.compare-actions {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.compare-dialog .dialog-compare-btn {
+  bottom: 20px;
+  margin: 10px;
+  background: var(--btn-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-weight: 600;
+  border-radius: 30px;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.compare-dialog .dialog-compare-btn:hover {
+  background: var(--btn-hover);
+}
+
+@media (max-width: 768px) {
+  .compare-dialog .dialog-compare-btn {
+    font-size: 13px;
+  }
 }

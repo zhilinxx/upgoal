@@ -16,8 +16,9 @@
 .fav-title {
   text-align: center;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   color: var(--main-pink);
+  margin-top: 10px;
 }
 
 .fav-controls {
@@ -32,7 +33,7 @@
 
 .fav-sort {
   padding: 6px 12px;
-  border-radius: 10px;
+  border-radius: 25px;
   border: 1px solid #ccc;
   background: #fff;
   font-size: 15px;
@@ -60,7 +61,7 @@
 }
 
 .trash-icon {
-  color: #e57373;
+  color: var(--main-pink);
   font-size: 1.3em;
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -80,6 +81,7 @@
 
 .fav-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
   padding: 12px;
@@ -89,8 +91,16 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.fav-card-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
 .fav-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
 }
 
@@ -109,9 +119,10 @@
   text-align: left;
 }
 
-.fav-info h4 {
+.fav-header h4 {
   font-size: 1em;
-  margin: 0;
+  margin: 0px;
+  margin-bottom: 10px;
   color: var(--black-text);
 }
 
@@ -128,13 +139,11 @@
 .fav-info .sum-assured {
   font-weight: 600;
   color: var(--main-pink);
-    font-size: 15px;
+    font-size: 14px;
 }
 
-.fav-info .premium {
-  color: var(--main-pink);
-  font-weight: 600;
-  font-size: 16px;
+.fav-side {
+  margin-bottom: 5px;
 }
 
 .fav-side p{
@@ -143,15 +152,19 @@
   font-size: 14px;
 }
 
+
+
 .fav-side .score{
   color: var(--main-pink);
   font-size: 15px;
+  font-weight: 600;
 }
 
 .fav-actions {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-bottom: 30px;
   gap: 5px;
 }
 
@@ -181,5 +194,8 @@
   }
   .fav-header .back-btn {
     display: none;
+  }
+  .fav-sort {
+    font-size: 13px;
   }
 }

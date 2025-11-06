@@ -43,6 +43,8 @@ async function calculatePlanScore(plan, profile, sumMax, taxRelief) {
     score = Math.max(0, 100 - Math.floor(diff / 5)); // 1% for every RM5
   }
 
+  let premiumNoTax = finalPremium;
+  let premiumWithTax = Math.max(0, finalPremium - 250);
   // ✅ Apply tax relief if needed
   if (taxRelief === "true") {
     finalPremium = Math.max(0, finalPremium - 250);
@@ -51,6 +53,8 @@ async function calculatePlanScore(plan, profile, sumMax, taxRelief) {
   return {
     score,
     finalPremium: Number(finalPremium.toFixed(2)),
+    premiumNoTax: Number(premiumNoTax),
+    premiumWithTax: Number(premiumWithTax),
     adjustedSumAssured,
     riskLevel,
   };
@@ -87,6 +91,8 @@ export const getInsuranceRecommendations = async (req, res) => {
           adjustedSumAssured: calc.adjustedSumAssured,
           score: calc.score,
           riskLevel: calc.riskLevel,
+          premiumWithTax: calc.premiumWithTax,
+          premiumNoTax: calc.premiumNoTax,
         };
       })
     );
@@ -154,6 +160,8 @@ export const getPlanScore = async (req, res) => {
     res.json({
       planId,
       finalPremium: calc.finalPremium,
+      premiumWithTax: calc.premiumWithTax,
+      premiumNoTax: calc.premiumNoTax,
       score: calc.score,
       adjustedSumAssured: calc.adjustedSumAssured,
       riskLevel: calc.riskLevel

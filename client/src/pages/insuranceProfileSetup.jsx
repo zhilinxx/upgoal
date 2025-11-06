@@ -3,16 +3,46 @@ import { useNavigate } from "react-router-dom";
 import { FaChevronLeft } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { getInsuranceProfile, saveInsuranceProfile } from "../api/insuranceAPI";
+import ConfirmDialog from "../components/ConfirmDialog.jsx";
 import "../styles/InsuranceProfileSetup.css";
 
 export default function InsuranceProfileSetup() {
   const navigate = useNavigate();
   const handleBack = () => {
-    navigate(-1); // Go back to previous page
+    setOpenCancelConfirm(true);
   };
 
-  const userId = localStorage.getItem("userId");
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = ""; // Required for Chrome
+    };
 
+    const handlePopState = (e) => {
+      e.preventDefault();
+      setOpenCancelConfirm(true);
+      window.history.pushState(null, "", window.location.href);
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+
+    // prevent immediate back
+    window.history.pushState(null, "", window.location.href);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
+  const userId = localStorage.getItem("userId");
+  const [heightValidation, setHeightValidation] = useState("");
+  const [weightValidation, setWeightValidation] = useState("");
+  const [cholesterolValidation, setCholesterolValidation] = useState("");
+  const [bdayValidation, setBdayValidation] = useState("");
+  const [openSaveConfirm, setOpenSaveConfirm] = useState(false);
+  const [openCancelConfirm, setOpenCancelConfirm] = useState(false);
   const mapFrequencyToText = (num) => {
     switch (parseInt(num)) {
       case 0: return "Never";
@@ -106,7 +136,11 @@ export default function InsuranceProfileSetup() {
     } catch (err) {
       console.error(err);
       if (err.response && err.response.status === 400) {
-        toast.error(err.response.data.message || "Invalid data. Please check your inputs.");
+        if(err.response.data.message == "Invalid birth date (must be 18–70 years old)"){
+          setBdayValidation("Invalid birth date (must be 18–70 years old)");
+        } else {
+          toast.error(err.response.data.message || "Invalid data. Please check your inputs.");
+        }
       } else {
         toast.error("Failed to save profile. Please try again later.");
       }
@@ -121,7 +155,34 @@ export default function InsuranceProfileSetup() {
         </button>
         <h2>Insurance Profile Setup</h2>
       </div>
+      <ConfirmDialog
+        open={openSaveConfirm}
+        action="save"
+        subject="your insurance profile"
+        message="Do you confirm to save your insurance profile changes?"
+        confirmText="Yes, Save"
+        cancelText="Cancel"
+        onCancel={() => setOpenSaveConfirm(false)}
+        onConfirm={() => {
+          setOpenSaveConfirm(false);
+          handleSave(new Event("submit"));
+        }}
+      />
 
+      <ConfirmDialog
+        open={openCancelConfirm}
+        action="discard"
+        subject="your unsaved changes"
+        message="Do you confirm to discard your unsaved changes and go back?"
+        variant="danger"
+        confirmText="Discard"
+        cancelText="Cancel"
+        onCancel={() => setOpenCancelConfirm(false)}
+        onConfirm={() => {
+          setOpenCancelConfirm(false);
+          navigate(-1);
+        }}
+      />
       <form onSubmit={handleSave} className="insurance-form">
         {/* Left column */}
         <div className="form-grid">
@@ -144,6 +205,7 @@ export default function InsuranceProfileSetup() {
                 onChange={handleChange}
                 required
               />
+              {bdayValidation && <p className="validation">{bdayValidation}</p>}
             </div>
 
             <div className="input-group">
@@ -152,12 +214,23 @@ export default function InsuranceProfileSetup() {
                 type="number"
                 name="height"
                 value={formData.height}
-                onChange={handleChange}
+                // onChange={handleChange}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value);
+                  handleChange(e);
+
+                  if (value < 100 || value > 250) {
+                    setHeightValidation("Invalid input, the height is not logical.");
+                  } else {
+                    setHeightValidation("");
+                  }
+                }}
                 step="0.01"
                 min="100"
                 max="250"
                 required
               />
+              {heightValidation && <p className="validation">{heightValidation}</p>}
             </div>
 
             <div className="input-group">
@@ -166,12 +239,22 @@ export default function InsuranceProfileSetup() {
                 type="number"
                 name="weight"
                 value={formData.weight}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value);
+                  handleChange(e);
+
+                  if (value < 30 || value > 250) {
+                    setWeightValidation("Invalid input, the weight is not logical.");
+                  } else {
+                    setWeightValidation("");
+                  }
+                }}
                 step="0.01"
                 min="30"
                 max="250"
                 required
               />
+              {weightValidation && <p className="validation">{weightValidation}</p>}
             </div>
 
             <div className="input-group">
@@ -238,12 +321,22 @@ export default function InsuranceProfileSetup() {
                 type="number"
                 name="cholesterol"
                 value={formData.cholesterol}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  handleChange(e);
+
+                  if (value < 100 || value > 400) {
+                    setCholesterolValidation("Invalid input, the height is not logical.");
+                  } else {
+                    setCholesterolValidation("");
+                  }
+                }}
                 step="1"
                 min="100"
                 max="400"
                 required
               />
+              {cholesterolValidation && <p className="validation">{cholesterolValidation}</p>}
             </div>
 
             <div className="input-group">
@@ -286,7 +379,13 @@ export default function InsuranceProfileSetup() {
           </div>
         </div>
 
-        <button className="save-btn" type="submit">Save</button>
+        <button
+          type="button"
+          className="save-btn"
+          onClick={() => setOpenSaveConfirm(true)}
+        >
+          Save
+        </button>
       </form>
     </div>
   );

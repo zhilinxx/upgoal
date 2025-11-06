@@ -53,7 +53,6 @@
 
 .plan-header .suitability-score{
   margin: 0;
-  font-size: 16px;
   color: var(--black-text);
   border-radius: 15px;
   padding: 10px 15px;
@@ -225,5 +224,10 @@ input:checked + .slider:before {
   }
   .plan-info {
     padding: 0;
+  }
+  .plan-header .provider-logo {
+    max-width: 160px;
+    max-height: 80px;
+    margin-bottom: 5px;
   }
 }
