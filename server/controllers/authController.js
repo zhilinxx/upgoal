@@ -39,10 +39,10 @@ export const register = async (req, res) => {
     );
 
     // Send verification email
-    const verifyLink = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}`;
+    const verifyLink = `${process.env.CLIENT_URL}/verifyEmail?token=${verificationToken}`;
     await sendEmail(email, "Verify Your Email", `Click the link below to verify. This link will expired after 15 mins. \n ${verifyLink}`);
 
-    res.json({ message: "Verification email sent" });
+    res.json({ message: "Verification email sent. Please check you inbox or spam email, you can login after verified." });
   } catch (error) {
     console.error("Register Error:", error);
     res.status(500).json({ message: "Error Occurred" });
@@ -80,7 +80,7 @@ export const resendVerification = async (req, res) => {
     }
 
     const token = createToken({ email }, "1d");
-    const verifyLink = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
+    const verifyLink = `${process.env.CLIENT_URL}/verifyEmail?token=${token}`;
     await sendEmail(email, "Verify your email", `Click the link below to verify. This link will expired after 15 mins. \n ${verifyLink}`);
 
     res.json({ message: "New verification link sent" });
@@ -200,10 +200,10 @@ export const forgotPassword = async (req, res) => {
   if (rows.length === 0) return res.status(400).json({ message: "Email not found" });
 
   const token = createToken({ email }, "10m");
-  const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
+  const resetLink = `${process.env.CLIENT_URL}/resetPassword?token=${token}`;
   await sendEmail(email, "Reset Password", `Click to reset your password: ${resetLink}`);
 
-  res.json({ message: "Reset password email sent" });
+  res.json({ message: "Reset password email verification sent. Please check your inbox or spam" });
 };
 
 // ✅ Reset Password

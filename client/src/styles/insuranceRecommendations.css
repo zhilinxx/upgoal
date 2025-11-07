@@ -1,26 +1,15 @@
-/* 🌸 General Layout */
+
 .insurance-container {
   padding: 30px;
-  font-family: "Poppins", sans-serif;
-  background-color: #fff8f9;
+  background-color: var(--bg-color);
   min-height: 100vh;
-  color: #333;
 }
 
-h2 {
-  font-weight: 600;
-  color: #e04f5f;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-/* 🧭 Desktop Layout: Sidebar + List */
 .insurance-content {
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 20px;
 }
-
 
 @media (max-width: 768px) {
   .insurance-content {
@@ -54,7 +43,7 @@ h2 {
   font-weight: 500;
   font-size: 15px;
   text-align: start;
-  color: var(--black-text);
+  color: var(--text-color);
 }
 
 .range-group {
@@ -72,12 +61,10 @@ h2 {
   border-radius: 10px;
   border: 1px solid #ddd;
   outline: none;
+  background: var(--input-bg);
+  color: var(--input-text);
   font-size: 0.9rem;
   transition: border-color 0.2s;
-}
-
-.range-group input:focus {
-  border-color: #e67e22;
 }
 
 .plan-types {
@@ -94,7 +81,7 @@ h2 {
   border-radius: 12px;
   border: 1px solid var(--light-pink);
   background: var(--light-pink);
-  color: var(--black-text);
+  color: var(--text-color);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
@@ -107,7 +94,7 @@ h2 {
 
 .plan-types button.active {
   background: var(--light-pink);
-  color: var(--black-text);
+  color: var(--text-color);
   font-weight: 500;
   border: 1px solid;
 }
@@ -119,6 +106,8 @@ h2 {
   border-radius: 10px;
   border: 1px solid #ddd;
   font-size: 0.9rem;
+  background: var(--input-bg);
+  color: var(--text-color);
   outline: none;
   margin-bottom: 5px;
 }
@@ -170,7 +159,7 @@ h2 {
 
 .record-line {
   width: 100%;
-  color: var(--black-text);
+  color: var(--text-color);
   margin: 0;
 }
 
@@ -189,7 +178,7 @@ h2 {
 }
 
 .insurance-card {
-  background: linear-gradient(135deg, #ffe3e3, #e8ffe9);
+  background: var(--light-gradient);
   border-radius: 16px;
   padding: 18px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.07);
@@ -219,7 +208,7 @@ h2 {
 
 .insurance-card-content h3 {
   font-size: 14px;
-  color: var(--black-text);
+  color: var(--text-color);
   margin-bottom: 0px;
   margin-top: 0;
   text-align: start;
@@ -241,7 +230,7 @@ h2 {
 
 .detail {
   font-size: 14px;
-  color: var(--black-text);
+  color: var(--text-color);
   margin: 0px;
   text-align: start;
 }
@@ -250,7 +239,7 @@ h2 {
   align-self: flex-start;
   margin-top: 8px;
   font-weight: 600;
-  color: #e74c3c;
+  color: var(--score);
   width: 100px;
 }
 
@@ -269,18 +258,22 @@ h2 {
 
 /* 📱 Active Mobile Button Styles */
 .top-bar button.active {
-  background: linear-gradient(135deg, #ffe3e3, #e8ffe9);
+  background: var(--light-gradient);
   color: var(--main-pink);
 }
 
 .top-bar button:not(.active) {
-  background: #fff;
+  background: var(--input-bg);
   color: var(--main-pink);
+}
+
+.filter-btn {
+  display: flex;
 }
 
 .filter-btn,
 .all-btn {
-  background: linear-gradient(135deg, #ffe3e3, #e8ffe9); 
+  background: var(--light-gradient); 
   border: 1px solid var(--light-pink);
   border-radius: 25px;
   padding: 8px 16px;
@@ -291,14 +284,16 @@ h2 {
 }
 
 .all-btn:hover {
-  background: linear-gradient(135deg, #ffe3e3, #e8ffe9);
+  background: var(--light-gradient);
 }
 
 .sort-select {
   padding: 8px;
   border-radius: 25px;
   border: 1px solid #ddd;
-  font-size: 0.9rem;
+  background: var(--input-bg);
+  color: var(--input-text);
+  font-size: 15px;
 }
 
 /* 📱 Filter Modal (Mobile) */
@@ -319,7 +314,7 @@ h2 {
   display: flex;
   flex-direction: column;
   margin: 20px;
-  background-color: var(--bg-light-color);
+  background-color: var(--bg-color);
   border-radius: 18px;
   width: 90%;
   max-width: 400px;
@@ -336,6 +331,7 @@ h2 {
 .filter-box select, .filter-box input {
   font-size: 13px;
   padding: 5px 8px;
+  
 }
 
 .filter-box label{
@@ -343,7 +339,7 @@ h2 {
   font-weight: 500;
   font-size: 13px;
   text-align: start;
-  color: var(--black-text);
+  color: var(--text-color);
 }
 
 .filter-box label select {
@@ -378,8 +374,7 @@ h2 {
   transform: scale(1.05);
 }
 
-/* ⚙️ Setup Button */
-.setup-btn {
+/* .setup-btn {
   background: linear-gradient(135deg, #ff9a9e, #fad0c4);
   border: none;
   color: white;
@@ -393,7 +388,7 @@ h2 {
 
 .setup-btn:hover {
   opacity: 0.85;
-}
+} */
 
 
 .compare-dialog-overlay {
@@ -407,7 +402,7 @@ h2 {
 }
 
 .compare-dialog {
-  background: var(--bg-light-color);
+  background: var(--bg-color);
   border-radius: 20px;
   padding: 30px;
   width: 100%;
@@ -421,7 +416,7 @@ h2 {
 .choose-plan-type {
   margin-right: 10px;
   font-weight: 600;
-  color: var(--black-text);
+  color: var(--text-color);
 }
 
 .compare-dialog p {
@@ -441,7 +436,7 @@ h2 {
 .plan-option {
   display: block;
   margin-bottom: 6px;
-  color: var(--black-text);
+  color: var(--text-color);
 }
 
 .compare-actions {
@@ -472,5 +467,11 @@ h2 {
 @media (max-width: 768px) {
   .compare-dialog .dialog-compare-btn {
     font-size: 13px;
+  }
+  .sort-select {
+    font-size: 13px;
+  }
+  .insurance-list {
+    gap: 15px;
   }
 }

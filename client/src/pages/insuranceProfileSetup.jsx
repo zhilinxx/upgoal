@@ -12,30 +12,6 @@ export default function InsuranceProfileSetup() {
     setOpenCancelConfirm(true);
   };
 
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      e.preventDefault();
-      e.returnValue = ""; // Required for Chrome
-    };
-
-    const handlePopState = (e) => {
-      e.preventDefault();
-      setOpenCancelConfirm(true);
-      window.history.pushState(null, "", window.location.href);
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.addEventListener("popstate", handlePopState);
-
-    // prevent immediate back
-    window.history.pushState(null, "", window.location.href);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, []);
-
   const userId = localStorage.getItem("userId");
   const [heightValidation, setHeightValidation] = useState("");
   const [weightValidation, setWeightValidation] = useState("");
@@ -131,7 +107,7 @@ export default function InsuranceProfileSetup() {
 
     try {
       await saveInsuranceProfile({ user_id: userId, ...formData });
-      toast.success("Insurance Profile saved successfully!");
+      toast.success("Insurance profile saved successfully!");
       navigate("/profile");
     } catch (err) {
       console.error(err);
@@ -160,7 +136,7 @@ export default function InsuranceProfileSetup() {
         action="save"
         subject="your insurance profile"
         message="Do you confirm to save your insurance profile changes?"
-        confirmText="Yes, Save"
+        confirmText="Save"
         cancelText="Cancel"
         onCancel={() => setOpenSaveConfirm(false)}
         onConfirm={() => {
@@ -179,8 +155,8 @@ export default function InsuranceProfileSetup() {
         cancelText="Cancel"
         onCancel={() => setOpenCancelConfirm(false)}
         onConfirm={() => {
-          setOpenCancelConfirm(false);
           navigate(-1);
+          setOpenCancelConfirm(false);
         }}
       />
       <form onSubmit={handleSave} className="insurance-form">

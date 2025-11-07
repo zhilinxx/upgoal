@@ -188,7 +188,11 @@ export default function InsurancePlanDetails() {
             <div className="contact">
               <div>
                 <p><strong>Get interest</strong></p>
-                <p>📧 {plan.provider_email}</p>
+                {plan.provider_email && (
+                  <>
+                  <p>📧 {plan.provider_email}</p>
+                  </>
+                )}
                 <p>📞 {plan.provider_phone}</p>
               </div>
               <div>

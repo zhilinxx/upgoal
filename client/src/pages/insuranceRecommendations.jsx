@@ -51,6 +51,7 @@ export default function InsuranceRecommendations() {
       const savedFilters = location.state?.filters;
       if (savedFilters) {
         setFilters(savedFilters);
+        setActiveMobileTab("filter");
         setAppliedFilters(savedFilters);
         fetchPlans(savedFilters); // ✅ re-fetch plans using those filters
       } else {
@@ -84,6 +85,17 @@ export default function InsuranceRecommendations() {
     }
   };
 
+  if (profileMissing) {
+    return (
+      <div className="insurance-container">
+        <p>You haven’t completed your insurance profile yet.</p>
+        <button className="setup-btn" onClick={() => navigate("/insuranceProfileSetup")}>
+          Go to Setup
+        </button>
+      </div>
+    );
+  }
+
   const handleApply = () => {
     setShowFilter(false);
     // fetchPlans();
@@ -116,17 +128,6 @@ export default function InsuranceRecommendations() {
     setFilters({ ...filters, taxRelief: newState });
     // fetchPlans({ ...filters, taxRelief: newState });
   };
-
-  if (profileMissing) {
-    return (
-      <div className="insurance-container">
-        <p>You haven’t completed your insurance profile yet.</p>
-        <button className="setup-btn" onClick={() => navigate("/insuranceProfileSetup")}>
-          Go to Setup
-        </button>
-      </div>
-    );
-  }
 
   const handleViewDetails = (planId, premiumWithTax, premiumNoTax, sumAssured, score) => {
     navigate(`/plan/${planId}`, { state: { sumAssured, premiumWithTax, premiumNoTax, score, filters } });
@@ -172,11 +173,46 @@ export default function InsuranceRecommendations() {
 
             <label>Premium Amount (RM)</label>
             <div className="range-group">
-              <input type="number" placeholder="Min" value={filters.premiumMin}
-                onChange={(e) => setFilters({ ...filters, premiumMin: e.target.value })} />
+              <input
+                type="number"
+                placeholder="Min"
+                value={filters.premiumMin}
+                min="0"
+                max="10000"
+                onChange={(e) => {
+                  let value = e.target.value;
+
+                  // ✅ Prevent negative numbers
+                  if (Number(value) < 0) value = "0";
+
+                  // ✅ Remove leading zeros (except when it's just "0")
+                  value = value.replace(/^0+(?=\d)/, "");
+
+                  setFilters({
+                    ...filters,
+                    premiumMin: value,
+                  });
+                }}
+              />
               <span>-</span>
-              <input type="number" placeholder="Max" value={filters.premiumMax}
-                onChange={(e) => setFilters({ ...filters, premiumMax: e.target.value })} />
+              <input
+                type="number"
+                placeholder="Max"
+                value={filters.premiumMax}
+                min="0"
+                max="10000"
+                onChange={(e) => {
+                  let value = e.target.value;
+
+                  if (Number(value) < 0) value = "0";
+                  value = value.replace(/^0+(?=\d)/, "");
+
+                  setFilters({
+                    ...filters,
+                    premiumMax: value,
+                  });
+                }}
+              />
             </div>
 
             <label>Sum Assured (RM)</label>
@@ -189,8 +225,10 @@ export default function InsuranceRecommendations() {
                 max="500000"
                 step="100000"
                 onChange={(e) => {
-                  let value = Number(e.target.value);
-                  if (value > 500000) value = 500000;
+                  let value = e.target.value;
+                  if (Number(value) < 0) value = "0";
+                  if (Number(value) > 500000) value = 500000;
+                  value = value.replace(/^0+(?=\d)/, "");
                   setFilters({ ...filters, sumMin: value });
                 }}
               />
@@ -350,11 +388,46 @@ export default function InsuranceRecommendations() {
 
             <label>Premium Amount (RM)</label>
             <div className="range-group">
-              <input type="number" placeholder="Min" value={filters.premiumMin}
-                onChange={(e) => setFilters({ ...filters, premiumMin: e.target.value })} />
+              <input
+                type="number"
+                placeholder="Min"
+                value={filters.premiumMin}
+                min="0"
+                max="10000"
+                onChange={(e) => {
+                  let value = e.target.value;
+
+                  // ✅ Prevent negative numbers
+                  if (Number(value) < 0) value = "0";
+
+                  // ✅ Remove leading zeros (except when it's just "0")
+                  value = value.replace(/^0+(?=\d)/, "");
+
+                  setFilters({
+                    ...filters,
+                    premiumMin: value,
+                  });
+                }}
+              />
               <span>-</span>
-              <input type="number" placeholder="Max" value={filters.premiumMax}
-                onChange={(e) => setFilters({ ...filters, premiumMax: e.target.value })} />
+              <input
+                type="number"
+                placeholder="Max"
+                value={filters.premiumMax}
+                min="0"
+                max="10000"
+                onChange={(e) => {
+                  let value = e.target.value;
+
+                  if (Number(value) < 0) value = "0";
+                  value = value.replace(/^0+(?=\d)/, "");
+
+                  setFilters({
+                    ...filters,
+                    premiumMax: value,
+                  });
+                }}
+              />
             </div>
 
             <label>Sum Assured (RM)</label>
@@ -367,8 +440,10 @@ export default function InsuranceRecommendations() {
                 max="500000"
                 step="100000"
                 onChange={(e) => {
-                  let value = Number(e.target.value);
-                  if (value > 500000) value = 500000;
+                  let value = e.target.value;
+                  if (Number(value) > 500000) value = 500000;
+                  if (Number(value) < 0) value = "0";
+                  value = value.replace(/^0+(?=\d)/, "");
                   setFilters({ ...filters, sumMin: value });
                 }}
               />
@@ -377,12 +452,12 @@ export default function InsuranceRecommendations() {
                 type="number"
                 placeholder="Max"
                 value={filters.sumMax}
-                min="100000"
+                min="0"
                 max="500000"
                 step="100000"
                 onChange={(e) => {
                   let value = Number(e.target.value);
-                  if (value < 100000) value = 100000;
+                  if (Number(value) < 0) value = "0";
                   if (value > 500000) value = 500000;
                   setFilters({ ...filters, sumMax: value });
                 }}

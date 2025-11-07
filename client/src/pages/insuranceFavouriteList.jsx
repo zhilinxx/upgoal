@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { FaTrashAlt, FaHeart, FaChevronLeft } from "react-icons/fa";
 import { getFavourites, removeMultipleFavourites } from "../api/favouritePlanAPI";
-import { getPlanScore } from "../api/insuranceAPI"; // ✅ import
+import { getPlanScore } from "../api/insuranceAPI";
 import "../styles/insuranceFavouriteList.css";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import ConfirmDialog from "../components/ConfirmDialog.jsx";
 
 export default function FavouriteList() {
   const userId = localStorage.getItem("userId");
@@ -13,6 +14,8 @@ export default function FavouriteList() {
   const [sortOrder, setSortOrder] = useState("all");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [openRemoveConfirm, setOpenRemoveConfirm] = useState(false);
+  const [openRemoveAllConfirm, setOpenRemoveAllConfirm] = useState(false);
 
   useEffect(() => {
     fetchFavourites();
@@ -69,8 +72,7 @@ export default function FavouriteList() {
   };
 
   const handleRemoveSelected = async () => {
-    if (selected.length === 0) return toast.warn("Select at least one plan");
-    try {
+    try { 
       await removeMultipleFavourites(userId, selected);
       toast.success("Removed selected plans");
       setSelected([]);
@@ -117,7 +119,32 @@ export default function FavouriteList() {
         <h2 className="fav-title">Favourite List</h2>
         <div></div>
       </div>
-
+      <ConfirmDialog
+        open={openRemoveConfirm}
+        action="delete"
+        subject="your favourite plan"
+        message="Do you confirm to remove the selected plan(s) from favourite?"
+        confirmText="Remove"
+        cancelText="Cancel"
+        onCancel={() => setOpenRemoveConfirm(false)}
+        onConfirm={() => {
+          setOpenRemoveConfirm(false);
+          handleRemoveSelected();
+        }}
+      />
+      <ConfirmDialog
+        open={openRemoveAllConfirm}
+        action="delete"
+        subject="your favourite plan"
+        message="Do you confirm to remove ALL favourite plans?"
+        confirmText="Remove"
+        cancelText="Cancel"
+        onCancel={() => setOpenRemoveAllConfirm(false)}
+        onConfirm={() => {
+          setOpenRemoveAllConfirm(false);
+          handleRemoveAll();
+        }}
+      />
       <div className="fav-controls">
         <select
           className="fav-sort"
@@ -130,10 +157,10 @@ export default function FavouriteList() {
         </select>
 
         <div className="fav-btn-group">
-          <button className="remove-all-btn" onClick={handleRemoveAll}>
+          <button className="remove-all-btn" onClick={() => setOpenRemoveAllConfirm(true)} >
             Remove All
           </button>
-          <FaTrashAlt className="trash-icon" onClick={handleRemoveSelected} />
+          <FaTrashAlt className="trash-icon" onClick={() => {if (selected.length === 0) return toast.warn("Select at least one plan to remove"); else setOpenRemoveConfirm(true)} } />
         </div>
       </div>
 

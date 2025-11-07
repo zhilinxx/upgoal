@@ -56,11 +56,15 @@
   border: 2px solid var(--light-pink);
   border-radius: 16px;
   padding: 10px;
-  background: #fff;
+  background: var(--section-bg);
   box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .compare-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   height: 150px;
   padding: 15px 0px;
   margin: 0px 20px;

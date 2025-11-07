@@ -12,7 +12,7 @@ body button {
   bottom: 20px;
   margin: 10px;
   background: var(--btn-color);
-  color: white;
+  color: whitesmoke;
   border: none;
   padding: 10px 20px;
   font-weight: 600;
@@ -30,6 +30,7 @@ body button:hover {
 
 body p {
   font-size: 15px;
+  color: var(--text-color);
 }
 
 body input:focus {
@@ -45,6 +46,7 @@ body input:focus {
   padding: 12px 24px;
   position: sticky;
   top: 0;
+  min-height: 40px;
   z-index: 10;
 }
 
@@ -204,14 +206,15 @@ body input:focus {
 .menu-btn {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 20px;
   font-weight: 800;
   color: #F5878A;
   cursor: pointer;
-  padding-left: 0px;
+  padding-left: 5px;
   padding-right: 10px;
   padding-bottom: 5px;
   padding-top: 5px;
+  margin: 0;
 }
 
 .menu-btn:hover {
@@ -321,27 +324,30 @@ body input:focus {
   margin-top: 5px;
 }
 
-input {
-  background: white;
+body input {
+  background: var(--input-bg);
+  color: var(--input-text);
   border: 1px solid #ccc;
   border-radius: 25px;
-  padding: 6px;
+  padding: 10px;
   font-size: 14px;
-  color: #555;
+  color: var(--text-color);
 }
 
-select {
-  background: white;
+body select {
+  background: var(--input-bg);
+  color: var(--input-text);
   border: 1px solid #ccc;
   border-radius: 25px;
-  padding: 6px 12px;
+  padding: 10px 12px;
   font-size: 14px; 
-  color: #555;
+  color: var(--text-color);
 }
 
-label {
+body label {
   font-weight: 500;
   margin-bottom: 4px;
+  color: var(--text-color);
 }
 
 .required {
@@ -457,13 +463,23 @@ label {
   body p, body label{
    font-size: 13px;
   }
-  h2 {
+  body h2 {
     font-size: 20px;
+  }
+  body h3 {
+    font-size: 16px;
   }
   .validation {
     font-size: 12px;
   }
   .exercise option{
+    font-size: 13px;
+  }
+  body input{
+    font-size: 12px;
+    padding: 8px;
+  }
+  body a {
     font-size: 13px;
   }
 }

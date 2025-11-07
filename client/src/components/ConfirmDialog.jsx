@@ -50,7 +50,16 @@ export default function ConfirmDialog({
       aria-modal="true"
       aria-label="Confirmation dialog"
     >
-      <div className="modal-card">
+      <div
+        className="modal-card"
+        style={{
+          textAlign: "center",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center"
+        }}
+      >
         <h3 style={{color:"var(--main-pink)"}}>Confirm</h3>
         <p style={{ marginTop: 6, color: "var(--text-color)" }}>{message ?? defaultMessage}</p>
 
