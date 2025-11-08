@@ -265,7 +265,9 @@
 //   );
 // }
 //-----------------------------------------------------------------------
+// client/src/pages/IncomeSetup.jsx
 import React, { useEffect, useState } from "react";
+import { FiPlus, FiMinus } from "react-icons/fi";
 import { toast } from "react-toastify";
 import api from "../api/budgetAPI";
 import "../styles/IncomeSetup.css";
@@ -276,7 +278,8 @@ import ConfirmDialog from "../components/ConfirmDialog.jsx";
 /* ---------- Money helpers ---------- */
 const MAX_DECIMAL_NUM = 9_999_999_999.99;
 const MAX_DECIMAL_STR = "9,999,999,999.99";
-const amountOK = (v) => v === "" || /^(\d{1,3}(,\d{3})*|\d+)(\.\d{1,2})?$/.test(String(v).trim());
+const amountOK = (v) =>
+  v === "" || /^(\d{1,3}(,\d{3})*|\d+)(\.\d{1,2})?$/.test(String(v).trim());
 const toNum = (v) => Number(String(v).replace(/,/g, ""));
 const to2 = (v) => {
   const n = toNum(v);
@@ -288,14 +291,17 @@ export default function IncomeSetup() {
 
   const [incomeId, setIncomeId] = useState(null);
   const [netIncome, setNetIncome] = useState("");
-  const [lifestyle, setLifestyle] = useState("None");
+  const [lifestyle, setLifestyle] = useState(""); // ← start empty so placeholder can show
   const [housingLoan, setHousingLoan] = useState("");
   const [carLoan, setCarLoan] = useState("");
-  const [otherCommitments, setOtherCommitments] = useState([{ name: "", amount: "" }]);
+  const [otherCommitments, setOtherCommitments] = useState([
+    { name: "", amount: "" },
+  ]);
 
   // inline errors per field
   const [errors, setErrors] = useState({
     netIncome: "",
+    lifestyle: "", // ← track lifestyle error
     housingLoan: "",
     carLoan: "",
     others: [],
@@ -315,24 +321,48 @@ export default function IncomeSetup() {
 
         setIncomeId(data.incomeId ?? null);
         setNetIncome(data.netIncome ? to2(data.netIncome) : "");
-        setLifestyle(data.lifestyle || "None");
-        setHousingLoan(data.commitments?.housingLoan ? to2(data.commitments.housingLoan) : "");
-        setCarLoan(data.commitments?.carLoan ? to2(data.commitments.carLoan) : "");
+
+        // Only assign if the saved value is one of our allowed options.
+        const valid = ["Frugal", "Balanced", "Luxury"];
+        const saved = data.lifestyle;
+        setLifestyle(valid.includes(saved) ? saved : ""); // keep "" so placeholder shows if nothing saved
+
+        setHousingLoan(
+          data.commitments?.housingLoan ? to2(data.commitments.housingLoan) : ""
+        );
+        setCarLoan(
+          data.commitments?.carLoan ? to2(data.commitments.carLoan) : ""
+        );
 
         // Normalize "other"
         const othersRaw = data.commitments?.other ?? [];
         const normalized = othersRaw.map((o, i) => {
-          if (typeof o === "number") return { name: `Other ${i + 1}`, amount: to2(o) };
-          const name = typeof o?.name === "string" && o.name.trim() ? o.name.trim() : `Other ${i + 1}`;
-          const amount = o?.amount !== undefined && o.amount !== null ? to2(o.amount) : "";
+          if (typeof o === "number")
+            return { name: `Other ${i + 1}`, amount: to2(o) };
+          const name =
+            typeof o?.name === "string" && o.name.trim()
+              ? o.name.trim()
+              : `Other ${i + 1}`;
+          const amount =
+            o?.amount !== undefined && o.amount !== null ? to2(o.amount) : "";
           return { name, amount };
         });
 
-        setOtherCommitments(normalized.length ? normalized : [{ name: "", amount: "" }]);
-        setErrors({ netIncome: "", housingLoan: "", carLoan: "", others: [], form: "" });
+        setOtherCommitments(
+          normalized.length ? normalized : [{ name: "", amount: "" }]
+        );
+        setErrors({
+          netIncome: "",
+          lifestyle: "",
+          housingLoan: "",
+          carLoan: "",
+          others: [],
+          form: "",
+        });
       } catch (e) {
         console.error("Prefill failed", e);
         setErrors((x) => ({ ...x, form: "Failed to load existing data!" }));
+        toast.error("Failed to load existing data!");
       }
     })();
   }, [userId]);
@@ -371,28 +401,50 @@ export default function IncomeSetup() {
     if (!amountOK(val)) return `${label} must be a valid number (max 2 decimals).`;
     const n = toNum(val);
     if (!(n >= 0)) return `${label} cannot be negative.`;
-    if (n > MAX_DECIMAL_NUM) return `${label} exceeds the maximum RM ${MAX_DECIMAL_STR}.`;
+    if (n > MAX_DECIMAL_NUM)
+      return `${label} exceeds the maximum RM ${MAX_DECIMAL_STR}.`;
     return "";
   };
 
   const validateAll = () => {
-    const next = { netIncome: "", housingLoan: "", carLoan: "", others: [], form: "" };
+    const next = {
+      netIncome: "",
+      lifestyle: "",
+      housingLoan: "",
+      carLoan: "",
+      others: [],
+      form: "",
+    };
 
     // netIncome required
     if (!amountOK(netIncome) || netIncome === "") {
-      next.netIncome = "Monthly Net Income is required and must be a valid number (max 2 decimals).";
+      next.netIncome =
+        "Monthly Net Income is required and must be a valid number (max 2 decimals).";
     } else {
       const n = toNum(netIncome);
       if (!(n >= 0)) next.netIncome = "Monthly Net Income cannot be negative.";
-      else if (n > MAX_DECIMAL_NUM) next.netIncome = `Monthly Net Income exceeds the maximum RM ${MAX_DECIMAL_STR}.`;
+      else if (n > MAX_DECIMAL_NUM)
+        next.netIncome = `Monthly Net Income exceeds the maximum RM ${MAX_DECIMAL_STR}.`;
+    }
+
+    // lifestyle required because we bypass native validation with the confirm dialog
+    if (!lifestyle) {
+      next.lifestyle = "Please select a lifestyle preference.";
     }
 
     next.housingLoan = validateMoney("Housing Loan", housingLoan);
     next.carLoan = validateMoney("Car Loan", carLoan);
-    next.others = otherCommitments.map((row) => validateMoney("Other Amount", row.amount));
+    next.others = otherCommitments.map((row) =>
+      validateMoney("Other Amount", row.amount)
+    );
 
     setErrors(next);
-    const hasErrors = next.netIncome || next.housingLoan || next.carLoan || next.others.some(Boolean);
+    const hasErrors =
+      next.netIncome ||
+      next.lifestyle ||
+      next.housingLoan ||
+      next.carLoan ||
+      next.others.some(Boolean);
     return !hasErrors;
   };
 
@@ -406,7 +458,7 @@ export default function IncomeSetup() {
     const payload = {
       userId,
       netIncome: Number(to2(netIncome)),
-      lifestyle,
+      lifestyle, // will be a real choice now
       commitments: {
         housingLoan: housingLoan ? Number(to2(housingLoan)) : 0,
         carLoan: carLoan ? Number(to2(carLoan)) : 0,
@@ -421,13 +473,11 @@ export default function IncomeSetup() {
 
     try {
       if (incomeId) {
-        const { data } = await api.put("/income", { ...payload, incomeId });
-        console.log("[IncomeSetup] PUT ok:", data);
+        await api.put("/income", { ...payload, incomeId });
         toast.success("Income setup saved successfully!");
         navigate("/profile");
       } else {
         const { data } = await api.post("/income", payload);
-        console.log("[IncomeSetup] POST ok:", data);
         setIncomeId(data.incomeId);
         toast.success("Income setup saved successfully!");
         navigate("/budgetPlanner");
@@ -438,7 +488,9 @@ export default function IncomeSetup() {
         ...x,
         form:
           err?.response?.data?.error ||
-          (typeof err?.response?.data === "string" ? err.response.data : "Failed to save income setup"),
+          (typeof err?.response?.data === "string"
+            ? err.response.data
+            : "Failed to save income setup"),
       }));
     } finally {
       setOpenSaveConfirm(false);
@@ -447,8 +499,11 @@ export default function IncomeSetup() {
 
   return (
     <div className="income-container">
-      <div className="income-setup-header">
-        <button className="back-btn" onClick={() => setOpenBackConfirm(true)}>
+      <div className="income-header">
+        <button
+          className="income-back-btn"
+          onClick={() => setOpenBackConfirm(true)}
+        >
           <FaChevronLeft />
         </button>
         <h2>Income Setup</h2>
@@ -456,18 +511,19 @@ export default function IncomeSetup() {
 
       <form
         onSubmit={(e) => {
-          e.preventDefault();            // stop immediate submit
-          setOpenSaveConfirm(true);      // open confirm instead
+          e.preventDefault();
+          setOpenSaveConfirm(true);
         }}
         className="income-form"
       >
         {errors.form && <p className="validation">{errors.form}</p>}
 
         {/* Row 1 - Monthly Income */}
-        <div className="row">
-          <div className="form-group">
+        <div className="income-row">
+          <div className="income-form-group">
             <label>
-              Monthly Net Income (RM)<span className="required">*</span>
+              Monthly Net Income (RM)
+              <span className="income-required">*</span>
             </label>
             <input
               type="text"
@@ -478,31 +534,47 @@ export default function IncomeSetup() {
               onBlur={(e) => setNetIncome(to2(e.target.value))}
               required
             />
-            {errors.netIncome && <p className="validation">{errors.netIncome}</p>}
+            {errors.netIncome && (
+              <p className="validation">{errors.netIncome}</p>
+            )}
           </div>
         </div>
 
         {/* Row 2 - Lifestyle */}
-        <div className="row">
-          <div className="form-group">
+        <div className="income-row">
+          <div className="income-form-group">
             <label>
-              Lifestyle Preferences<span className="required">*</span>
+              Lifestyle Preferences
+              <span className="income-required">*</span>
             </label>
-            <select value={lifestyle} onChange={(e) => setLifestyle(e.target.value)} required>
-              <option value="None">None</option>
+            <select
+              value={lifestyle}
+              onChange={(e) => setLifestyle(e.target.value)}
+              required
+              className={lifestyle === "" ? "income-placeholder" : ""}
+            >
+              {/* Placeholder (disabled, shows when value === "") */}
+              <option value="" disabled>
+                -- Select a lifestyle preference --
+              </option>
+
+              {/* Real choices */}
               <option value="Frugal">Frugal</option>
               <option value="Balanced">Balanced</option>
               <option value="Luxury">Luxury</option>
             </select>
+            {errors.lifestyle && (
+              <p className="validation">{errors.lifestyle}</p>
+            )}
           </div>
         </div>
 
         {/* Monthly Commitments Title */}
-        <h4 className="commitment-title">Monthly Commitments :</h4>
+        <h4 className="income-commitment-title">Monthly Commitments :</h4>
 
-        {/* Row 3 - Housing & Car Loans */}
-        <div className="row">
-          <div className="form-group">
+        {/* Row 3 - Housing & Car Loans (stacked) */}
+        <div className="income-row">
+          <div className="income-form-group">
             <label>Housing Loans (RM)</label>
             <input
               type="text"
@@ -512,10 +584,14 @@ export default function IncomeSetup() {
               onChange={(e) => setHousingLoan(e.target.value)}
               onBlur={(e) => setHousingLoan(to2(e.target.value))}
             />
-            {errors.housingLoan && <p className="validation">{errors.housingLoan}</p>}
+            {errors.housingLoan && (
+              <p className="validation">{errors.housingLoan}</p>
+            )}
           </div>
+        </div>
 
-          <div className="form-group">
+        <div className="income-row">
+          <div className="income-form-group">
             <label>Car Loans (RM)</label>
             <input
               type="text"
@@ -530,15 +606,20 @@ export default function IncomeSetup() {
         </div>
 
         {/* Other Commitments */}
-        <label>
+        <label className="income-other-label">
           Other Commitments{" "}
-          <button type="button" className="add-other-btn" onClick={addOtherField}>
-            +
+          <button
+            title="Add Other Monthly Commitments"
+            type="button"
+            className="income-add-other-btn"
+            onClick={addOtherField}
+          >
+            <FiPlus />
           </button>
         </label>
 
         {otherCommitments.map((item, idx) => (
-          <div className="row other-row" key={idx}>
+          <div className="income-row income-other-row" key={idx}>
             <input
               type="text"
               placeholder="e.g., PTPTN Loan"
@@ -553,23 +634,31 @@ export default function IncomeSetup() {
               onChange={(e) => setOtherField(idx, "amount", e.target.value)}
               onBlur={(e) => setOtherField(idx, "amount", to2(e.target.value))}
             />
-            <button type="button" className="remove-other-btn" onClick={() => removeOtherField(idx)}>
-              −
+            <button
+              type="button"
+              className="income-remove-other-btn"
+              onClick={() => removeOtherField(idx)}
+            >
+              <FiMinus />
             </button>
-            {errors.others[idx] && <p className="validation">{errors.others[idx]}</p>}
+            {errors.others[idx] && (
+              <p className="validation">{errors.others[idx]}</p>
+            )}
           </div>
         ))}
 
-        <div className="button-row">
-          <button type="submit" className="save-btn">Save</button>
+        <div className="income-button-row">
+          <button type="submit" className="income-save-btn">
+            Save
+          </button>
         </div>
       </form>
 
       {/* ===== Confirm: Back ===== */}
       <ConfirmDialog
         open={openBackConfirm}
-        action="go back"
-        subject="to the previous page"
+        action="discard"
+        subject="your unsaved changes and go back to previous page"
         cancelText="Cancel"
         confirmText="Confirm"
         onCancel={() => setOpenBackConfirm(false)}

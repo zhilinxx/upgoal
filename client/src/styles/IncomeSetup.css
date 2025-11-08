@@ -1,30 +1,25 @@
-/* === Container & header (match insurance) === */
+/* === Container & header === */
 .income-container {
   margin: 0 auto;
   padding: 20px;
   box-shadow: 0 0 8px rgba(0,0,0,0.1);
 }
 
-.income-setup-header {
+.income-header {
   display: flex;
   align-items: center;
-  gap: 8px;               /* space between back icon and title */
-  margin-bottom: 16px;
+  justify-content: stretch;
 }
-.income-setup-header h2 {
-  font-size: 1.3rem;
+
+.income-header h2 {
   font-weight: 600;
   padding-right: 30px;
   width: 100%;
-  margin: 0;
+  color: var(--main-pink);
 }
 
-.commitment-title {
-  color: var(--text-color);
-}
-
-/* back button same style */
-.back-btn {
+/* back button */
+.income-back-btn {
   background: none;
   border: none;
   margin: 0;
@@ -33,9 +28,21 @@
   cursor: pointer;
   color: var(--main-pink);
 }
-.back-btn:hover { background: none; }
+.income-back-btn:hover { background: none; }
 
-/* === Form wrapper (same horizontal margins as insurance) === */
+/* commitment title */
+.income-commitment-title {
+  color: var(--text-color);
+  margin: 0;
+}
+
+/* When a title follows any form row, push it down more */
+.income-row + .income-commitment-title {
+  margin-top: 38px;          /* ← adjust this number to taste */
+  margin-bottom: 6px;        /* small space before the next inputs */
+}
+
+/* === Form wrapper === */
 .income-form {
   display: flex;
   flex-direction: column;
@@ -52,26 +59,30 @@
   font-weight: 700;
 }
 
-/* === Grid rows, like insurance's .form-grid === */
-.row {
+/* === Grid rows === */
+.income-row {
   display: grid;
   grid-template-columns: 1fr; /* default single column */
   gap: 20px;
 }
 
 /* Two columns on wide screens (Housing + Car row) */
-.row.row--two {
+.income-row--two {
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
-/* Group wrapper like insurance .input-group */
-.form-group {
+/* Group wrapper */
+.income-form-group {
   display: flex;
   flex-direction: column;
 }
 
-/* Inputs & selects = insurance look */
+/* Inputs & selects */
+.income-form select.income-placeholder {
+  color: #999;
+}
+
 .income-form input,
 .income-form select {
   background: var(--section-bg);
@@ -83,49 +94,72 @@
   width: 100%;
   box-sizing: border-box;
 }
+
+.income-form select option[disabled][hidden] {
+  color: #999;
+}
+
 .income-form label {
   font-weight: 500;
   margin-bottom: 4px;
   color: var(--text-color);
 }
 
-/* === Other commitments row (name | amount | -) === */
-.other-row {
-  display: grid;
-  grid-template-columns: 1fr minmax(110px,180px) 44px;
-  gap: 10px;
-  align-items: center;
-}
-
-.required {
+/* required star */
+.income-required {
   color: red;
   margin-left: 2px;
   font-size: larger;
 }
 
-.remove-other-btn {
-  height: 44px;
-  width: 44px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  background: var(--btn-color);
-  color: white;
+/* === Other commitments === */
+.income-other-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 700;
+  margin: 8px 0 0;
+  color: var(--text-color);
 }
 
-/* Add/Save (match insurance buttons) */
-.add-other-btn {
-  height: 44px;
-  width: 44px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  background: var(--btn-color);
-  color: white;
-  font-weight: 700;
+.income-other-row {
+  grid-template-columns: 1fr minmax(110px,180px) 44px;
+  gap: 10px;
+  align-items: center;
 }
-.save-btn {
+
+.income-add-other-btn,
+.income-remove-other-btn {
+  background: var(--lighter-pink);
+  border: none;
+  color: var(--main-pink);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.income-add-other-btn:hover,
+.income-remove-other-btn:hover {
+  opacity: 0.75; color: var(--main-pink); background: var(--lighter-pink);
+}
+
+.income-add-other-btn svg,
+.income-remove-other-btn svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.5;        /* ⬅️ make lines thicker (default is 2) */
+  stroke: #ff8ea1;        /* keep same pink tone */
+}
+
+.income-add-other-btn:hover svg,
+.income-remove-other-btn:hover svg {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+
+/* Save button */
+.income-save-btn {
   width: 80px;
   padding: 12px;
   border: none;
@@ -136,19 +170,22 @@
   cursor: pointer;
   transition: 0.3s;
 }
-.save-btn:hover { background: var(--btn-hover); }
+.income-save-btn:hover { background: var(--btn-hover); }
 
 /* Buttons row */
-.button-row {
+.income-button-row {
   display: flex;
   gap: 10px;
   justify-content: center;
   align-items: center;
 }
 
-/* === Responsive  === */
+/* === Responsive === */
+@media (max-width: 992px) {
+  .income-form { margin-left: 40px; margin-right: 40px; }
+}
+
 @media (max-width: 768px) {
   .income-form { margin-left: 10px; margin-right: 10px; }
-
-  .row.row--two { grid-template-columns: 1fr; } /* stack Housing & Car */
+  .income-row--two { grid-template-columns: 1fr; } /* stack Housing & Car */
 }

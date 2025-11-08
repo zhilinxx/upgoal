@@ -372,6 +372,18 @@ body input:focus {
 
 }
 
+/* --- slideIn animation keyframes --- */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Cancel button */
 .btn-cancel {
   border: 1.5px solid var(--btn-border);
@@ -385,16 +397,16 @@ body input:focus {
 }
 
 .btn-cancel:hover {
-  background: var(--btn-border);
-  color: whitesmoke;
-  border-color: var(--btn-border);
+  background: var(--btn-hover);
+  color: white;
+  border: 1.5px solid var(--btn-hover);
 }
 
 /* Confirm button */
 .btn-confirm {
   border: none;
   border-radius: 30px;
-  background: var(--btn-border);
+  background: var(--btn-color);
   color: white;
   font-weight: 600;
   cursor: pointer;
@@ -404,14 +416,17 @@ body input:focus {
 
 /* Confirm button hover */
 .btn-confirm:hover {
-  opacity: 0.8;
+  background: var(--btn-hover);
 }
 
-/* Danger variant */
-.btn-confirm.danger {
-  background: #d9534f;
+.calendar-icon {
+  appearance: auto;
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+  color-scheme: light;
 }
-
-.btn-confirm.danger:hover {
-  background: #c9302c;
+/* recolor built-in calendar icon to #f28b8b */
+.calendar-icon::-webkit-calendar-picker-indicator {
+  filter: invert(74%) sepia(38%) saturate(1511%) hue-rotate(314deg) brightness(100%) contrast(97%);
+  cursor: pointer;
 }

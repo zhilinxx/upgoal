@@ -67,3 +67,39 @@ export async function getSavingsGoals(userId) {
     conn.release();
   }
 }
+
+// Compute this calendar month's total spending in the "Other" category
+export async function getOtherSpendThisMonth(userId) {
+  const conn = await pool.getConnection();
+  try {
+    const [rows] = await conn.query(
+      `
+      SELECT
+        COALESCE(
+          SUM(
+            -- amount column can be expenses_amt or amount; take absolute in case you store negatives
+            ABS(
+              CASE
+                WHEN expenses_amt IS NOT NULL THEN expenses_amt
+                WHEN amount IS NOT NULL       THEN amount
+                ELSE 0
+              END
+            )
+          ), 0
+        ) AS other_total
+      FROM expenses
+      WHERE user_id = ?
+        -- category column can be expenses_category OR category OR type
+        AND COALESCE(expenses_category, category, type) = 'Other'
+        -- current month window [1st day, next month's 1st day)
+        AND expenses_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+        AND expenses_date <  DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
+      `,
+      [userId]
+    );
+    return Number(rows?.[0]?.other_total || 0);
+  } finally {
+    conn.release();
+  }
+}
+

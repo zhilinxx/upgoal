@@ -1,15 +1,15 @@
-.expenses-section {
+.expenses-list-section {
     margin-top: 30px;
 }
 
-.expenses-header {
+.expenses-list-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
 }
 
-.expenses-header .section-title {
+.expenses-list-header .expenses-list-title {
     margin: 0;
 }
 
@@ -51,14 +51,17 @@
 }
 
 .save-btn {
-  width: 80px;
-  padding: 12px;
-  border: none;
-  border-radius: 30px;
-  background: var(--btn-color);
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s;
+    width: 80px;
+    padding: 12px;
+    border: none;
+    border-radius: 30px;
+    background: var(--btn-color);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
 }
-.save-btn:hover { background: var(--btn-hover); }
+
+.save-btn:hover {
+    background: var(--btn-hover);
+}

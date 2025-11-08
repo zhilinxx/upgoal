@@ -102,10 +102,10 @@ export default function MonthlyExpenses() {
   const [params, setParams] = useSearchParams();
 
   // ---- URL params (single source of truth) ----
-  const pageParam   = Number(params.get("page") || 1);
+  const pageParam = Number(params.get("page") || 1);
   const searchParam = params.get("search") || "";
-  const catParam    = params.get("cat") || "All";
-  const monthParam  = params.get("month") || new Date().toISOString().slice(0, 7); // YYYY-MM
+  const catParam = params.get("cat") || "All";
+  const monthParam = params.get("month") || new Date().toISOString().slice(0, 7); // YYYY-MM
 
   // ---- Local state ----
   const [currency, setCurrency] = useState("RM");
@@ -115,12 +115,13 @@ export default function MonthlyExpenses() {
   const [totalPages, setTotalPages] = useState(1);
   const [categoryTotals, setCategoryTotals] = useState({});
   const [loading, setLoading] = useState(true);
+  const hasNoRows = !loading && records.length === 0;
 
-  // search input is controlled and mirrors URL param
+  // search input mirrors URL param
   const [searchInput, setSearchInput] = useState(searchParam);
   useEffect(() => { setSearchInput(searchParam); }, [searchParam]);
 
-  // dialog + selection
+  // dialogs + selection
   const [selected, setSelected] = useState(new Set());
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -152,7 +153,7 @@ export default function MonthlyExpenses() {
       month: monthParam,
       page,
       pageSize,
-      search: searchParam,                 // server expects "search"
+      search: searchParam, // server expects "search"
       category: catParam === "All" ? "" : catParam,
     });
 
@@ -245,7 +246,9 @@ export default function MonthlyExpenses() {
       return n;
     });
   };
-  const allChecked = records.length > 0 && records.every((r) => selected.has(r.expenses_id));
+  const allChecked =
+    records.length > 0 && records.every((r) => selected.has(r.expenses_id));
+
   const toggleAll = () => {
     setSelected((prev) => {
       if (records.length === 0) return prev;
@@ -260,7 +263,15 @@ export default function MonthlyExpenses() {
   // ---- Dialog handlers ----
   const onAddClick = () => setAddOpen(true);
   const onEditClick = (row) => { setEditing(row); setEditOpen(true); };
-  const onDeleteSelected = () => { if (selected.size) setConfirmOpen(true); };
+  const onDeleteSelected = () => {
+    if (selected.size === 0) {
+      toast.error("Please select at least one expense to delete!");
+      return;
+    }
+
+    setConfirmOpen(true);
+  };
+
 
   const handleCreate = async (payload) => {
     try {
@@ -312,7 +323,7 @@ export default function MonthlyExpenses() {
     }
   };
 
-  // ---- Pagination (compute next page before setting) ----
+  // ---- Pagination ----
   const goPrev = () => {
     const next = Math.max(1, page - 1);
     setPage(next);
@@ -326,18 +337,19 @@ export default function MonthlyExpenses() {
 
   return (
     <div className="expenses-container">
-      <div className="topbar">
-        <button className="back-btn" onClick={() => navigate(-1)}>
+      <div className="expenses-header">
+        <button className="expenses-back-btn" onClick={() => navigate(-1)} title="Go Back">
           <FiChevronLeft />
         </button>
-        <h2 className="title">Monthly Expenses</h2>
+        <h2 className="expenses-title">Monthly Expenses</h2>
+        <span className="expenses-header-spacer" aria-hidden="true"></span>
       </div>
 
       {/* Filters */}
       <div className="top-controls">
         <input
           type="month"
-          className="month-picker"
+          className="calendar-icon"
           value={monthParam}
           onChange={(e) => setParam("month", e.target.value)}
         />
@@ -365,9 +377,8 @@ export default function MonthlyExpenses() {
         <div className="icon-actions">
           <button
             className="icon-btn delete-btn"
-            title="Bulk delete (selected)"
+            title="Delete expense (selected)"
             onClick={onDeleteSelected}
-            disabled={selected.size === 0}
           >
             <FiTrash2 />
           </button>
@@ -378,29 +389,52 @@ export default function MonthlyExpenses() {
       </div>
 
       {/* Doughnut + legend */}
-      <div className="chart-section">
-        <div className="doughnut-container">
-          <Doughnut data={chartData} options={chartOptions} />
-          <div className="chart-center">
-            <p className="chart-label">{monthLabel} Total</p>
-            <h3 className="chart-total">
+      <div className="expenses-summary-section">
+        <div className="expenses-doughnut-container">
+          <Doughnut
+            data={chartData}
+            options={{
+              maintainAspectRatio: false,
+              cutout: "70%",
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => `${ctx.label}: ${currency} ${ctx.formattedValue}`,
+                  },
+                },
+              },
+            }}
+          />
+          <div className="expenses-chart-center">
+            <p className="expenses-chart-label">{monthLabel} Total</p>
+            <h3 className="expenses-chart-amount">
               {currency} {monthTotal.toFixed(2)}
             </h3>
           </div>
         </div>
 
-        <ul className="legend">
-          {chartLabels.map((name) => {
-            const val = Number(categoryTotals[name] || 0);
-            return (
-              <li key={name}>
-                <span className="dot" style={{ background: CATEGORY_COLORS[name] || "#ddd" }} />
-                <span className="legend-label">{name}</span>
-                <span className="legend-amount">• {currency} {val.toFixed(2)}</span>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="expenses-legend-area">
+          <ul className="expenses-legend-list">
+            {chartLabels.map((name) => {
+              const val = Number(categoryTotals[name] || 0);
+              return (
+                <li key={name} className="expenses-legend-item">
+                  <span className="expenses-legend-left">
+                    <span
+                      className="expenses-color-dot"
+                      style={{ backgroundColor: CATEGORY_COLORS[name] || "#ddd" }}
+                    />
+                    <span className="expenses-legend-name">{name}</span>
+                  </span>
+                  <span className="expenses-legend-value">
+                    {currency} {val.toFixed(2)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </div>
 
       {/* Table */}
@@ -413,17 +447,16 @@ export default function MonthlyExpenses() {
               <th>Amount ({currency})</th>
               <th>Category</th>
               <th>Date</th>
+              <th></th>
               <th>
                 <input type="checkbox" checked={allChecked} onChange={toggleAll} />
               </th>
             </tr>
           </thead>
           <tbody>
-            {!loading && records.length === 0 && (
-              <tr>
-                <td colSpan="6" style={{ textAlign: "center", color: "#888" }}>
-                  No records.
-                </td>
+            {hasNoRows && (
+              <tr className="no-rows">
+                <td colSpan={7}>No records.</td>
               </tr>
             )}
             {records.map((item) => (
@@ -433,14 +466,16 @@ export default function MonthlyExpenses() {
                 <td>{Number(item.expenses_amt).toFixed(2)}</td>
                 <td>{item.expenses_category}</td>
                 <td>{item.expenses_date}</td>
-                <td style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <td>
                   <button
                     className="icon-btn edit-btn"
                     title="Edit"
-                    onClick={() => onEditClick(item)}
+                    onClick={() => setEditOpen(true) || setEditing(item)}
                   >
                     <FiEdit2 />
                   </button>
+                </td>
+                <td>
                   <input
                     type="checkbox"
                     checked={selected.has(item.expenses_id)}
@@ -464,7 +499,22 @@ export default function MonthlyExpenses() {
         </button>
       </div>
 
-      {/* Dialogs */}
+      {/* =================== */}
+      {/* Dialogs (at bottom) */}
+      {/* =================== */}
+
+      {/* --- TEMP: force-open to verify it appears. 
+           Uncomment this block when testing the dialog rendering/styling. --- */}
+      {/*
+      <ExpenseDialog
+        open={true}
+        mode="create"
+        onClose={() => setAddOpen(false)}
+        onSave={handleCreate}
+      />
+      */}
+
+      {/* Add (create) dialog */}
       <ExpenseDialog
         open={addOpen}
         mode="create"
@@ -472,6 +522,7 @@ export default function MonthlyExpenses() {
         onSave={handleCreate}
       />
 
+      {/* Edit dialog */}
       <ExpenseDialog
         open={editOpen}
         mode="edit"
@@ -480,6 +531,7 @@ export default function MonthlyExpenses() {
         onSave={handleUpdate}
       />
 
+      {/* Confirm delete dialog */}
       <ConfirmDialog
         open={confirmOpen}
         action="delete"
@@ -492,4 +544,5 @@ export default function MonthlyExpenses() {
     </div>
   );
 }
+
 

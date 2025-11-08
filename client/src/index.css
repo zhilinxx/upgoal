@@ -20,7 +20,7 @@
 
   --main-pink: #f28b8b;
   --light-pink: #F9DEDC;
-  --lighter-pink: #F9DEDC;
+  --lighter-pink: #ffefef;
   --mid-pink: #febfbb;
   --green-msg: #7ecc3e;
   --error-msg: #ff4848;
@@ -61,7 +61,7 @@
   /* brand tones (slightly neon pink/peach for contrast) */
   --main-pink: #f28b8b;
   --light-pink: #F9DEDC;
-  --lighter-pink: #F9DEDC;
+  --lighter-pink: #ffefef;
   --mid-pink: #febfbb;
   --btn-color: linear-gradient(90deg, #f9a8d4, #fcd5ce);
   --btn-hover: linear-gradient(90deg, #fb9dbe, #fcaba0);

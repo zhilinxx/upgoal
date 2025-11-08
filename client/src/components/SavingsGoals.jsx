@@ -65,7 +65,7 @@
 // export default SavingsGoals;
 //------------------------------------------------------------------
 import React, { useEffect, useRef, useState } from "react";
-import { FiEdit2, FiTrash2} from "react-icons/fi";
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import { toast } from "react-toastify";
 import GoalDialog from "./GoalDialog.jsx";
 import ConfirmDialog from "./ConfirmDialog.jsx";
@@ -73,7 +73,6 @@ import { createGoal, updateGoal, deleteGoal, listGoals } from "../api/budgetAPI.
 import "../styles/SavingsGoals.css";
 
 /* Money helpers (DECIMAL(12,2)) */
-const MAX_DECIMAL_NUM = 9_999_999_999.99;
 const fmtMoney = (n, currency = "RM") =>
   `${currency} ${Number(n || 0).toLocaleString(undefined, {
     minimumFractionDigits: 2,
@@ -97,8 +96,12 @@ const GoalItem = ({ goal, currency, onEdit, onAskDelete }) => {
       <div className="goal-header">
         <h4>{goal.name}</h4>
         <div className="goal-actions">
-          <button title="Edit Goal" onClick={() => onEdit(goal)}><FiEdit2 /></button>
-          <button title="Delete Goal" onClick={() => onAskDelete(goal)}><FiTrash2 /></button>
+          <button title="Edit Goal" onClick={() => onEdit(goal)}>
+            <FiEdit2 />
+          </button>
+          <button title="Delete Goal" onClick={() => onAskDelete(goal)}>
+            <FiTrash2 />
+          </button>
         </div>
       </div>
 
@@ -133,14 +136,14 @@ const GoalItem = ({ goal, currency, onEdit, onAskDelete }) => {
 export default function SavingsGoals({ currency = "RM" }) {
   const [items, setItems] = useState([]);
   const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState("create"); // "create" | "edit"
+  const [mode, setMode] = useState("create");
   const [initial, setInitial] = useState({});
 
   // Delete confirm state
   const [openDelete, setOpenDelete] = useState(false);
-  const [deleting, setDeleting] = useState(null); // goal object being deleted
+  const [deleting, setDeleting] = useState(null);
 
-  // ✅ hooks that were outside must live here
+  // Carousel + paginator
   const scrollerRef = useRef(null);
   const [active, setActive] = useState(0);
   const [press, setPress] = useState({ x: 0, y: 0 });
@@ -157,6 +160,11 @@ export default function SavingsGoals({ currency = "RM" }) {
     })();
   }, []);
 
+  // Ensure initial position shows the add pill
+  useEffect(() => {
+    scrollerRef.current?.scrollTo({ left: 0 });
+  }, []);
+
   // --- Add button: tap vs drag detection ---
   const handleAddPointerDown = (e) => {
     const p = e.touches?.[0] ?? e;
@@ -169,9 +177,9 @@ export default function SavingsGoals({ currency = "RM" }) {
     if (dx < 6 && dy < 6) startCreate();
   };
 
-  // --- Carousel measurement (match your CSS) ---
-  const RAIL = 56; // .add-goal-box width
-  const GAP  = 18; // gap between slides
+  // --- Layout numbers: width of add pill + gap (kept for paginator math) ---
+  const RAIL = 56; // width of .add-goal-box (even though it's not sticky)
+  const GAP  = 18;
 
   const slideWidth = () => {
     const el = scrollerRef.current;
@@ -179,16 +187,17 @@ export default function SavingsGoals({ currency = "RM" }) {
   };
   const stride = () => slideWidth() + GAP;
 
-  // --- Scroll -> update active dot ---
+  // --- Scroll -> update active dot (0 => first goal) ---
   const handleScroll = () => {
     const el = scrollerRef.current;
     if (!el) return;
+    // Subtract the space taken by the add pill + first gap
     const offset = Math.max(0, el.scrollLeft - (RAIL + GAP));
     const idx = Math.round(offset / stride());
     if (idx !== active) setActive(idx);
   };
 
-  // --- Dot click -> smooth scroll to slide ---
+  // --- Dot click -> smooth scroll to the i-th goal (skip the add pill once) ---
   const goToSlide = (i) => {
     const el = scrollerRef.current;
     if (!el) return;
@@ -215,13 +224,11 @@ export default function SavingsGoals({ currency = "RM" }) {
     setOpen(true);
   };
 
-  // Open delete confirmation
   const askDelete = (goal) => {
     setDeleting(goal);
     setOpenDelete(true);
   };
 
-  // Confirm deletion (called by ConfirmDialog)
   const confirmDelete = async () => {
     if (!deleting) return;
     try {
@@ -291,12 +298,8 @@ export default function SavingsGoals({ currency = "RM" }) {
       <h3 className="section-title">My Savings Goals</h3>
 
       {/* Carousel */}
-      <div
-        className="goals-carousel"
-        ref={scrollerRef}
-        onScroll={handleScroll}
-      >
-        {/* Add Another Goal rail */}
+      <div className="goals-carousel" ref={scrollerRef} onScroll={handleScroll}>
+        {/* Add Another Goal = first slide; now also a snap point */}
         <button
           type="button"
           className="add-goal-box"
@@ -305,12 +308,13 @@ export default function SavingsGoals({ currency = "RM" }) {
           onTouchStart={handleAddPointerDown}
           onTouchEnd={handleAddPointerUp}
           aria-label="Add Another Goal"
+          tabIndex={0}
         >
           <div className="add-goal-icon">+</div>
           <p className="add-goal-label">Add Another Goal</p>
         </button>
 
-        {/* Slides */}
+        {/* Goal slides */}
         {items.map((g) => (
           <GoalItem
             key={g.id}
@@ -322,7 +326,7 @@ export default function SavingsGoals({ currency = "RM" }) {
         ))}
       </div>
 
-      {/* Paginator dots */}
+      {/* Paginator (one dot per GOAL) */}
       <div className="paginator">
         {items.map((_, i) => (
           <button
@@ -335,7 +339,6 @@ export default function SavingsGoals({ currency = "RM" }) {
         ))}
       </div>
 
-      {/* Create/Edit dialog */}
       <GoalDialog
         mode={mode}
         open={open}
@@ -344,7 +347,6 @@ export default function SavingsGoals({ currency = "RM" }) {
         initial={initial}
       />
 
-      {/* Delete confirmation dialog */}
       <ConfirmDialog
         open={openDelete}
         action="delete"
@@ -361,3 +363,4 @@ export default function SavingsGoals({ currency = "RM" }) {
     </section>
   );
 }
+
