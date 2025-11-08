@@ -7,7 +7,7 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--bg-light-color);
+  background-color: var(--bg-color);
   font-family: 'Poppins', sans-serif;
 }
 
@@ -86,19 +86,14 @@
 }
 
 .toggle-password:hover {
-  color: var(--light-pink);
+  color: var(--mid-pink);
+  background: none;
 }
 
 /* Message */
 .message {
   color: var(--green-msg);
   font-size: 13px;
-}
-
-.validation {
-  color: var(--error-msg);
-  font-size: 13px;
-  margin-bottom: 0px;
 }
 
 /* Login text */

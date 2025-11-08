@@ -19,16 +19,16 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ Password validation using regex
-    const passwordRegex =
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$/;
+    // const passwordRegex =
+    //   /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%#?&])[A-Za-z\d@$!%*#?&]{8,16}$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,16}$/;
 
     if (!passwordRegex.test(password)) {
       setValidation(
         "Password must be 8–16 characters long and include at least one letter, one number, and one symbol."
       );
       return;
-    }
+    } else setValidation("");
 
     try {
       const res = await registerUser({ email, password });

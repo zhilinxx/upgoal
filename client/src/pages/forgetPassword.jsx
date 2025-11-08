@@ -20,7 +20,7 @@ export default function ForgotPassword() {
     <div className="container">
       <div className="card">
         <img src={logo} alt="UpGoal" className="logo" />
-        <h2>Reset Password</h2>
+        <h3>Reset Password</h3>
         <form onSubmit={handleSubmit}>
           <input
             type="email"
@@ -31,7 +31,7 @@ export default function ForgotPassword() {
           />
           <button type="submit">Send Reset Link</button>
         </form>
-        {message && <p>{message}</p>}
+        {message && <p style={{ color: "#7ed77a" }}>{message}</p>}
       </div>
     </div>
   );

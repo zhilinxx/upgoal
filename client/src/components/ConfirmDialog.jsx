@@ -45,13 +45,20 @@ export default function ConfirmDialog({
         if (e.key === "Enter") onConfirm?.();
       }}
     >
-      <div className="modal-card">
-        <h3>Confirm</h3>
-        <p style={{ marginTop: 6, color: "var(--text-color)" }}>
-          {message ?? defaultMessage}
-        </p>
+      <div
+        className="modal-card"
+        style={{
+          textAlign: "center",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center"
+        }}
+      >
+        <h3 style={{color:"var(--main-pink)"}}>Confirm</h3>
+        <p style={{ marginTop: 6, color: "var(--text-color)" }}>{message ?? defaultMessage}</p>
 
-        <div className="modal-actions">
+        <div className="modal-actions" style={{ display:"flex", justifyContent:"center" }}>
           <button className="btn-cancel" onClick={onCancel}>
             {cancelText}
           </button>

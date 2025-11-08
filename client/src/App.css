@@ -12,7 +12,7 @@ body button {
   bottom: 20px;
   margin: 10px;
   background: var(--btn-color);
-  color: white;
+  color: whitesmoke;
   border: none;
   padding: 10px 20px;
   font-weight: 600;
@@ -30,26 +30,11 @@ body button:hover {
 
 body p {
   font-size: 15px;
+  color: var(--text-color);
 }
 
 body input:focus {
   border-color: var(--light-pink);
-}
-
-
-@media (max-width: 768px) {
-  body button {
-    bottom: 20px;
-    margin: 10px;
-    padding: 8px 15px;
-    font-weight: 600;
-    border-radius: 30px;
-    align-items: center;
-    font-size: 13px;
-  }
-  body p{
-   font-size: 13px;
-  }
 }
 
 .header {
@@ -61,6 +46,7 @@ body input:focus {
   padding: 12px 24px;
   position: sticky;
   top: 0;
+  min-height: 40px;
   z-index: 10;
 }
 
@@ -187,9 +173,10 @@ body input:focus {
   padding: 0;
   background: none;
   border: none;
-  color: #F5878A;
-  font-size: 1.5rem;
+  color: var(--main-pink);
+  font-size: 1.6rem;
   cursor: pointer;
+  margin: 0px;
 }
 
 .sidebar nav ul {
@@ -199,15 +186,15 @@ body input:focus {
 }
 
 .sidebar nav ul li {
-  padding: 15px 0;
-  border-bottom: 1.5px solid var(--main-pink);
+  padding: 12px 0;
+  border-bottom: 0.5px solid var(--main-pink);
 }
 
 .sidebar nav ul li a {
   color: #333;
   text-decoration: none;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 14px;
   transition: 0.2s ease;
 }
 
@@ -219,14 +206,15 @@ body input:focus {
 .menu-btn {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 20px;
   font-weight: 800;
   color: #F5878A;
   cursor: pointer;
-  padding-left: 0px;
+  padding-left: 5px;
   padding-right: 10px;
   padding-bottom: 5px;
   padding-top: 5px;
+  margin: 0;
 }
 
 .menu-btn:hover {
@@ -329,6 +317,60 @@ body input:focus {
   color: var(--main-pink);
 }
 
+.validation {
+  color: var(--error-msg);
+  font-size: 13px;
+  margin-bottom: 0px;
+  margin-top: 5px;
+}
+
+body input {
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  padding: 10px;
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+body select {
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  padding: 10px 12px;
+  font-size: 14px; 
+  color: var(--text-color);
+}
+
+body label {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--text-color);
+}
+
+.required {
+  color: red;
+  margin-left: 2px;
+  font-size: larger;
+}
+
+
+.back-btn {
+  background: none;
+  border: none;
+  margin: 0;
+  padding-left: 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--main-pink);
+}
+
+.back-btn:hover {
+    background: none;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-5px); }
   to { opacity: 1; transform: translateY(0); }
@@ -394,6 +436,7 @@ body input:focus {
   cursor: pointer;
   transition: 0.3s;
   margin-right: 10px;
+  padding: 8px 18px;
 }
 
 .btn-cancel:hover {
@@ -416,7 +459,7 @@ body input:focus {
 
 /* Confirm button hover */
 .btn-confirm:hover {
-  background: var(--btn-hover);
+  opacity: 0.8;
 }
 
 .calendar-icon {

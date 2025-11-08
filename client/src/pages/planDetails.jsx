@@ -20,12 +20,12 @@ export default function InsurancePlanDetails() {
   const [applyTaxRelief, setApplyTaxRelief] = useState(previousFilters.taxRelief || false);
   const [isFavourite, setIsFavourite] = useState(false);
   const [userSumAssured, setUserSumAssured] = useState(null);
-  const [userPremium, setUserPremium] = useState(null);
+  const premiumNoTax = Number(location.state?.premiumNoTax);
+  const premiumWithTax = Number(location.state?.premiumWithTax);
 
   useEffect(() => {
     if (location.state) {
       setUserSumAssured(location.state.sumAssured || null);
-      setUserPremium(location.state.premium || null);
     }
 
     const fetchPlan = async () => {
@@ -54,26 +54,33 @@ export default function InsurancePlanDetails() {
   // };
   // checkFavStatus();
   const displayedSumAssured = userSumAssured || plan.sum_assured;
-  const displayedPremium = userPremium || plan.premium;
+  const displayedPremium = applyTaxRelief ? premiumWithTax : premiumNoTax;
 
-  const premiumValue = Number(displayedPremium) || 0;
-  let premium = premiumValue;
 
-  // ✅ If the recommendation page already applied tax relief
-  if (previousFilters?.taxRelief) {
-    // Base premium already includes RM250 relief → just toggle it back if user disables it
-    premium = applyTaxRelief
-      ? premiumValue  // keep as is (still applied)
-      : Math.min(premiumValue + 250, premiumValue + 250); // add back RM250 when unchecked
-  } else {
-    // Base premium has no relief yet → apply only when toggled ON
-    premium = applyTaxRelief
-      ? Math.max(premiumValue - 250, 0)
-      : premiumValue;
-  }
+  // let premium = Number(displayedPremium);
+  // const originalPremium = Number(plan.premium);
+  // const passedPremium = Number(userPremium);
 
-  // ✅ Format nicely for display
-  premium = premium.toFixed(2);
+  // if (previousFilters?.taxRelief) {
+  //   // Base premium already tax-relieved from recommendations
+  //   if(passedPremium == 0 || passedPremium == null){
+  //     if(applyTaxRelief){
+  //       premium = Math.max(passedPremium, 0);
+  //     }
+  //     else {
+  //       premium = originalPremium;
+  //     }
+  //   }
+  //   else{
+  //     premium = applyTaxRelief ? premium : premium + 250;
+  //   }
+
+  // } else {
+  //   // Apply or remove relief locally
+  //   premium = applyTaxRelief ? Math.max(premium - 250, 0) : premium;
+  // }
+
+  // premium = premium.toFixed(2);
 
   // ✅ Suggested payment structures
   const paymentStructures = plan.payment_structure
@@ -110,7 +117,7 @@ export default function InsurancePlanDetails() {
         className="back-btn"
         onClick={() => {
           const fromFav = location.state?.fromFavourite;
-          if (fromFav) navigate("/favouriteList");
+          if (fromFav) navigate(-1);
           else navigate("/insuranceRecommendations", { state: { filters: previousFilters } })
         }}
       >
@@ -135,7 +142,7 @@ export default function InsurancePlanDetails() {
                 Premium {applyTaxRelief && <small>(tax relief estimated)</small>}
               </span>
               <span className="row-content">
-                RM {premium} /month
+                RM {displayedPremium.toFixed(2)} /month
                 <label className="switch">
                   <input type="checkbox" checked={applyTaxRelief} onChange={() => setApplyTaxRelief(!applyTaxRelief)} />
                   <span className="slider round"></span>
@@ -143,8 +150,8 @@ export default function InsurancePlanDetails() {
               </span>
             </div>
 
-            <div className="row"><span className="row-label">Sum Assured</span><span className="row-content">{displayedSumAssured.toLocaleString()}</span></div>
-            <div className="row"><span className="row-label">Coverage Age</span><span className="row-content">{plan.coverage_age}</span></div>
+            <div className="row"><span className="row-label">Sum Assured</span><span className="row-content">RM {displayedSumAssured.toLocaleString()}</span></div>
+            <div className="row"><span className="row-label">Coverage Age</span><span className="row-content">{plan.coverage_age} years</span></div>
             <div className="row"><span className="row-label">Coverage Scope</span><span className="row-content">{plan.coverage_scope}</span></div>
 
             <div className="row">
@@ -157,8 +164,8 @@ export default function InsurancePlanDetails() {
             </div>
             {plan.plan_type === "Life + Medical" && (
               <>
-                <div className="row"><span className="row-label">Annual Limit</span><span className="row-content">{plan.annual_limit?.toLocaleString()}</span></div>
-                <div className="row"><span className="row-label">Lifetime Limit</span><span className="row-content">{plan.lifetime_limit || "No limit"}</span></div>
+                <div className="row"><span className="row-label">Annual Limit</span><span className="row-content">{plan.annual_limit && plan.annual_limit != 0 && plan.annual_limit != null ? `RM ${plan.annual_limit.toLocaleString()}` : "No limit"}</span></div>
+                <div className="row"><span className="row-label">Lifetime Limit</span><span className="row-content">{plan.lifetime_limit && plan.lifetime_limit != 0 && plan.lifetime_limit != null ? `RM ${plan.lifetime_limit.toLocaleString()}` : "No limit"}</span></div>
                 <div className="row"><span className="row-label">Hospital Room & Board</span><span className="row-content">{plan.hp_room_board}/day</span></div>
               </>
             )}
@@ -181,7 +188,11 @@ export default function InsurancePlanDetails() {
             <div className="contact">
               <div>
                 <p><strong>Get interest</strong></p>
-                <p>📧 {plan.provider_email}</p>
+                {plan.provider_email && (
+                  <>
+                  <p>📧 {plan.provider_email}</p>
+                  </>
+                )}
                 <p>📞 {plan.provider_phone}</p>
               </div>
               <div>

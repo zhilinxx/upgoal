@@ -26,6 +26,7 @@ import MonthlyExpenses from "./pages/MonthlyExpenses";
 import InsurancePlanDetails from "./pages/planDetails";
 import FavouriteList from "./pages/insuranceFavouriteList";
 import Settings from "./pages/settings";
+import ComparePlan from "./pages/comparePlan";
 
 // ✅ Page titles for mobile header
 const PAGE_TITLES = {
@@ -41,10 +42,10 @@ const PAGE_TITLES = {
   "/insuranceRecommendations": "Insurance Recommendations",
   "/planDetails" : "Plan Details",
   "/favouriteList" : "Favourite List",
+  "/comparePlans" : "Plan Comparison",
 };
 
 import axios from "axios";
-
 const API = axios.create({
   baseURL: "http://localhost:5000/api",
   withCredentials: true, // this ensures cookies are sent
@@ -369,6 +370,7 @@ function App() {
             <Route path="/plan/:planId" element={<InsurancePlanDetails />} />
             <Route path="/favouriteList" element={<FavouriteList />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/comparePlans" element={<ComparePlan />} />
 
             {/* Protected routes */}
             <Route

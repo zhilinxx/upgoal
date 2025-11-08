@@ -3,12 +3,14 @@ import { getProfile } from "../api/profileAPI";
 import { logoutUser } from "../api/auth"; // ✅ import logout API
 import { useNavigate } from "react-router-dom";
 import "../styles/profile.css";
+import ConfirmDialog from "../components/ConfirmDialog.jsx";
 import { FaChevronRight, FaChevronDown, FaEdit } from "react-icons/fa";
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [openSection, setOpenSection] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [openLogoutConfirm, setOpenLogoutConfirm] = useState(false);
   const navigate = useNavigate();
   // ✅ Convert database values into readable text
   const formatGender = (value) => {
@@ -158,9 +160,12 @@ export default function Profile() {
                 </div>
               )}
             </div>
-                    <button className="edit-btn" onClick={() => navigate("/incomeSetup")}>
-              <FaEdit /> Edit
-        </button>
+            <div className="btn-section">
+              <button className="edit-btn" onClick={() => navigate("/incomeSetup")}>
+                <FaEdit /> Edit
+              </button>
+            </div>
+
           </div>
         )}       
       </div>
@@ -235,17 +240,33 @@ export default function Profile() {
                 <span className="info-value">RM {profile.allowance}</span>
               </div>
             </div>
-            <button className="edit-btn" onClick={() => navigate("/insuranceProfileSetup")}>
-              <FaEdit /> Edit
-            </button>
+            <div className="btn-section">
+              <button className="edit-btn" onClick={() => navigate("/insuranceProfileSetup")}>
+                <FaEdit /> Edit
+              </button>
+            </div>
+
           </div>
         )}
       </div>
     </div>
+      <ConfirmDialog
+        open={openLogoutConfirm}
+        action="logout"
+        subject="your account"
+        message="Do you confirm to logout your account?"
+        confirmText="Logout"
+        cancelText="Cancel"
+        onCancel={() => setOpenLogoutConfirm(false)}
+        onConfirm={() => {
+          setOpenLogoutConfirm(false);
+          handleLogout();
+        }}
+      />
 
       {/* ✅ Logout section */}
       <div className="profile-section logout">
-        <button className="logout-btn" onClick={handleLogout}>
+        <button className="logout-btn" onClick={() => setOpenLogoutConfirm(true)}>
           Logout
         </button>
       </div>

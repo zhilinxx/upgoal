@@ -22,23 +22,11 @@
   margin-bottom: 15px;
 }
 
-/* .profile-inner .profile-section {
-  flex: 1;
-  height: max-content;
-  border-radius: 12px;
-  padding: 20px;
-  background-color: white;
-  height:;
-} */
-
 .profile-inner .profile-section {
-  /* display: flex;
-  flex-direction: column;
-  justify-content: stretch; */
   flex: 1 1 300px;
   border-radius: 15px;
   padding: 20px;
-  background-color: white;
+  background-color: var(--section-bg);
 }
 
 .chevron-icon{
@@ -70,7 +58,7 @@
 
 .profile-container h3 {
   font-weight: 600;
-  color: var(--black-text);
+  color: var(--text-color);
   font-size: 15px;
   text-align: start;
   margin: 0;
@@ -79,7 +67,7 @@
 
 .profile-container p {
   font-weight: 500;
-  color: var(--black-text);
+  color: var(--text-color);
   font-size: 14px;
   padding: 0px;
   margin: 5px;
@@ -107,7 +95,7 @@
 
 .info-label {
   font-weight: 600;
-  color: var(--black-text);
+  color: var(--text-color);
   font-size: 13px;
   flex: 1;
   text-align: left;
@@ -115,28 +103,21 @@
 
 .info-value {
   font-weight: 500;
-  color: var(--black-text);
+  color: var(--text-color);
   font-size: 13px;
   flex: 1;
   text-align: right;
 }
 
+.btn-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .edit-btn {
   margin-top: 20px;
-  background: var(--btn-color);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-weight: 600;
-  border-radius: 30px;
-  align-items: center;
-  gap: 8px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.edit-btn:hover {
-  background: var(--btn-hover);
+  display: flex;
 }
 
 .loading {
@@ -182,5 +163,16 @@
 
   .profile-container h2{
     display: none;
+  }
+  .input-group input,
+  .input-group select {
+    font-size: 12px;
+  }
+  .profile-container h3 {
+    font-size: 14px;
+  }
+  .logout-btn {
+    padding: 12px 18px;
+    font-size: 14px;
   }
 }

@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 
 export const sendEmail = async (to, subject, html) => {
   const mailOptions = {
-    from: process.env.EMAIL_FROM, // 👈 this gives you "UpGoal Support <yourgmail@gmail.com>"
+    from: process.env.EMAIL_FROM,
     to,
     subject,
     html,

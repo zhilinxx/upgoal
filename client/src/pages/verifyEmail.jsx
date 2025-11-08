@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { verifyEmail, resendVerificationEmail } from "../api/auth";
-import logo from "../assets/react.svg";
+import logo from "../assets/upgoal_logo.png";
 
 export default function VerifyEmail() {
   const [params] = useSearchParams();
@@ -9,12 +9,16 @@ export default function VerifyEmail() {
   const [showResend, setShowResend] = useState(false);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [verified, setVerified] = useState(false); // ✅ Add this state
 
   useEffect(() => {
     const token = params.get("token");
     if (token) {
       verifyEmail(token)
-        .then((res) => setMessage(res.data.message))
+        .then((res) => {
+          setMessage(res.data.message);
+          setVerified(true); // ✅ Mark verified success
+        })
         .catch((err) => {
           setMessage(err.response?.data?.message || "Verification failed or expired");
           setShowResend(true);
@@ -47,8 +51,16 @@ export default function VerifyEmail() {
     <div className="container">
       <div className="card">
         <img src={logo} alt="UpGoal" className="logo" />
-        <h2>{message}</h2>
+        <h3>{message}</h3>
 
+        {/* ✅ Show "Go to Login" button if verified */}
+        {verified && (
+          <Link to="/login" className="login-link">
+            <button className="login-btn">Go to Login</button>
+          </Link>
+        )}
+
+        {/* 🔁 Resend section for failed or expired links */}
         {showResend && (
           <div className="resend-section">
             <input
