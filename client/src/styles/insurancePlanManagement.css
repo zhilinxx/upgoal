@@ -5,7 +5,7 @@
 }
 
 .insurance-plan-container h2 {
-  color: var(--black-text);
+  color: var(--main-pink);
   margin-top: 10px;
 }
 
@@ -42,20 +42,19 @@
   border-radius: 6px;
   border: 1px solid #ddd;
   height: 33px;
-  background-color: white;
-  color: var(--black-text);
+  color: var(--text-color);
   font-size: 14px;
 }
 
 .plan-type-filter:focus {
-  outline: none;
-  border-color: var(--main-pink);
+  border-color: var(--light-pink);
 }
 
 
-.record-line {
+.insurance-plan-container .record-line {
   font-size: 15px;
-  margin: 5px 0 10px;
+  margin: 5px;
+  margin-bottom: 10px;
 }
 
 .insurance-plan-container .table-container {
@@ -68,7 +67,7 @@
 .plan-table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  background: var(--section-bg);
   text-align: left;
 }
 
@@ -83,7 +82,7 @@
   padding: 8px;
   border-bottom: 2px solid var(--light-pink);
   font-size: 15px;
-  color: var(--black-text);
+  color: var(--text-color);
   vertical-align: middle;
 }
 
@@ -125,12 +124,13 @@
 }
 
 .add-btn:hover {
-  background: var(--light-pink);
+  background: var(--mid-pink);
+  color: white;
 }
 
 .delete-btn:hover {
   background: none;
-  color: var(--mid-pinkk);
+  color: var(--mid-pink);
 }
 
 .pagination {
@@ -175,10 +175,10 @@
   }
 
   .plan-table th {
-    font-size: 13px;
+    font-size: 12px;
   }
 
-  .record-line {
+.insurance-plan-container .record-line {
     font-size: 12px;
     margin: 10px;
   }
@@ -192,6 +192,7 @@
 
   .insurance-plan-container .table-container {
     min-height: auto;
+    overflow-x: auto;
   }
 
   .page-btn {
@@ -217,5 +218,8 @@
   }
   .delete-btn {
     margin-left: 10px;
+  }
+  .plan-table {
+    min-width: 400px; /* adjust based on your content */
   }
 }

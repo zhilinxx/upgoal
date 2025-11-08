@@ -158,7 +158,7 @@ body input:focus {
   left: -100%;
   height: 100%;
   width: 260px;
-  background: linear-gradient(to bottom, #f9d4d4, #e8f7d0);
+  background: var(--light-gradient);
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
   transition: left 0.3s ease;
   z-index: 999;
@@ -191,7 +191,7 @@ body input:focus {
 }
 
 .sidebar nav ul li a {
-  color: #333;
+  color: var(--text-dark);
   text-decoration: none;
   font-weight: 600;
   font-size: 14px;
@@ -270,7 +270,7 @@ body input:focus {
 }
 
 .admin-profile-menu button.icon-btn {
-  color: #F5878A;
+  color: var(--main-pink);
   font-size: 1.2rem;
   font-weight: 500;
   transition: 0.2s ease;
@@ -278,6 +278,7 @@ body input:focus {
   background: none;
   padding: 0;
   margin: 0;
+  padding-top: 7px;
 }
 
 .admin-dropdown {

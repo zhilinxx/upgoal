@@ -53,30 +53,16 @@
   flex-direction: column;
 }
 
-.input-group label {
+.plan-form .input-group label {
   font-weight: 500;
   margin-bottom: 4px;
-  font-size: 14px;
+  color: var(--text-dark);
 }
+
 
 .required {
   color: red;
   margin-left: 2px;
-}
-
-input,
-select,
-textarea {
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  padding: 10px;
-  font-size: 14px;
-  color: #555;
-}
-
-textarea {
-  resize: none;
 }
 
 .upload-box {
@@ -101,12 +87,12 @@ textarea {
 
 .upload-box p {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-color);
 }
 
 .existing-file {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-color);
   margin-top: 4px;
 }
 
@@ -114,14 +100,6 @@ textarea {
   color: var(--main-pink);
   margin-left: 4px;
   text-decoration: underline;
-}
-
-.input-group label {
-  color: black;
-}
-
-.checkbox-group label {
-  color: var(--black-text);
 }
 
 .save-btn {
@@ -176,6 +154,6 @@ textarea {
     gap: 10px;
   }
   .input-group label {
-    font-size: 12px;
+    font-size: 13px;
   }
 }

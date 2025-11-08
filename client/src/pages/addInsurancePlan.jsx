@@ -4,6 +4,7 @@ import { FaChevronLeft } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { addPlan, updatePlan, getPlanById, getAllPlans } from "../api/insurancePlanAPI";
 import "../styles/addInsurancePlan.css";
+import ConfirmDialog from "../components/ConfirmDialog.jsx";
 
 export default function AddInsurancePlan() {
   const navigate = useNavigate();
@@ -32,11 +33,17 @@ export default function AddInsurancePlan() {
   const [existingPlans, setExistingPlans] = useState([]);
   const [isFormDirty, setIsFormDirty] = useState(false); // Track unsaved changes
   const [message, setMessage] = useState("");
-  const [validation, setValidation] = useState("");
+  const [logoValidation, setLogoValidation] = useState("");
+  const [phoneValidation, setPhoneValidation] = useState("");
+  const [scopeValidation, setScopeValidation] = useState("");
+  const [paymentValidation, setPaymentValidation] = useState("");
+  const [planValidation, setPlanValidation] = useState("");
+  const [brochureValidation, setBrochureValidation] = useState("");
+  const [openSaveConfirm, setOpenSaveConfirm] = useState(false);
+  const [openCancelConfirm, setOpenCancelConfirm] = useState(false);
 
   const coverageOptions = [
     "Death",
-    "Terminal illness",
     "Total and Permanent Disability (TPD)",
     "Accidental Death Benefit (ADB)",
     "Accidental Disability Benefit",
@@ -87,73 +94,53 @@ export default function AddInsurancePlan() {
     });
   };
 
-  // ✅ Confirm before leaving
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      if (isFormDirty) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
-
-    const handlePopState = (e) => {
-      if (isFormDirty && !window.confirm("Discard changes and go back?")) {
-        e.preventDefault();
-        window.history.pushState(null, "", window.location.pathname);
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.addEventListener("popstate", handlePopState);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, [isFormDirty]);
-
-  const handleCancel = () => {
-    if (isFormDirty) {
-      if (window.confirm("Are you sure you want to discard changes and go back?")) {
-        navigate(-1);
-      }
-    } else {
-      navigate(-1);
-    }
-  };
-
   const validateForm = () => {
-  // const phoneRegex = /^(?:\+?60\s?\d{1,2}[\s-]?\d{3,4}[\s-]?\d{3,4}|01\d{1}-\d{7,8})$/;
-  const phoneRegex = /^(?:01\d-\d{7,8}|0\d{1,2}-\d{7,8}|1-300-\d{2}-\d{4})$/;
+    let isValid = true;
+
+    const phoneRegex = /^(?:01\d-\d{7,8}|0\d{1,2}-\d{7,8}|1-300-\d{2}-\d{4})$/;
+
+    setPhoneValidation("");
+    setPlanValidation("");
+    setScopeValidation("");
+    setPaymentValidation("");
+    setLogoValidation("");
+    setBrochureValidation("");
+
+    if (!isEditMode && existingPlans.includes(formData.plan_name.toLowerCase())) {
+      setPlanValidation("Plan name already exists");
+      isValid = false;
+    }
+
+    if (!isEditMode && !logo) {
+      setLogoValidation("Please upload a provider logo");
+      isValid = false;
+    }
 
     if (!phoneRegex.test(formData.provider_phone)) {
-      toast.error("Invalid phone format (e.g., 011-1234567 / 03-12345678 / 1-300-22-1234)");
-      return false;
-    }
-    if (!isEditMode && existingPlans.includes(formData.plan_name.toLowerCase())) {
-      toast.error("Plan name already exists");
-      return false;
+      setPhoneValidation("Invalid phone format (e.g., 011-1234567 / 03-12345678 / 1-300-22-1234)");
+      isValid = false;
     }
 
-    if (
-      formData.plan_type === "Life" &&
-      formData.coverage_scope.length === 0
-    ) {
-      toast.error("Please select at least one coverage scope");
-      return false;
+    if (formData.coverage_scope.length === 0) {
+      setScopeValidation("Please select at least one coverage scope");
+      isValid = false;
     }
 
     if (formData.payment_structure.length === 0) {
-      toast.error("Please select at least one payment structure");
-      return false;
+      setPaymentValidation("Please select at least one payment structure");
+      isValid = false;
     }
 
-    return true;
+    if (!isEditMode && !brochure) {
+      setBrochureValidation("Please upload a brochure PDF file");
+      isValid = false;
+    }
+
+    return isValid;
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
 
     const form = new FormData();
     Object.entries({
@@ -186,6 +173,35 @@ export default function AddInsurancePlan() {
         <h2>{isEditMode ? "Edit Insurance Plan" : "Add Insurance Plan"}</h2>
       </div>
 
+      <ConfirmDialog
+        open={openSaveConfirm}
+        action="save"
+        subject="insurance plan"
+        message="Do you confirm to add/update your insurance plan?"
+        confirmText="Sure"
+        cancelText="Cancel"
+        onCancel={() => setOpenSaveConfirm(false)}
+        onConfirm={() => {
+          setOpenSaveConfirm(false);
+          handleSave(new Event("submit"));
+        }}
+      />
+
+      <ConfirmDialog
+        open={openCancelConfirm}
+        action="discard"
+        subject="your unsaved changes"
+        message="Do you confirm to discard your unsaved changes and go back?"
+        variant="danger"
+        confirmText="Discard"
+        cancelText="Cancel"
+        onCancel={() => setOpenCancelConfirm(false)}
+        onConfirm={() => {
+          navigate(-1);
+          setOpenCancelConfirm(false);
+        }}
+      />
+
       <form onSubmit={handleSave} className="plan-form">
         <div className="form-grid">
           {/* LEFT COLUMN */}
@@ -193,6 +209,7 @@ export default function AddInsurancePlan() {
             <div className="input-group">
               <label>Plan Name<span className="required">*</span></label>
               <input name="plan_name" value={formData.plan_name} onChange={handleChange} maxLength={100} required />
+              {planValidation && <p className="validation">{planValidation}</p>}
             </div>
 
             <div className="input-group">
@@ -215,11 +232,13 @@ export default function AddInsurancePlan() {
                   </a>
                 </p>
               )}
+              {logoValidation && <p className="validation">{logoValidation}</p>}
             </div>
 
             <div className="input-group">
               <label>Provider Phone<span className="required">*</span></label>
               <input name="provider_phone" value={formData.provider_phone} onChange={handleChange} required />
+              {phoneValidation && <p className="validation">{phoneValidation}</p>}
             </div>
 
             <div className="input-group">
@@ -229,7 +248,7 @@ export default function AddInsurancePlan() {
 
             <div className="input-group">
               <label>Premium (RM) per month<span className="required">*</span></label>
-              <input type="number" name="premium" value={formData.premium} onChange={handleChange} step="0.1" max="1000" required />
+              <input type="number" name="premium" value={formData.premium} onChange={handleChange} step="0.1" min="1" required />
             </div>
 
             <div className="input-group">
@@ -244,97 +263,75 @@ export default function AddInsurancePlan() {
 
           {/* RIGHT COLUMN */}
           <div className="form-column">
-            {formData.plan_type === "Life" && (
-              <>
-                <div className="input-group">
-                  <label>Sum Assured (RM)<span className="required">*</span></label>
-                  <input type="number" name="sum_assured" value={formData.sum_assured} onChange={handleChange} step="0.1" required />
-                </div>
-                <div className="input-group">
-                  <label>Coverage Age<span className="required">*</span></label>
-                  <input type="number" name="coverage_age" value={formData.coverage_age} onChange={handleChange} max="100" required />
-                </div>
+            <div className="input-group">
+              <label>Sum Assured (RM)<span className="required">*</span></label>
+              <input 
+                type="number" 
+                name="sum_assured" 
+                value={formData.sum_assured} 
+                min="0"
+                max="500000"
+                step="100000"
+                onChange={(e) => {
+                  let value = e.target.value;
+                  if (Number(value) < 0) value = "0";
+                  if (Number(value) > 500000) value = 500000;
+                  value = value.replace(/^0+(?=\d)/, "");
+                  setIsFormDirty(true);
+                  setFormData({ ...formData, sum_assured: value });
+                }}
+                required 
+              />
+            </div>
+            <div className="input-group">
+              <label>Coverage Age<span className="required">*</span></label>
+              <input type="number" name="coverage_age" value={formData.coverage_age} onChange={handleChange} min="1" max="100" required />
+            </div>
 
-                <div className="input-group">
-                  <label>Coverage Scope (select one or more)<span className="required">*</span></label>
-                  <div className="checkbox-group">
-                    {coverageOptions.map((opt) => (
-                      <label key={opt}>
-                        <input
-                          type="checkbox"
-                          checked={formData.coverage_scope.includes(opt)}
-                          onChange={() => handleMultiSelect("coverage_scope", opt)}
-                        />
-                        {opt}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="input-group">
-                  <label>
+            <div className="input-group">
+              <label>Coverage Scope (select one or more)<span className="required">*</span></label>
+              <div className="checkbox-group">
+                {coverageOptions.map((opt) => (
+                  <label key={opt}>
                     <input
                       type="checkbox"
-                      name="CI"
-                      checked={!!formData.CI}
-                      onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, CI: e.target.checked ? 1 : 0 }))
-                      }
+                      checked={formData.coverage_scope.includes(opt)}
+                      onChange={() => handleMultiSelect("coverage_scope", opt)}
                     />
-                    Critical Illness Rider
+                    {opt}
                   </label>
-                </div>
-              </>
-            )}
+                ))}
+              </div>
+              {scopeValidation && <p className="validation">{scopeValidation}</p>}
+            </div>
+            <div className="input-group">
+              <label>
+                <input
+                  type="checkbox"
+                  name="CI"
+                  checked={!!formData.CI}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, CI: e.target.checked ? 1 : 0 }))
+                  }
+                />
+                Critical Illness Rider
+              </label>
+            </div>
 
             {formData.plan_type === "Life + Medical" && (
               <>
-                <div className="input-group">
-                  <label>Sum Assured (RM)<span className="required">*</span></label>
-                  <input type="number" name="sum_assured" value={formData.sum_assured} onChange={handleChange} step="0.1" required />
-                </div>
-                <div className="input-group">
-                  <label>Coverage Age<span className="required">*</span></label>
-                  <input type="number" name="coverage_age" value={formData.coverage_age} onChange={handleChange} max="100" required />
-                </div>
-                <div className="input-group">
-                  <label>Coverage Scope (select one or more)<span className="required">*</span></label>
-                  <div className="checkbox-group">
-                    {coverageOptions.map((opt) => (
-                      <label key={opt}>
-                        <input
-                          type="checkbox"
-                          checked={formData.coverage_scope.includes(opt)}
-                          onChange={() => handleMultiSelect("coverage_scope", opt)}
-                        />
-                        {opt}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div className="input-group">
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="CI"
-                      checked={!!formData.CI}
-                      onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, CI: e.target.checked ? 1 : 0 }))
-                      }
-                    />
-                    Critical Illness Rider
-                  </label>
-                </div>
+                
                 <div className="input-group">
                   <label>Annual Limit (RM) *empty if no limit</label>
-                  <input type="number" name="annual_limit" value={formData.annual_limit} onChange={handleChange} step="0.1" required />
+                  <input type="number" name="annual_limit" value={formData.annual_limit} onChange={handleChange} step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Lifetime Limit (RM) *empty if no limit</label>
-                  <input type="number" name="lifetime_limit" value={formData.lifetime_limit} onChange={handleChange} step="0.1" required />
+                  <input type="number" name="lifetime_limit" value={formData.lifetime_limit} onChange={handleChange} step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Hospital Room & Board (RM)</label>
-                  <input type="number" name="hp_room_board" value={formData.hp_room_board} onChange={handleChange} step="0.1" required />
+                  <input type="number" name="hp_room_board" value={formData.hp_room_board} onChange={handleChange} min="100"step="50" required />
                 </div>
               </>
             )}
@@ -354,6 +351,7 @@ export default function AddInsurancePlan() {
                   </label>
                 ))}
               </div>
+              {paymentValidation && <p className="validation">{paymentValidation}</p>}
             </div>
 
             <div className="input-group">
@@ -371,13 +369,33 @@ export default function AddInsurancePlan() {
                   </a>
                 </p>
               )}
+              {brochureValidation && <p className="validation">{brochureValidation}</p>}
             </div>
           </div>
         </div>
 
         <div className="button-row">
-          <button type="button" className="cancel-btn" onClick={handleCancel}>Cancel</button>
-          <button type="submit" className="save-btn">{isEditMode ? "Update" : "Add"}</button>
+          <button
+            type="button"
+            className="cancel-btn"
+            onClick={() => {
+              if (isFormDirty) setOpenCancelConfirm(true);
+              else navigate(-1);
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="save-btn"
+            onClick={() => {
+              if (validateForm()) {
+                setOpenSaveConfirm(true);
+              }
+            }}
+          >
+            {isEditMode ? "Update" : "Add"}
+          </button>
         </div>
       </form>
     </div>
