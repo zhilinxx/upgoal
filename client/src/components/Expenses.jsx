@@ -12,9 +12,9 @@ const ExpenseItem = ({ expense, currency }) => (
 function Expenses({ expenses, currency }) {
     const navigate = useNavigate();
   return (
-    <section className="expenses-section">
-      <div className="expenses-header">
-        <h3 className="section-title">My Expenses</h3>
+    <section className="expenses-list-section">
+      <div className="expenses-list-header">
+        <h3 className="expenses-list-title">My Expenses</h3>
         <span className="view-all" onClick={() => navigate("/monthlyExpenses")}>View all</span>
       </div>
       

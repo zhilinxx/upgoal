@@ -415,6 +415,18 @@ body label {
 
 }
 
+/* --- slideIn animation keyframes --- */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Cancel button */
 .btn-cancel {
   border: 1.5px solid var(--btn-border);
@@ -431,7 +443,7 @@ body label {
 .btn-cancel:hover {
   background: var(--btn-hover);
   color: white;
-
+  border: 1.5px solid var(--btn-hover);
 }
 
 /* Confirm button */
@@ -448,39 +460,17 @@ body label {
 
 /* Confirm button hover */
 .btn-confirm:hover {
-  background: var(--btn-hover);
+  opacity: 0.8;
 }
 
-@media (max-width: 768px) {
-  body button {
-    bottom: 20px;
-    margin: 10px;
-    padding: 8px 15px;
-    font-weight: 600;
-    border-radius: 30px;
-    align-items: center;
-    font-size: 13px;
-  }
-  body p, body label{
-   font-size: 13px;
-  }
-  body h2 {
-    font-size: 20px;
-  }
-  body h3 {
-    font-size: 16px;
-  }
-  .validation {
-    font-size: 12px;
-  }
-  .exercise option{
-    font-size: 13px;
-  }
-  body input{
-    font-size: 12px;
-    padding: 8px;
-  }
-  body a {
-    font-size: 13px;
-  }
+.calendar-icon {
+  appearance: auto;
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+  color-scheme: light;
+}
+/* recolor built-in calendar icon to #f28b8b */
+.calendar-icon::-webkit-calendar-picker-indicator {
+  filter: invert(74%) sepia(38%) saturate(1511%) hue-rotate(314deg) brightness(100%) contrast(97%);
+  cursor: pointer;
 }

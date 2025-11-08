@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 export default function ConfirmDialog({
   open,
@@ -32,23 +33,17 @@ export default function ConfirmDialog({
     subject ? ` ${subject}` : ""
   }?`;
 
-  const onOverlayMouseDown = (e) => {
-    if (e.target === e.currentTarget) onCancel?.();
-  };
-
-  const onKeyDown = (e) => {
-    if (e.key === "Escape") onCancel?.();
-    if (e.key === "Enter") onConfirm?.();
-  };
-
-  return (
+  const overlay = (
     <div
-      className="modal-overlay"
-      onMouseDown={onOverlayMouseDown}
-      onKeyDown={onKeyDown}
+      className="modal-overlay modal-overlay--confirm"
       role="dialog"
       aria-modal="true"
       aria-label="Confirmation dialog"
+      onMouseDown={(e) => e.target === e.currentTarget && onCancel?.()}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onCancel?.();
+        if (e.key === "Enter") onConfirm?.();
+      }}
     >
       <div
         className="modal-card"
@@ -68,9 +63,7 @@ export default function ConfirmDialog({
             {cancelText}
           </button>
           <button
-            className={`btn-confirm ${
-              variant === "danger" ? "danger" : "primary"
-            }`}
+            className={`btn-confirm ${variant === "danger" ? "danger" : "primary"}`}
             onClick={onConfirm}
             ref={confirmBtnRef}
           >
@@ -80,5 +73,7 @@ export default function ConfirmDialog({
       </div>
     </div>
   );
-}
 
+  // Portal so it always renders above everything else
+  return createPortal(overlay, document.body);
+}

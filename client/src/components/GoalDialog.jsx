@@ -203,6 +203,7 @@ export default function GoalDialog({
                     <div className="date-row">
                         <input
                             type="date"
+                            className="calendar-icon"
                             value={due}
                             onChange={(e) => setField("due", e.target.value)}
                         />
@@ -221,7 +222,7 @@ export default function GoalDialog({
             <ConfirmDialog
                 open={openSaveConfirm}
                 action="save"
-                subject={mode === "edit" ? "this goal" : "this new goal"}
+                subject={mode === "edit" ? "these changes" : "this new goal"}
                 cancelText="Cancel"
                 confirmText="Confirm"
                 onCancel={() => setOpenSaveConfirm(false)}
@@ -237,7 +238,7 @@ export default function GoalDialog({
                 // ⬇️ Force the exact sentence you want
                 message={
                     mode === "edit"
-                        ? "Do you confirm to cancel these changes?"
+                        ? "Do you confirm to discard these changes?"
                         : "Do you confirm to cancel for adding new goal?"
                 }
                 cancelText="Cancel"

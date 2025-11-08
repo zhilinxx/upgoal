@@ -1,255 +1,360 @@
 /* section title spacing */
 .section-title {
-  font-size: 1.0em;
-  font-weight: 600;
-  margin: 0;
+    font-weight: 600;
+    margin: 0;
+    margin-bottom: 10px;
 }
 
 /* Prevent page-level horizontal scroll */
 .savings-goals-section {
-  max-width: 100%;
-  overflow-x: hidden;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 /* -------- Horizontal scroller container -------- */
 .goals-carousel {
-  position: relative;
-  display: flex;
-  gap: 18px;
-  overflow-x: auto;             /* only this scrolls horizontally */
-  overflow-y: hidden;
-  max-width: 100%;
-  min-width: 0;                 /* ✅ allow shrink */
-  padding: 6px 6px 14px 6px;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x mandatory;
-  overscroll-behavior-x: contain;
-  -ms-overflow-style: none;     /* IE/Edge */
-  scrollbar-width: none;        /* Firefox */
+    position: relative;
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    /* only this scrolls horizontally */
+    overflow-y: hidden;
+    max-width: 100%;
+    min-width: 0;
+    /* small inset so the add pill isn't clipped by the container border */
+    padding: 6px 6px 14px 12px;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
-.goals-carousel::-webkit-scrollbar { display: none; } /* Chrome/Safari/Opera */
 
-/* -------- Left vertical pill (Add Another Goal) -------- */
+.goals-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+/* -------- Add Another Goal (first slide, snaps into place) -------- */
 .add-goal-box {
-  flex: 0 0 56px;               /* fixed narrow rail */
-  position: sticky;
-  left: 0;
-  z-index: 2;
-  align-self: stretch;
+    flex: 0 0 56px;
+    /* narrow vertical pill */
+    position: static;
+    /* scrolls with content */
+    align-self: stretch;
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 
-  border-radius: 999px;
-  background: linear-gradient(180deg, #e4faef 0%, #f7dfeb 100%);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  user-select: none;
-  cursor: pointer;
-  padding: 8px 0;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #e4faef 0%, #f7dfeb 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    user-select: none;
+    cursor: pointer;
+    padding: 8px 0;
 
-  touch-action: manipulation;
-  pointer-events: auto;
+    touch-action: manipulation;
+    pointer-events: auto;
 
-  box-sizing: border-box;       /* borders/padding don’t push width */
-  flex-shrink: 0;
+    box-sizing: border-box;
+    flex-shrink: 0;
+
+    /* ✅ make the pill itself a snap target so it can be the first stop */
+    scroll-snap-align: start;
 }
+
 .add-goal-box:hover {
-  opacity: 0.8;
-  background: linear-gradient(180deg, #e4faef 0%, #f7dfeb 100%);
+    opacity: 0.8;
 }
+
 .add-goal-icon {
-  font-size: 22px;
-  line-height: 1;
-  color: #222;
-  margin-bottom: 8px;
-  border: none;
+    font-size: 22px;
+    line-height: 1;
+    color: #222;
+    margin-bottom: 8px;
+    border: none;
 }
+
 .add-goal-label {
-  font-size: 12px;
-  color: #666;
-  white-space: nowrap;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
 }
 
 /* -------- Individual goal card -------- */
 .goal-card {
-  scroll-snap-align: start;
-  flex: 0 0 min(640px, 92vw);
+    scroll-snap-align: start;
+    flex: 0 0 min(640px, 92vw);
 
-  background: var(--section-bg);
-  border: 2px solid #ffb6c1;   /* soft pink outline */
-  border-radius: 22px;
-  padding: 16px 18px;
-  box-shadow: 0 2px 10px var(--box-shadow);
+    background: var(--section-bg);
+    border: 2px solid #ffb6c1;
+    border-radius: 22px;
+    padding: 16px 18px;
 
-  box-sizing: border-box;       /* include padding/border in width */
-  flex-shrink: 0;               /* don’t shrink; they slide */
-  overflow: hidden;             /* clip inner overflow */
-  word-break: break-word;       /* long text won’t force widen */
-
-  /* ✅ never cause horizontal overflow */
-  max-width: 100%;
-  min-width: 0;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    overflow: hidden;
+    word-break: break-word;
+    max-width: 100%;
+    min-width: 0;
+    transform: scale(0.85);
+    /* scale down the whole card */
+    transform-origin: left center;
+    /* keep aligned to the Add Goal pill */
 }
 
 /* header row: title + actions */
 .goal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
 }
+
 .goal-header h4 {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-color);
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
+
 .goal-actions button {
-  background: transparent;
-  border: none;
-  color: #ff8ea1;
-  font-size: 18px;
-  cursor: pointer;
-  padding: 4px;
+    background: transparent;
+    border: none;
+    color: var(--main-pink);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
 }
-.goal-actions button:hover { opacity: 0.75; color: #ff8ea1; background: transparent;}
+
+.goal-actions button:hover {
+    opacity: 0.75;
+    color: var(--main-pink);
+    background: transparent;
+}
 
 /* -------- Amount row -------- */
 .goal-progress-text {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;                     /* ✅ helps wrapping on small widths */
-  flex-wrap: wrap;              /* ✅ allow wrap */
-  margin: 8px 0 8px;
-  font-size: 16px;
-  color: var(--text-color);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 8px 0 8px;
+    font-size: 16px;
+    color: var(--text-color);
 }
-.current-amount { font-weight: 600; margin-right: 6px; }
+
+.current-amount {
+    font-weight: 600;
+    margin-right: 6px;
+}
+
 .amount-left {
-  color: #59b25a;
-  font-weight: 700;
-  margin-left: auto;
+    color: #59b25a;
+    font-weight: 700;
+    margin-left: auto;
 }
 
 /* progress bar */
 .progress-bar-container {
-  height: 8px;
-  border-radius: 999px;
-  background: #ffe0e5;  /* light pink track */
-  overflow: hidden;
-  margin: 4px 0 10px;
+    height: 8px;
+    border-radius: 999px;
+    background: #ffe0e5;
+    overflow: hidden;
+    margin: 4px 0 10px;
 }
+
 .progress-bar-fill {
-  height: 100%;
-  background: #ff9dad;  /* pink fill */
-  transition: width 240ms ease;
+    height: 100%;
+    background: #ff9dad;
+    transition: width 240ms ease;
 }
 
 /* deadline line */
-.goal-deadline { font-size: 15px; color: #999; margin-top: 6px; }
-.goal-deadline .date { color: #e26076; font-weight: 600; }
+.goal-deadline {
+    font-size: 15px;
+    color: #999;
+    margin-top: 6px;
+}
 
-/* Save btn (unchanged) */
+.goal-deadline .date {
+    color: #e26076;
+    font-weight: 600;
+}
+
+/* Save btn */
 .save-btn {
-  width: 80px;
-  padding: 12px;
-  border: none;
-  border-radius: 30px;
-  background: var(--btn-color);
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s;
+    width: 80px;
+    padding: 12px;
+    border: none;
+    border-radius: 30px;
+    background: var(--btn-color);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
 }
-.save-btn:hover { background: var(--btn-hover); }
 
-/* -------- Paginator -------- */
+.save-btn:hover {
+    background: var(--btn-hover);
+}
+
+/* -------- Paginator (one dot per GOAL only) -------- */
 .paginator {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin-top: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    transform: scale(0.75);
+    transform-origin: top center;
 }
+
 .dot {
-  height: 8px;
-  width: 8px;
-  background-color: #111;
-  opacity: 0.35;
-  border-radius: 50%;
-  transition: all 0.2s ease;
+    height: 8px;
+    width: 8px;
+    background-color: #111;
+    opacity: 0.35;
+    border-radius: 50%;
+    transition: all 0.2s ease;
 }
+
 .dot.active {
-  background: #ff8ea1;  /* pink bar */
-  width: 56px;
-  height: 10px;
-  border-radius: 999px;
-  opacity: 1;
+    background: #ff8ea1;
+    width: 56px;
+    height: 10px;
+    border-radius: 999px;
+    opacity: 1;
 }
 
 /* -------- Small screens -------- */
 @media (max-width: 480px) {
-  .amount-left {
-    flex-basis: 100%;           /* ✅ move to next line if tight */
-    text-align: right;
-    margin-left: 0;
-  }
-}
-@media (max-width: 420px) {
-  .goal-card { flex-basis: 92vw; }
-}
-@media (max-width: 768px) {
-  /* Disable sticky so the rail won’t sit on top of the card border */
-  .add-goal-box {
-    position: static;           /* ✅ no overlap on small screens */
-    width: 48px;
-    min-width: 48px;
-  }
-  .goal-card {
-    flex: 0 0 100%;             /* card uses the full track width */
-  }
+    .amount-left {
+        flex-basis: 100%;
+        text-align: right;
+        margin-left: 0;
+    }
 }
 
-/* -------- Media elements safety (global-safe) -------- */
-img, canvas, svg, video { max-width: 100%; height: auto; display: block; }
+@media (max-width: 420px) {
+    .goal-card {
+        flex-basis: 92vw;
+    }
+}
+
+@media (max-width: 768px) {
+    .add-goal-box {
+        width: 48px;
+        min-width: 48px;
+    }
+
+    .goal-card {
+        flex: 0 0 100%;
+    }
+}
+
+/* -------- Media elements safety -------- */
+img,
+canvas,
+svg,
+video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
 
 /* -------- Modal styles (unchanged) -------- */
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 16px;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
 }
+
 .modal-card {
-  width: clamp(320px, 92vw, 720px);
-  max-height: 90vh;
-  overflow: auto;
-  background: var(--bg-color);
-  border-radius: 16px;
-  padding: 18px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    width: clamp(320px, 92vw, 720px);
+    max-height: 90vh;
+    overflow: auto;
+    background: var(--bg-color);
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
 }
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.modal-card h3{margin:0}
-.modal-card label{display:block;font-size:.9rem;margin-left:20px;margin-top:10px;margin-bottom:4px;text-align:left;color: var(--text-color);}
-.modal-card input,.modal-card textarea{width:90%;padding:10px;border:1px solid #e3e3e3;border-radius:10px;background: var(--section-bg); color:var(--text-color);}
-.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
-.req{color:#f66}
+
+.modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px
+}
+
+.modal-card h3 {
+    margin: 0
+}
+
+.modal-card label {
+    display: block;
+    font-size: .9rem;
+    margin-left: 20px;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    text-align: left;
+    color: var(--text-color);
+}
+
+.modal-card input,
+.modal-card textarea {
+    width: 90%;
+    padding: 10px;
+    border: 1px solid #e3e3e3;
+    border-radius: 10px;
+    background: var(--section-bg);
+    color: var(--text-color);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 14px
+}
+
+.req {
+    color: #f66
+}
+
 @media (max-width: 480px) {
-  .modal-card { width: 100%; max-height: 92vh; border-radius: 14px; padding: 14px; }
+    .modal-card {
+        width: 100%;
+        max-height: 92vh;
+        border-radius: 14px;
+        padding: 14px;
+    }
 }
+
 @media (min-width: 1200px) {
-  .modal-card { width: clamp(420px, 46vw, 820px); padding: 22px; }
+    .modal-card {
+        width: clamp(420px, 46vw, 820px);
+        padding: 22px;
+    }
+}
+
+/* Hide scrollbar but keep scrolling functional */
+.modal-card {
+    scrollbar-width: none;
+}
+
+.modal-card::-webkit-scrollbar {
+    display: none;
 }
