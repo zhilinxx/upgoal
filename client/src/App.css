@@ -232,11 +232,11 @@ body input:focus {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--bg-light-color);
+  background-color: var(--bg-color);
 }
 
 .card {
-  background: #ffffff;
+  background: var(--section-bg);
   padding: 40px 30px;
   border-radius: 25px;
   box-shadow: 0 5px 15px rgba(0,0,0,0.05);

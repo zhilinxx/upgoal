@@ -170,14 +170,19 @@ export default function InsurancePlanDetails() {
               </>
             )}
             <div className="payment-struc">
-              <span className="row-label">Payment Structure <small>(suggested)</small></span>
+              <span className="row-label">Payment Structure</span>
               <ul className="payment-list">
                 {paymentStructures.map((structure, index) => (
                   <li key={index}>
-                    {index + 1}. {structure}
-                    {structure.toLowerCase().includes(suggested.toLowerCase()) && (
-                      <FaThumbsUp className="thumb-icon" />
-                    )}
+                    <div>
+                      {index + 1}. {structure}
+                    </div>
+                    <div>
+                      {structure.toLowerCase().includes(suggested.toLowerCase()) && (
+                        <FaThumbsUp className="thumb-icon" />
+                      )}
+                    </div>
+                    
                   </li>
                 ))}
               </ul>

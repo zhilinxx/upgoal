@@ -103,18 +103,6 @@ function App() {
     checkAuth();
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      await logoutUser();
-      localStorage.removeItem("accessToken");
-      setIsLoggedIn(false);
-      setShowAdminMenu(false);
-      navigate("/login");
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
-  };
-
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -129,6 +117,20 @@ function App() {
   const AppContent = () => {
     const location = useLocation();
     const navigate = useNavigate(); 
+
+    const handleLogout = async () => {
+    try {
+      await logoutUser();
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("role");
+      localStorage.removeItem("email");
+      setIsLoggedIn(false);
+      setShowAdminMenu(false);
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
     // ===== Hide header/sidebar on these routes =====
     const hideLayoutRoutes = [
       "/login",

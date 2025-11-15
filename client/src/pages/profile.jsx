@@ -200,7 +200,7 @@ export default function Profile() {
                 <span className="info-value">{profile.weight} kg</span>
               </div>
               <div className="info-row">
-                <span className="info-label">Excercise:</span>
+                <span className="info-label">Exercise:</span>
                 <span className="info-value">{formatFrequency(profile.exercise)}</span>
               </div>
               <div className="info-row">

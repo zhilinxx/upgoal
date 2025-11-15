@@ -159,6 +159,7 @@
 
 .page-num {
   font-weight: 500;
+  color: var(--text-dark);
 }
 
 @media (max-width: 768px) {

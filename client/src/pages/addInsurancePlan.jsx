@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { FaChevronLeft } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { addPlan, updatePlan, getPlanById, getAllPlans } from "../api/insurancePlanAPI";
@@ -8,6 +8,7 @@ import ConfirmDialog from "../components/ConfirmDialog.jsx";
 
 export default function AddInsurancePlan() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams();
   const [isEditMode, setIsEditMode] = useState(!!id);
 
@@ -42,6 +43,7 @@ export default function AddInsurancePlan() {
   const [openSaveConfirm, setOpenSaveConfirm] = useState(false);
   const [openCancelConfirm, setOpenCancelConfirm] = useState(false);
 
+
   const coverageOptions = [
     "Death",
     "Total and Permanent Disability (TPD)",
@@ -51,8 +53,8 @@ export default function AddInsurancePlan() {
 
   const paymentOptions = [
     "Flat rate and lower premium until coverage term",
-    "Flat rate but higher payment for a short term",
-    "Increase with age growth",
+    "Flat rate but higher premium for a short term",
+    "Start with lower premium and increase with age growth",
     "Start with higher premium and lower after certain age",
   ];
 
@@ -139,6 +141,15 @@ export default function AddInsurancePlan() {
     return isValid;
   };
 
+  const handleSaveClick = (e) => {
+    e.preventDefault();
+
+    if (validateForm()) {
+        setOpenSaveConfirm(true);
+    }
+    else return;
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
 
@@ -160,7 +171,13 @@ export default function AddInsurancePlan() {
         await addPlan(form);
         toast.success("Plan added successfully!");
       }
-      navigate("/insurancePlanManagement");
+      navigate("/insurancePlanManagement", {
+        state: {
+          search: location.state?.search,
+          planType: location.state?.planType,
+          page: location.state?.page,
+        }
+      });
     } catch (err) {
       console.error(err);
       toast.error("Failed to save plan");
@@ -197,12 +214,18 @@ export default function AddInsurancePlan() {
         cancelText="Cancel"
         onCancel={() => setOpenCancelConfirm(false)}
         onConfirm={() => {
-          navigate(-1);
           setOpenCancelConfirm(false);
+          navigate("/insurancePlanManagement", {
+            state: {
+              search: location.state?.search,
+              planType: location.state?.planType,
+              page: location.state?.page,
+            }
+          });
         }}
       />
 
-      <form onSubmit={handleSave} className="plan-form">
+      <form onSubmit={handleSaveClick} className="plan-form">
         <div className="form-grid">
           {/* LEFT COLUMN */}
           <div className="form-column">
@@ -380,7 +403,15 @@ export default function AddInsurancePlan() {
             className="cancel-btn"
             onClick={() => {
               if (isFormDirty) setOpenCancelConfirm(true);
-              else navigate(-1);
+              else {
+                navigate("/insurancePlanManagement", {
+                  state: {
+                    search: location.state?.search,
+                    planType: location.state?.planType,
+                    page: location.state?.page,
+                  }
+                });
+              };
             }}
           >
             Cancel
@@ -388,11 +419,6 @@ export default function AddInsurancePlan() {
           <button
             type="submit"
             className="save-btn"
-            onClick={() => {
-              if (validateForm()) {
-                setOpenSaveConfirm(true);
-              }
-            }}
           >
             {isEditMode ? "Update" : "Add"}
           </button>
