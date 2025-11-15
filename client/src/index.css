@@ -130,7 +130,6 @@ P {
   align-items: center;
 }
 
-
 input, textarea, select {
   border: 1.5px solid var(--input-border);
   border-radius: 6px;

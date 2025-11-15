@@ -9,7 +9,11 @@ import "../styles/InsuranceProfileSetup.css";
 export default function InsuranceProfileSetup() {
   const navigate = useNavigate();
   const handleBack = () => {
-    setOpenCancelConfirm(true);
+    if (isFormDirty) {
+      setOpenCancelConfirm(true);
+    } else {
+      navigate(-1);
+    }
   };
 
   const userId = localStorage.getItem("userId");
@@ -19,6 +23,8 @@ export default function InsuranceProfileSetup() {
   const [bdayValidation, setBdayValidation] = useState("");
   const [openSaveConfirm, setOpenSaveConfirm] = useState(false);
   const [openCancelConfirm, setOpenCancelConfirm] = useState(false);
+  const [isFormDirty, setIsFormDirty] = useState(false); 
+
   const mapFrequencyToText = (num) => {
     switch (parseInt(num)) {
       case 0: return "Never";
@@ -91,13 +97,28 @@ export default function InsuranceProfileSetup() {
   }, [userId]);
 
   const handleChange = (e) => {
+    setIsFormDirty(true);
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+  
+  const handleSaveClick = (e) => {
+    e.preventDefault();
+
+    const today = new Date();
+    const birthDate = new Date(formData.birth_date);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+
+    if (age < 18 || age > 70) {
+      setBdayValidation("Invalid birth date (must be 18–70 years old)");
+      return;
+    }
+
+    setOpenSaveConfirm(true);
   };
 
   const handleSave = async (e) => {
-    e.preventDefault();
-
-    // Validation
     for (let key in formData) {
       if (!formData[key]) {
         toast.error("Please fill all fields");
@@ -112,11 +133,7 @@ export default function InsuranceProfileSetup() {
     } catch (err) {
       console.error(err);
       if (err.response && err.response.status === 400) {
-        if(err.response.data.message == "Invalid birth date (must be 18–70 years old)"){
-          setBdayValidation("Invalid birth date (must be 18–70 years old)");
-        } else {
           toast.error(err.response.data.message || "Invalid data. Please check your inputs.");
-        }
       } else {
         toast.error("Failed to save profile. Please try again later.");
       }
@@ -159,12 +176,12 @@ export default function InsuranceProfileSetup() {
           setOpenCancelConfirm(false);
         }}
       />
-      <form onSubmit={handleSave} className="insurance-form">
+      <form onSubmit={handleSaveClick} className="insurance-form">
         {/* Left column */}
         <div className="form-grid">
           <div className="form-column">
             <div className="input-group">
-              <label>Gender<span className="required">*</span></label>
+              <label className="setup-label">Gender<span className="required">*</span></label>
               <select name="gender" value={formData.gender} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option>Male</option>
@@ -173,7 +190,7 @@ export default function InsuranceProfileSetup() {
             </div>
 
             <div className="input-group">
-              <label>Birth Date<span className="required">*</span></label>
+              <label className="setup-label">Birth Date<span className="required">*</span></label>
               <input
                 type="date"
                 name="birth_date"
@@ -185,7 +202,7 @@ export default function InsuranceProfileSetup() {
             </div>
 
             <div className="input-group">
-              <label>Height (cm)<span className="required">*</span></label>
+              <label className="setup-label">Height (cm)<span className="required">*</span></label>
               <input
                 type="number"
                 name="height"
@@ -210,7 +227,7 @@ export default function InsuranceProfileSetup() {
             </div>
 
             <div className="input-group">
-              <label>Weight (kg)<span className="required">*</span></label>
+              <label className="setup-label">Weight (kg)<span className="required">*</span></label>
               <input
                 type="number"
                 name="weight"
@@ -234,7 +251,7 @@ export default function InsuranceProfileSetup() {
             </div>
 
             <div className="input-group">
-              <label>Exercise<span className="required">*</span></label>
+              <label className="setup-label">Exercise<span className="required">*</span></label>
               <select name="exercise" value={formData.exercise} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option>Rarely</option>
@@ -244,7 +261,7 @@ export default function InsuranceProfileSetup() {
             </div>
 
             <div className="input-group">
-              <label>Drinks Alcohol<span className="required">*</span></label>
+              <label className="setup-label">Drinks Alcohol<span className="required">*</span></label>
               <select name="alcohol" value={formData.alcohol} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option>Never</option>
@@ -255,7 +272,7 @@ export default function InsuranceProfileSetup() {
             </div>
 
             <div className="input-group">
-              <label>
+              <label className="setup-label">
                 Allowance (RM)<span className="required">*</span>
               </label>
               <input
@@ -274,7 +291,7 @@ export default function InsuranceProfileSetup() {
           {/* Right column */}
           <div className="form-column">
             <div className="input-group">
-              <label>Smoke<span className="required">*</span></label>
+              <label className="setup-label">Smoke<span className="required">*</span></label>
               <select name="smoke" value={formData.smoke} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option>No</option>
@@ -283,7 +300,7 @@ export default function InsuranceProfileSetup() {
             </div>
 
             <div className="input-group">
-              <label>Diabetes<span className="required">*</span></label>
+              <label className="setup-label">Diabetes<span className="required">*</span></label>
               <select name="diabetes" value={formData.diabetes} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option>No</option>
@@ -292,7 +309,7 @@ export default function InsuranceProfileSetup() {
             </div>
 
             <div className="input-group">
-              <label>Cholesterol (mg/dL)<span className="required">*</span></label>
+              <label className="setup-label">Cholesterol (mg/dL)<span className="required">*</span></label>
               <input
                 type="number"
                 name="cholesterol"
@@ -302,7 +319,7 @@ export default function InsuranceProfileSetup() {
                   handleChange(e);
 
                   if (value < 100 || value > 400) {
-                    setCholesterolValidation("Invalid input, the height is not logical.");
+                    setCholesterolValidation("Invalid input, the cholesterol is not logical.");
                   } else {
                     setCholesterolValidation("");
                   }
@@ -316,7 +333,7 @@ export default function InsuranceProfileSetup() {
             </div>
 
             <div className="input-group">
-              <label>Asthma<span className="required">*</span></label>
+              <label className="setup-label">Asthma<span className="required">*</span></label>
               <select name="asthma" value={formData.asthma} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option>No</option>
@@ -325,7 +342,7 @@ export default function InsuranceProfileSetup() {
             </div>
 
             <div className="input-group">
-              <label>Family Cancer<span className="required">*</span></label>
+              <label className="setup-label">Family Cancer<span className="required">*</span></label>
               <select name="family_cancer" value={formData.family_cancer} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option>No</option>
@@ -334,7 +351,7 @@ export default function InsuranceProfileSetup() {
             </div>
 
             <div className="input-group">
-              <label>Heart Disease<span className="required">*</span></label>
+              <label className="setup-label">Heart Disease<span className="required">*</span></label>
               <select name="heart_disease" value={formData.heart_disease} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option>No</option>
@@ -343,7 +360,7 @@ export default function InsuranceProfileSetup() {
             </div>
 
             <div className="input-group">
-              <label>Occupation<span className="required">*</span></label>
+              <label className="setup-label">Occupation<span className="required">*</span></label>
               <select name="occupation" value={formData.occupation} onChange={handleChange} required>
                 <option value="">Select Occupation Type</option>
                 <option>Unemployed</option>
@@ -356,9 +373,8 @@ export default function InsuranceProfileSetup() {
         </div>
 
         <button
-          type="button"
+          type="submit"
           className="save-btn"
-          onClick={() => setOpenSaveConfirm(true)}
         >
           Save
         </button>

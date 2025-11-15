@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { getAllPlans, deletePlans } from "../api/insurancePlanAPI";
 import { FaPencilAlt, FaPlus, FaTrashAlt } from "react-icons/fa";
+import ConfirmDialog from "../components/ConfirmDialog.jsx";
 
 export default function InsurancePlanManagement() {
   const [plans, setPlans] = useState([]);
@@ -14,6 +15,7 @@ export default function InsurancePlanManagement() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0); 
   const [selectAll, setSelectAll] = useState(false);
+  const [openRemoveConfirm, setOpenRemoveConfirm] = useState(false);
   const limit = 10;
   const navigate = useNavigate();
 
@@ -72,26 +74,79 @@ export default function InsurancePlanManagement() {
     }
   };
 
-  const handleDelete = async () => {
-    if (selectedIds.length === 0) {
-      toast.warning("Please select at least one plan to delete");
-      return;
-    }
+  // const handleDelete = async () => {
+  //   if (!window.confirm("Are you sure you want to delete selected plans?")) return;
+  //   try {
+  //     await deletePlans(selectedIds);
+  //     toast.success("Selected plan(s) deleted successfully");
+  //     fetchPlans();
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to delete plans");
+  //   }
+  // };
+  const handleDelete = () => {
+    const removedPlans = plans.filter((p) => selectedIds.includes(p.plan_id));
+    setPlans((prev) => prev.filter((p) => !selectedIds.includes(p.plan_id)));
 
-    if (!window.confirm("Are you sure you want to delete selected plans?")) return;
-    try {
-      await deletePlans(selectedIds);
-      toast.success("Selected plan(s) deleted successfully");
-      fetchPlans();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete plans");
-    }
+    let undoClicked = false;
+
+    const undoToast = toast(
+      <div>
+        Plan(s) deleted.
+        <button
+          onClick={() => {
+            setPlans((prev) => [...prev, ...removedPlans]);
+            undoClicked = true; // ✅ mark undo as clicked
+            toast.dismiss(undoToast);
+          }}
+          style={{
+            color: "var(--main-pink)",
+            background: "none",
+            border: "none",
+            padding: "0",
+            margin: "0px",
+            marginLeft: "5px",
+            cursor: "pointer",
+          }}
+        >
+          Undo
+        </button>
+      </div>,
+      { autoClose: 5000 }
+    );
+
+    // Wait 5 seconds before actually deleting
+    setTimeout(async () => {
+      if (undoClicked) return; // ✅ skip deletion if Undo pressed
+      try {
+        await deletePlans(selectedIds);
+        toast.success("Selected plan(s) deleted successfully");
+        fetchPlans();
+      } catch (err) {
+        toast.error("Failed to delete plans");
+      }
+    }, 5000);
   };
+
 
   return (
     <div className="insurance-plan-container">
       <h2>Insurance Plan Management</h2>
+
+      <ConfirmDialog
+        open={openRemoveConfirm}
+        action="delete"
+        subject="insurance plan"
+        message="Do you confirm to delete the selected plan(s)?"
+        confirmText="Delete"
+        cancelText="Cancel"
+        onCancel={() => setOpenRemoveConfirm(false)}
+        onConfirm={() => {
+          setOpenRemoveConfirm(false);
+          handleDelete();
+        }}
+      />
 
       {/* ===== Filter Bar ===== */}
       <div className="filter-bar">
@@ -114,7 +169,12 @@ export default function InsurancePlanManagement() {
         </div>
 
         <div className="button-area">
-            <button className="delete-btn" onClick={handleDelete}>
+            <button className="delete-btn" 
+              onClick={() => {
+                if (selectedIds.length === 0)
+                  return toast.warning("Please select at least one plan to delete");
+                else setOpenRemoveConfirm(true)} } 
+            >
             <FaTrashAlt style={{ marginRight: "6px" }} />
           </button>
           <button

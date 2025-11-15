@@ -218,7 +218,7 @@ export default function Profile() {
                   <span className="info-value">{formatFrequency(profile.alcohol)}</span>
                 </div>
                 <div className="info-row">
-                  <span className="info-label">Somke:</span>
+                  <span className="info-label">Smoke:</span>
                   <span className="info-value">{formatYesNo(profile.smoke)}</span>
                 </div>
                 <div className="info-row">

@@ -66,15 +66,6 @@ export default function AccountManagement() {
     }
   };
 
-  // const formatStatus = (value) => {
-  //   if (value = 1){
-  //     return "Active";
-  //   }
-  //   if (value = 0) {
-  //     return "Inactive";
-  //   }
-  // }
-
   return (
     <div className="account-container">
       <h2>User Accounts</h2>

@@ -111,11 +111,6 @@ export const saveInsuranceProfile = async (req, res) => {
     const parsedHeight = parseFloat(height);
     const parsedWeight = parseFloat(weight);
     const parsedAllowance = parseFloat(allowance);
-    const today = new Date();
-
-    if (birth_date > today || age < 18 || age > 70) {
-      return res.status(400).json({ message: "Invalid birth date (must be 18–70 years old)" });
-    }
 
     // Check if profile exists
     const [existing] = await db.query(

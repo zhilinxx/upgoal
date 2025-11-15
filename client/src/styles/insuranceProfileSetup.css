@@ -10,6 +10,14 @@
   margin-right: 150px;
 }
 
+.insurance-form label {
+  color: var(--main-pink);
+}
+
+.input-group .setup-label {
+  color: var(--text-dark);
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -58,5 +66,8 @@
   .insurance-form {
     margin-left: 10px;
     margin-right: 10px;
-}
+  }
+  .input-group .setup-label {
+    font-size: 13px;
+  }
 }

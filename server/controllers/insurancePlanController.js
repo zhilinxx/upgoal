@@ -147,7 +147,7 @@ export const addPlan = async (req, res) => {
       `INSERT INTO insurance_plan 
       (plan_name, plan_type, provider, provider_logo, provider_phone, provider_email, premium, payment_structure, brochure_path, 
        sum_assured, coverage_age, coverage_scope, CI, annual_limit, lifetime_limit, hp_room_board)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         plan_name, plan_type, provider, logoPath, provider_phone, provider_email || null,
         premium, payment_structure, brochurePath,
