@@ -27,19 +27,24 @@ function BudgetSummary({ income, breakdown, currency }) {
     <div className="budget-summary-section">
       <div className="budget-doughnut-container">
         <Doughnut
+          key={breakdown.map(b => Number(b.amount) || 0).join("|")}
           data={chartData}
           options={{
-            // lets the canvas fill the container we size in CSS
             maintainAspectRatio: false,
-            // controls donut thickness (bigger % = bigger hole)
             cutout: "72%",
             plugins: {
               legend: { display: false },
               tooltip: {
                 displayColors: false,
                 callbacks: {
-                  title: () => "", // hide auto title
-                  label: (ctx) => `${ctx.label}: ${currency} ${ctx.formattedValue}`,
+                  title: () => "",
+                  label: (ctx) => {
+                    const val = Number(ctx.parsed).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    });
+                    return `${ctx.label}: ${currency} ${val}`;
+                  },
                 },
               },
             },
@@ -49,7 +54,11 @@ function BudgetSummary({ income, breakdown, currency }) {
         <div className="budget-chart-center">
           <p className="budget-chart-label">{monthLabel} Income</p>
           <h3 className="budget-chart-amount">
-            {currency} {Number(income || 0).toLocaleString()}
+            {currency}{" "}
+            {Number(income || 0).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </h3>
         </div>
       </div>
@@ -67,7 +76,11 @@ function BudgetSummary({ income, breakdown, currency }) {
               </span>
 
               <span className="budget-legend-value">
-                {currency} {Number(item.amount).toLocaleString()}
+                {currency}{" "}
+                {Number(item.amount || 0).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </span>
             </li>
           ))}

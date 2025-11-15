@@ -286,12 +286,38 @@ const to2 = (v) => {
   return Number.isFinite(n) ? n.toFixed(2) : "";
 };
 
+/** Keep only digits + one dot, clamp to two decimals while typing */
+const sanitizeMoney = (raw) => {
+  let s = String(raw);
+  // remove everything except digits and dots
+  s = s.replace(/[^0-9.]/g, "");
+  // if multiple dots, keep first
+  const first = s.indexOf(".");
+  if (first !== -1) {
+    s =
+      s.slice(0, first + 1) +
+      s
+        .slice(first + 1)
+        .replace(/\./g, ""); // drop remaining dots
+  }
+  // limit decimals to 2
+  if (first !== -1) {
+    const intPart = s.slice(0, first);
+    const decPart = s.slice(first + 1, first + 1 + 2);
+    s = (intPart || "0") + "." + decPart;
+  }
+  // strip leading zeros (but keep "0" or "0.xx")
+  s = s.replace(/^0+(?=\d)/, ""); // keep a single 0 before dot if needed
+  if (s.startsWith(".")) s = "0" + s;
+  return s;
+};
+
 export default function IncomeSetup() {
   const navigate = useNavigate();
 
   const [incomeId, setIncomeId] = useState(null);
   const [netIncome, setNetIncome] = useState("");
-  const [lifestyle, setLifestyle] = useState(""); // ← start empty so placeholder can show
+  const [lifestyle, setLifestyle] = useState(""); // start empty so placeholder can show
   const [housingLoan, setHousingLoan] = useState("");
   const [carLoan, setCarLoan] = useState("");
   const [otherCommitments, setOtherCommitments] = useState([
@@ -301,7 +327,7 @@ export default function IncomeSetup() {
   // inline errors per field
   const [errors, setErrors] = useState({
     netIncome: "",
-    lifestyle: "", // ← track lifestyle error
+    lifestyle: "",
     housingLoan: "",
     carLoan: "",
     others: [],
@@ -325,7 +351,7 @@ export default function IncomeSetup() {
         // Only assign if the saved value is one of our allowed options.
         const valid = ["Frugal", "Balanced", "Luxury"];
         const saved = data.lifestyle;
-        setLifestyle(valid.includes(saved) ? saved : ""); // keep "" so placeholder shows if nothing saved
+        setLifestyle(valid.includes(saved) ? saved : "");
 
         setHousingLoan(
           data.commitments?.housingLoan ? to2(data.commitments.housingLoan) : ""
@@ -416,21 +442,19 @@ export default function IncomeSetup() {
       form: "",
     };
 
-    // netIncome required
+    // netIncome required & > 0
     if (!amountOK(netIncome) || netIncome === "") {
       next.netIncome =
         "Monthly Net Income is required and must be a valid number (max 2 decimals).";
     } else {
       const n = toNum(netIncome);
       if (!(n >= 0)) next.netIncome = "Monthly Net Income cannot be negative.";
+      else if (n === 0) next.netIncome = "Monthly Net Income must be greater than 0.";
       else if (n > MAX_DECIMAL_NUM)
         next.netIncome = `Monthly Net Income exceeds the maximum RM ${MAX_DECIMAL_STR}.`;
     }
 
-    // lifestyle required because we bypass native validation with the confirm dialog
-    if (!lifestyle) {
-      next.lifestyle = "Please select a lifestyle preference.";
-    }
+    if (!lifestyle) next.lifestyle = "Please select a lifestyle preference.";
 
     next.housingLoan = validateMoney("Housing Loan", housingLoan);
     next.carLoan = validateMoney("Car Loan", carLoan);
@@ -458,7 +482,7 @@ export default function IncomeSetup() {
     const payload = {
       userId,
       netIncome: Number(to2(netIncome)),
-      lifestyle, // will be a real choice now
+      lifestyle,
       commitments: {
         housingLoan: housingLoan ? Number(to2(housingLoan)) : 0,
         carLoan: carLoan ? Number(to2(carLoan)) : 0,
@@ -528,9 +552,10 @@ export default function IncomeSetup() {
             <input
               type="text"
               inputMode="decimal"
+              pattern="^\d+(\.\d{1,2})?$"
               placeholder={`e.g., up to ${MAX_DECIMAL_STR}`}
               value={netIncome}
-              onChange={(e) => setNetIncome(e.target.value)}
+              onChange={(e) => setNetIncome(sanitizeMoney(e.target.value))}
               onBlur={(e) => setNetIncome(to2(e.target.value))}
               required
             />
@@ -553,12 +578,10 @@ export default function IncomeSetup() {
               required
               className={lifestyle === "" ? "income-placeholder" : ""}
             >
-              {/* Placeholder (disabled, shows when value === "") */}
               <option value="" disabled>
                 -- Select a lifestyle preference --
               </option>
-
-              {/* Real choices */}
+              <option value="None">None</option>
               <option value="Frugal">Frugal</option>
               <option value="Balanced">Balanced</option>
               <option value="Luxury">Luxury</option>
@@ -579,9 +602,10 @@ export default function IncomeSetup() {
             <input
               type="text"
               inputMode="decimal"
+              pattern="^\d+(\.\d{1,2})?$"
               placeholder="e.g., 500.00"
               value={housingLoan}
-              onChange={(e) => setHousingLoan(e.target.value)}
+              onChange={(e) => setHousingLoan(sanitizeMoney(e.target.value))}
               onBlur={(e) => setHousingLoan(to2(e.target.value))}
             />
             {errors.housingLoan && (
@@ -596,9 +620,10 @@ export default function IncomeSetup() {
             <input
               type="text"
               inputMode="decimal"
+              pattern="^\d+(\.\d{1,2})?$"
               placeholder="e.g., 500.00"
               value={carLoan}
-              onChange={(e) => setCarLoan(e.target.value)}
+              onChange={(e) => setCarLoan(sanitizeMoney(e.target.value))}
               onBlur={(e) => setCarLoan(to2(e.target.value))}
             />
             {errors.carLoan && <p className="validation">{errors.carLoan}</p>}
@@ -629,10 +654,15 @@ export default function IncomeSetup() {
             <input
               type="text"
               inputMode="decimal"
+              pattern="^\d+(\.\d{1,2})?$"
               placeholder="e.g., 100.00"
               value={item.amount}
-              onChange={(e) => setOtherField(idx, "amount", e.target.value)}
-              onBlur={(e) => setOtherField(idx, "amount", to2(e.target.value))}
+              onChange={(e) =>
+                setOtherField(idx, "amount", sanitizeMoney(e.target.value))
+              }
+              onBlur={(e) =>
+                setOtherField(idx, "amount", to2(e.target.value))
+              }
             />
             <button
               type="button"

@@ -70,28 +70,28 @@
 /* Donut box: don't auto-center inside its cell */
 .expenses-doughnut-container{
   position: relative;
-  width: clamp(180px, 22vw, 260px);  /* size you like */
+  width: clamp(180px, 22vw, 260px);
   height: clamp(180px, 22vw, 260px);
-  margin: 0;                         
+  margin: 0;
   margin-top: 20px;
   margin-bottom: 20px;
-  flex: 0 0 auto;                    /* fixed; don't stretch */
+  flex: 0 0 auto;          /* fixed; don't stretch */
   min-width: 0;
 }
 
 /* Legend becomes a compact block next to the donut */
 .expenses-legend-area{
-  flex: 0 0 auto;        /* <— don't grow to the whole row */
+  flex: 0 0 auto;          /* don’t grow to the whole row */
   width: 100%;
-  max-width: 340px;      /* tighten to keep it near the donut; tweak 300–380 */
-  padding-top: 0;        /* align with donut center */
-  margin-left: 8px;      /* tiny nudge towards donut */
+  max-width: 340px;        /* tweak 300–380 if needed */
+  padding-top: 0;
+  margin-left: 8px;        /* small nudge towards donut */
 }
 
-/* optional: make each legend row use a fixed value column */
+/* legend rows */
 .expenses-legend-item{
   display: grid;
-  grid-template-columns: 1fr 110px;  /* name block | value */
+  grid-template-columns: 1fr 110px; /* name | value */
   align-items: center;
   column-gap: 12px;
   margin-bottom: 14px;
@@ -99,25 +99,25 @@
 .expenses-legend-left{
   display: inline-flex;
   align-items: center;
-  gap: 6px;              /* dot ↔ name */
+  gap: 6px;                /* dot ↔ name */
   min-width: 0;
 }
 .expenses-legend-value{
   text-align: right;
   white-space: nowrap;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.expenses-warning-inline{
+  color: red;
 }
 
 /* Stack on small screens (keeps both centered) */
 @media (max-width: 600px){
-  .expenses-summary-section{
-    flex-direction: column;
-  }
-  .expenses-legend-area{
-    max-width: 420px;
-    margin-left: 0;
-  }
+  .expenses-summary-section{ flex-direction: column; }
+  .expenses-legend-area{ max-width: 420px; margin-left: 0; }
 }
-
 
 .expenses-chart-center {
   position: absolute;
@@ -177,7 +177,6 @@
   display: block;
 }
 
-
 /* ───────── Controls / table / pagination ───────── */
 .expenses-container .top-controls {
   margin-top: 6px;
@@ -196,8 +195,7 @@
   border-radius: 10px;
   background: var(--section-bg);
   font-size: 13px;
-  line-height: 1;
-  /* keep height consistent */
+  line-height: 1;  /* keep height consistent */
   color: #999;
   outline: none;
   box-sizing: border-box;
@@ -210,8 +208,7 @@
 }
 
 /* --- Unified placeholder color behavior for all top controls --- */
-
-/* Base text color (when actual value entered or selected) */
+/* Base text color when value exists */
 .expenses-container .calendar-icon,
 .expenses-container .search-input,
 .expenses-container .category-filter {
@@ -219,61 +216,31 @@
 }
 
 /* Placeholder gray */
-.expenses-container .search-input::placeholder {
-  color: #999;
-  opacity: 1; /* ensure consistent in Safari/Firefox */
-}
+.expenses-container .search-input::placeholder { color: #999; opacity: 1; }
 
 /* When nothing selected in dropdown */
-.expenses-container .category-filter[data-placeholder="true"] {
-  color: #999;
-}
+.expenses-container .category-filter[data-placeholder="true"] { color: #999; }
 
 /* Optional: make unselected <option> gray in dropdown */
-.expenses-container .category-filter option[value=""] {
-  color: #999;
-}
+.expenses-container .category-filter option[value=""] { color: #999; }
 
 /* Internal date text color fix for <input type="month"> */
-.expenses-container .calendar-icon::-webkit-datetime-edit {
-  color: var(--text-color);
-}
-.expenses-container .calendar-icon[data-placeholder="true"]::-webkit-datetime-edit {
-  color: #999;
-}
-
+.expenses-container .calendar-icon::-webkit-datetime-edit { color: var(--text-color); }
+.expenses-container .calendar-icon[data-placeholder="true"]::-webkit-datetime-edit { color: #999; }
 
 /* Icon actions */
-.expenses-container .icon-actions {
-  display: flex;
-  gap: 8px;
-  justify-self: end;
+.expenses-container .icon-actions{ display:flex; gap:8px; justify-self:end; }
+.expenses-container .icon-btn{
+  border:none; border-radius:10px; padding:7px 10px; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; font-size:16px;
 }
-
-.expenses-container .icon-btn {
-  border: none;
-  border-radius: 10px;
-  padding: 7px 10px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-}
-
-.expenses-container .add-btn {
-  background: var(--lighter-pink);
-}
-
-.expenses-container .delete-btn {
-  background: var(--lighter-pink);
-}
-
-.expenses-container .icon-btn:hover {
-  background: var(--main-pink);
-  color: #fff;                   /* make icon contrast clearly */
-  opacity: 1;                    /* force full opacity on hover */
-  transform: scale(1.05);        /* optional: subtle pop */
+.expenses-container .add-btn{ background:var(--lighter-pink); }
+.expenses-container .delete-btn{ background:var(--lighter-pink); }
+.expenses-container .icon-btn:hover{
+  background:var(--main-pink);
+  color:#fff;
+  opacity:1;
+  transform:scale(1.05);
 }
 
 /* Table */
@@ -283,201 +250,152 @@
   -webkit-overflow-scrolling: touch;
   border-radius: 10px;
 }
-
-.expenses-container .table-scroll-x::-webkit-scrollbar {
-  height: 8px;
-}
-
-.expenses-container .table-scroll-x::-webkit-scrollbar-thumb {
-  background: #eec3c3;
-  border-radius: 999px;
-}
-
-.expenses-container .table-scroll-x::-webkit-scrollbar-track {
-  background: #faf6f6;
-}
+.expenses-container .table-scroll-x::-webkit-scrollbar { height: 8px; }
+.expenses-container .table-scroll-x::-webkit-scrollbar-thumb { background:#eec3c3; border-radius:999px; }
+.expenses-container .table-scroll-x::-webkit-scrollbar-track { background:#faf6f6; }
 
 /* Give the table wrapper some default breathing room above pagination */
-.table-scroll-x {
-  margin-bottom: 20px;
-}
+.table-scroll-x { margin-bottom: 20px; }
 
 /* When the table is empty, add extra space to push pagination down */
-.table-scroll-x.is-empty {
-  margin-bottom: 48px;
-  /* tweak to taste */
-}
+.table-scroll-x.is-empty { margin-bottom: 48px; }
 
 /* Make the "No records." row tall and centered */
-.expense-table tbody tr.no-rows td {
-  padding: 36px 16px 48px;
-  /* extra bottom padding so shadow won't touch pagination */
-  text-align: center;
-  color: var(--muted-text, #aaa);
-  border-bottom: none;
+.expense-table tbody tr.no-rows td{
+  padding:36px 16px 48px;
+  text-align:center;
+  color:var(--muted-text, #aaa);
+  border-bottom:none;
 }
 
-
-.expenses-container .expense-table {
-  min-width: 760px;
-  width: 100%;
-  border-collapse: collapse;
-  border: 2px solid var(--lighter-pink);
-  background: var(--section-bg);
+.expenses-container .expense-table{
+  min-width:760px; width:100%; border-collapse:collapse;
+  border:2px solid var(--lighter-pink);
+  background:var(--section-bg);
 }
-
-.expenses-container .expense-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: #ffe5e6;
-  color: #555;
-  text-align: center;
-  padding: 10px;
-  font-size: 14px;
-  font-weight: 700;
+.expenses-container .expense-table thead th{
+  position:sticky; top:0; z-index:1;
+  background:#ffe5e6; color:#555; text-align:center;
+  padding:10px; font-size:14px; font-weight:700;
 }
-
-.expenses-container .expense-table tbody td {
-  padding: 10px;
-  font-size: 14px;
-  color: var(--text-color);
-  text-align: center;
+.expenses-container .expense-table tbody td{
+  padding:10px; font-size:14px; color:var(--text-color); text-align:center;
 }
+.expenses-container .expense-table tbody tr:nth-child(even) td{ background:var(--bg-color); }
 
-.expenses-container .expense-table tbody tr:nth-child(even) td {
-  background: var(--bg-color);
-}
-
-.expenses-container .edit-btn {
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.expenses-container .edit-btn{
+  background:transparent; border:none; border-radius:8px;
+  padding:6px 8px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
   color: var(--main-pink);
 }
 
 /* Pagination */
-.expenses-container .pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-top: 12px;
+.expenses-container .pagination{
+  display:flex; justify-content:center; align-items:center; gap:10px; margin-top:12px;
 }
-
-.expenses-container .page-btn {
-  background: var(--main-pink);
-  border: none;
-  border-radius: 999px;
-  padding: 7px 14px;
-  color: #fff;
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
+.expenses-container .page-btn{
+  background:var(--main-pink); border:none; border-radius:999px;
+  padding:7px 14px; color:#fff; font-weight:600; font-size:13px; cursor:pointer;
 }
-
-.expenses-container .page-btn:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-
-.expenses-container .page-number {
-  background: var(--main-pink);
-  border: none;
-  border-radius: 999px;
-  padding: 7px 14px;
-  color: #fff;
-  font-weight: 600;
-  font-size: 13px;
-  text-align: center;
+.expenses-container .page-btn:disabled{ opacity:.5; cursor:not-allowed; }
+.expenses-container .page-number{
+  background:var(--main-pink); border:none; border-radius:999px;
+  padding:7px 14px; color:#fff; font-weight:600; font-size:13px; text-align:center;
 }
 
 /* Desktop layout for controls */
-@media (min-width:768px) {
-  .expenses-container .top-controls {
-    grid-template-columns: 220px 1fr 200px auto auto;
-    /* month | search | category | trash | add */
-    align-items: center;
+@media (min-width:768px){
+  .expenses-container .top-controls{
+    grid-template-columns: 220px 1fr 200px auto auto; /* month | search | category | trash | add */
+    align-items:center;
   }
 }
 
 /* Focus ring */
 .expenses-container .calendar-icon:focus,
 .expenses-container .search-input:focus,
-.expenses-container .category-filter:focus {
-  border-color: #ffb9c0;
-  box-shadow: 0 0 0 3px rgba(255, 137, 155, .15);
+.expenses-container .category-filter:focus{
+  border-color:#ffb9c0;
+  box-shadow:0 0 0 3px rgba(255,137,155,.15);
 }
 
-/* ===== Modal (ConfirmDialog) – shared styles ===== */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;          /* ensure above everything */
-  padding: 16px;
+/* ===== Modal (ConfirmDialog / ExpenseDialog / GoalDialog) ===== */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.35);
+  display:flex; align-items:center; justify-content:center;
+  z-index:10000; padding:16px;
+}
+.modal-card{
+  width:clamp(320px,92vw,720px);
+  max-height:90vh; overflow:auto;
+  background:var(--bg-color, #fff);
+  border-radius:16px; padding:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+  scrollbar-width:none;
+}
+.modal-card::-webkit-scrollbar{ display:none; }
+
+.modal-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.modal-card h3{ margin:0; }
+.modal-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:14px; }
+
+/* ---- Uniform field layout inside dialogs ---- */
+.modal-card label{
+  margin:10px 0 4px;
+  font-size:.9rem;
+  text-align:left;
+  color:var(--text-color);
 }
 
-.modal-card {
-  width: clamp(320px, 92vw, 720px);
-  max-height: 90vh;
-  overflow: auto;
-  background: var(--bg-color, #fff);
-  border-radius: 16px;
-  padding: 18px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+/* All form controls align and share size */
+.modal-card input,
+.modal-card select,
+.modal-card textarea{
+  width:100%;
+  box-sizing:border-box;
+  background:var(--section-bg);
+  color:var(--text-color);
+  border:1px solid #e3e3e3;
+  border-radius:10px;
+  font-size:14px;
 }
 
-
-/* optional niceties */
-.modal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
-.modal-card h3 { margin:0; }
-.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:14px; }
-
-/* hide scrollbars inside the card but keep scrolling */
-.modal-card { scrollbar-width: none; }
-.modal-card::-webkit-scrollbar { display: none; }
-
-/* Move the Category <select> field left inside ExpenseDialog */
-.modal-card select {
-  background: var(--section-bg);
-  margin-left: -355px; 
-  color: var(--text-color);
-  width: calc(30% + 10px); /* optional: preserve width alignment */
+.modal-card input,
+.modal-card select{
+  height:42px;
+  line-height:1;
+  padding:10px 12px;
 }
 
-/* Gray only when the select is showing the placeholder */
-.modal-card select[data-placeholder="true"] {
-  color: #999;
+.modal-card textarea{
+  padding:10px 12px;
+  resize:vertical;
 }
 
-/* Ensure dropdown items render with the normal text color */
-.modal-card select option {
-  color: var(--text-color);
+/* Select look & placeholder handling */
+.modal-card select{
+  appearance:auto; -webkit-appearance:auto; -moz-appearance:auto;
 }
+.modal-card select[data-placeholder="true"]{ color:#999; }
+.modal-card select option{ color:var(--text-color); }
+.modal-card select option[disabled][value=""]{ color:#999; }
 
-/* Keep the placeholder option gray in the dropdown list as well (optional) */
-.modal-card select option[disabled][value=""] {
-  color: #999;
+/* Date field – keep calendar icon fixed and aligned */
+.modal-card .date-field{ position:relative; }
+.modal-card .date-field .calendar-icon{
+  padding-right:44px;                 /* room for icon */
+  -webkit-appearance:none; appearance:none;
 }
-
-.modal-card input[type="date"] {
-  margin-left: -20px;
-  color: var(--text-color);
+.modal-card .date-field .calendar-icon::-webkit-calendar-picker-indicator{
+  position:absolute; right:14px; top:50%; transform:translateY(-50%);
+  cursor:pointer; opacity:1;
 }
+.modal-card input[type="date"]{ color:var(--text-color); }
 
-
-@media (max-width: 480px) {
-  .modal-card { width: 100%; max-height: 92vh; border-radius: 14px; padding: 14px; }
+/* Responsive dialog sizes */
+@media (max-width:480px){
+  .modal-card{ width:100%; max-height:92vh; border-radius:14px; padding:14px; }
 }
-@media (min-width: 1200px) {
-  .modal-card { width: clamp(420px, 46vw, 820px); padding: 22px; }
+@media (min-width:1200px){
+  .modal-card{ width:clamp(420px,46vw,820px); padding:22px; }
 }

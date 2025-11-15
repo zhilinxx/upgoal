@@ -1,5 +1,9 @@
+// controllers/goalsController.js
 import {
-  listGoalsRepo, createGoalRepo, updateGoalRepo, deleteGoalRepo,
+  listGoalsRepo,
+  createGoalRepo,
+  updateGoalRepo,
+  deleteGoalRepo,
 } from "../repositories/goalsRepository.js";
 
 const getUserId = (req) => {
@@ -15,21 +19,30 @@ export async function listGoalsCtrl(req, res, next) {
   try {
     const userId = getUserId(req);
     if (!userId) return res.status(400).json({ error: "userId required" });
+
     const rows = await listGoalsRepo(userId);
+    // rows[].deadline is already 'YYYY-MM-DD'
     res.json(rows);
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 }
 
 export async function createGoalCtrl(req, res, next) {
   try {
     const userId = getUserId(req);
     const { name, target, description, dueDate } = req.body || {};
+
     if (!userId || !name || target == null || !dueDate) {
       return res.status(400).json({ error: "Missing required fields" });
     }
+
     const row = await createGoalRepo({ userId, name, target, description, dueDate });
+    // row.deadline is 'YYYY-MM-DD'
     res.status(201).json(row);
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 }
 
 export async function updateGoalCtrl(req, res, next) {
@@ -43,11 +56,15 @@ export async function updateGoalCtrl(req, res, next) {
     }
 
     const { name, target, description, dueDate, saved } = req.body || {};
-    await updateGoalRepo(id, { name, target, description, dueDate, saved });
+    const row = await updateGoalRepo(id, { name, target, description, dueDate, saved });
 
-    // return shape your UI expects
-    res.json({ id, name, target, current: saved, deadline: dueDate, description });
-  } catch (e) { next(e); }
+    if (!row) return res.status(404).json({ error: "goal not found" });
+
+    // row.deadline is 'YYYY-MM-DD'
+    res.json(row);
+  } catch (e) {
+    next(e);
+  }
 }
 
 export async function deleteGoalCtrl(req, res, next) {
@@ -62,5 +79,7 @@ export async function deleteGoalCtrl(req, res, next) {
 
     await deleteGoalRepo(id, userId);
     res.json({ ok: true });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 }

@@ -6,7 +6,7 @@ import "../styles/Expenses.css";
 const amountOK = (v) => /^(\d{1,3}(,\d{3})*|\d+)(\.\d{1,2})?$/.test(String(v).trim());
 const toNum = (v) => Number(String(v).replace(/,/g, ""));
 const to2 = (v) => {
-  const n = toNum(v);
+  const n = toNum(String(v).replace(/,/g, ""));
   return Number.isFinite(n) ? n.toFixed(2) : "";
 };
 const isPastOrToday = (iso) => {
@@ -16,7 +16,7 @@ const isPastOrToday = (iso) => {
   return d <= today;
 };
 
-/* ---------- Typing guard for money ---------- */
+/* ---------- Typing guard for money (≤ 2 dp) ---------- */
 const isMoneyTypingOK = (s) => {
   const v = String(s);
   if (v === "") return true;
@@ -26,7 +26,7 @@ const isMoneyTypingOK = (s) => {
   if (dec && dec.length > 2) return false;
   return true;
 };
-const sanitizeMoney = (s) => s.replace(/[^0-9.,]/g, "");
+const sanitizeMoney = (s) => String(s).replace(/[^0-9.,]/g, "");
 
 export default function ExpenseDialog({
   open,
@@ -101,7 +101,7 @@ export default function ExpenseDialog({
     const id = initialRef.current?.expenses_id;
     return {
       expenses_name: name.trim(),
-      expenses_amt: Number(to2(amount)),
+      expenses_amt: Number(to2(amount)),        // guaranteed 2 dp
       expenses_category: category,
       expenses_date: date,
       ...(id ? { expenses_id: id } : {}),
@@ -195,7 +195,7 @@ export default function ExpenseDialog({
               value={date}
               max={new Date().toISOString().slice(0, 10)}
               onChange={(e) => setDate(e.target.value)}
-              data-placeholder={!date} 
+              data-placeholder={!date}
             />
           </div>
           {errors.date && <p className="validation">{errors.date}</p>}

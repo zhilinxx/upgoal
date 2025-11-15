@@ -6,14 +6,39 @@ import {
 } from "../services/expensesService.js";
 
 export const readMonthlyExpenses = async (req, res, next) => {
-    try {
-        const userId = req.user?.user_id || Number(req.query.userId || req.body.userId) || 4;
-        const { month = "2025-10", page = 1, pageSize = 10, search = "", category = "" } = req.query;
-        const data = await getMonthlyExpenses({ userId, month, page, pageSize, search, category });
-        res.json(data);
-    } catch (e) {
-        next(e);
-    }
+  try {
+    const userId =
+      req.user?.user_id || Number(req.query.userId || req.body.userId) || 4;
+
+    // Let month come from the querystring (set by your month picker)
+    // If you want a default, use current month; otherwise leave undefined.
+    const currentMonth = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+
+    const {
+      month = currentMonth,          // <-- no more hard-coded "2025-10"
+      page = 1,
+      pageSize = 10,
+      search = "",
+      category = "",
+    } = req.query;
+
+    // (Optional) normalize numbers
+    const pageNum = Number(page) || 1;
+    const pageSizeNum = Number(pageSize) || 10;
+
+    const data = await getMonthlyExpenses({
+      userId,
+      month,
+      page: pageNum,
+      pageSize: pageSizeNum,
+      search,
+      category,
+    });
+
+    res.json(data);
+  } catch (e) {
+    next(e);
+  }
 };
 
 export const createExpense = async (req, res, next) => {
