@@ -1,6 +1,7 @@
+// client/src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { getProfile } from "../api/profileAPI";
-import { logoutUser } from "../api/auth"; // ✅ import logout API
+import { logoutUser } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 import "../styles/profile.css";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
@@ -12,7 +13,8 @@ export default function Profile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [openLogoutConfirm, setOpenLogoutConfirm] = useState(false);
   const navigate = useNavigate();
-  // ✅ Convert database values into readable text
+
+  // --- helpers ---
   const formatGender = (value) => {
     if (value === "M") return "Male";
     if (value === "F") return "Female";
@@ -45,7 +47,6 @@ export default function Profile() {
     }
   };
 
-  // ✅ Format date into readable format
   const formatDate = (isoString) => {
     if (!isoString) return "-";
     const date = new Date(isoString);
@@ -56,15 +57,19 @@ export default function Profile() {
     });
   };
 
+  // always show 2 decimals for money
+  const fmt2 = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n.toFixed(2) : "-";
+  };
 
-  // handle resize
+  // --- effects ---
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // fetch profile
   useEffect(() => {
     (async () => {
       try {
@@ -76,7 +81,6 @@ export default function Profile() {
     })();
   }, []);
 
-  // ✅ Logout function
   const handleLogout = async () => {
     try {
       await logoutUser();
@@ -96,160 +100,170 @@ export default function Profile() {
   return (
     <div className="profile-container">
       <h2>Profile</h2>
-    <div className="profile-inner">
-      {/* Change Password */}
+      <div className="profile-inner">
+        {/* Always visible account/email + actions */}
         <div className="profile-section">
           <div className="always">
+            <h3>Email: {profile.email}</h3>
+          </div>
 
-          <h3>Email: {profile.email}</h3>
-        </div>
-        <div className="favourite" onClick={() => navigate("/forgotPassword")}>
-                                   <hr />
-          <div className="section-header">
+          <div className="favourite" onClick={() => navigate("/forgotPassword")}>
+            <hr />
+            <div className="section-header">
+              <h3>Change Password</h3>
+              <FaChevronRight className="chevron-icon" />
+            </div>
+          </div>
 
-            <h3>Change Password</h3>
-            <FaChevronRight className="chevron-icon" />
+          <div className="favourite" onClick={() => navigate("/favouriteList")}>
+            <hr />
+            <div className="section-header">
+              <h3>Insurance Favourite List</h3>
+              <FaChevronRight className="chevron-icon" />
+            </div>
           </div>
         </div>
 
-          {/* Favourite list */}
-        <div className="favourite" onClick={() => navigate("/favouriteList")}>
-                                   <hr />
-          <div className="section-header">
-
-            <h3>Insurance Favourite List</h3>
-            <FaChevronRight className="chevron-icon" />
-          </div>
-        </div>
-      </div>
-
-      {/* Income Setup */}
-      <div className="profile-section">
-        {isMobile ? (
-          <div className="section-header" onClick={() => toggleSection("income")}>
-            <h3>Income Setup</h3>
-            {openSection === "income" ? <FaChevronDown className="chevron-icon" /> : <FaChevronRight className="chevron-icon" />}
-          </div>
-        ) : (
-          <h3>Income Setup</h3>
-        )}
-        {(!isMobile || openSection === "income") && (
-          <div className="section-content">
-            <div className="info-list">
-              <div className="info-row">
-                <span className="info-label">Monthly Income:</span>
-                <span className="info-value">RM {profile.net_income}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Lifestyle:</span>
-                <span className="info-value">{profile.lifestyle}</span>
-              </div>
-
-              {/* ✅ Dynamically display all commitments */}
-              {profile.commitments && profile.commitments.length > 0 ? (
-                profile.commitments.map((c, index) => (
-                  <div key={index} className="info-row">
-                    <span className="info-label">{c.type}:</span>
-                    <span className="info-value">RM {c.amt}</span>
-                  </div>
-                ))
+        {/* Income Setup */}
+        <div className="profile-section">
+          {isMobile ? (
+            <div className="section-header" onClick={() => toggleSection("income")}>
+              <h3>Income Setup</h3>
+              {openSection === "income" ? (
+                <FaChevronDown className="chevron-icon" />
               ) : (
-                <div className="info-row">
-                  <span className="info-label">Monthly Commitments:</span>
-                  <span className="info-value">None</span>
-                </div>
+                <FaChevronRight className="chevron-icon" />
               )}
             </div>
-            <div className="btn-section">
-              <button className="edit-btn" onClick={() => navigate("/incomeSetup")}>
-                <FaEdit /> Edit
-              </button>
+          ) : (
+            <h3>Income Setup</h3>
+          )}
+
+          {(!isMobile || openSection === "income") && (
+            <div className="section-content">
+              <div className="info-list">
+                <div className="info-row">
+                  <span className="info-label">Monthly Income:</span>
+                  <span className="info-value">RM {fmt2(profile.net_income)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Lifestyle:</span>
+                  <span className="info-value">{profile.lifestyle || "-"}</span>
+                </div>
+
+                {profile.commitments && profile.commitments.length > 0 ? (
+                  profile.commitments.map((c, index) => (
+                    <div key={index} className="info-row">
+                      <span className="info-label">{c.type}:</span>
+                      <span className="info-value">RM {fmt2(c.amt)}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="info-row">
+                    <span className="info-label">Monthly Commitments:</span>
+                    <span className="info-value">None</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="btn-section">
+                <button className="edit-btn" onClick={() => navigate("/incomeSetup")}>
+                  <FaEdit /> Edit
+                </button>
+              </div>
             </div>
+          )}
+        </div>
 
-          </div>
-        )}       
-      </div>
-
-      {/* Insurance Profile */}
-      <div className="profile-section">
-        {isMobile ? (
-          <div className="section-header" onClick={() => toggleSection("insurance")}>
+        {/* Insurance Profile */}
+        <div className="profile-section">
+          {isMobile ? (
+            <div className="section-header" onClick={() => toggleSection("insurance")}>
+              <h3>Insurance Profile Setup</h3>
+              {openSection === "insurance" ? (
+                <FaChevronDown className="chevron-icon" />
+              ) : (
+                <FaChevronRight className="chevron-icon" />
+              )}
+            </div>
+          ) : (
             <h3>Insurance Profile Setup</h3>
-            {openSection === "insurance" ? <FaChevronDown className="chevron-icon" /> : <FaChevronRight className="chevron-icon" />}
-          </div>
-        ) : (
-          <h3>Insurance Profile Setup</h3>
-        )}
-        {(!isMobile || openSection === "insurance") && (
-          <div className="section-content">
-            <div className="info-list">
-              <div className="info-row">
-                <span className="info-label">Gender:</span>
-                <span className="info-value">{formatGender(profile.gender)}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Birth Date:</span>
-                <span className="info-value">{formatDate(profile.birth_date)}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Height:</span>
-                <span className="info-value">{profile.height} cm</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Weight:</span>
-                <span className="info-value">{profile.weight} kg</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Excercise:</span>
-                <span className="info-value">{formatFrequency(profile.exercise)}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Alcohol:</span>
-                <span className="info-value">{formatFrequency(profile.alcohol)}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Somke:</span>
-                <span className="info-value">{formatYesNo(profile.smoke)}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Diabetes:</span>
-                <span className="info-value">{formatYesNo(profile.diabetes)}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Cholesterol:</span>
-                <span className="info-value">{profile.cholesterol}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Asthma:</span>
-                <span className="info-value">{formatYesNo(profile.asthma)}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Family Cancer:</span>
-                <span className="info-value">{formatYesNo(profile.fam_cancer)}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Heart Disease:</span>
-                <span className="info-value">{formatYesNo(profile.heart_disease)}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Occupation:</span>
-                <span className="info-value">{formatOccupation(profile.occupation)}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Allowance:</span>
-                <span className="info-value">RM {profile.allowance}</span>
-              </div>
-            </div>
-            <div className="btn-section">
-              <button className="edit-btn" onClick={() => navigate("/insuranceProfileSetup")}>
-                <FaEdit /> Edit
-              </button>
-            </div>
+          )}
 
-          </div>
-        )}
+          {(!isMobile || openSection === "insurance") && (
+            <div className="section-content">
+              <div className="info-list">
+                <div className="info-row">
+                  <span className="info-label">Gender:</span>
+                  <span className="info-value">{formatGender(profile.gender)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Birth Date:</span>
+                  <span className="info-value">{formatDate(profile.birth_date)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Height:</span>
+                  <span className="info-value">{profile.height} cm</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Weight:</span>
+                  <span className="info-value">{profile.weight} kg</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Excercise:</span>
+                  <span className="info-value">{formatFrequency(profile.exercise)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Alcohol:</span>
+                  <span className="info-value">{formatFrequency(profile.alcohol)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Somke:</span>
+                  <span className="info-value">{formatYesNo(profile.smoke)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Diabetes:</span>
+                  <span className="info-value">{formatYesNo(profile.diabetes)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Cholesterol:</span>
+                  <span className="info-value">{profile.cholesterol}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Asthma:</span>
+                  <span className="info-value">{formatYesNo(profile.asthma)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Family Cancer:</span>
+                  <span className="info-value">{formatYesNo(profile.fam_cancer)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Heart Disease:</span>
+                  <span className="info-value">{formatYesNo(profile.heart_disease)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Occupation:</span>
+                  <span className="info-value">{formatOccupation(profile.occupation)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Allowance:</span>
+                  <span className="info-value">RM {fmt2(profile.allowance)}</span>
+                </div>
+              </div>
+
+              <div className="btn-section">
+                <button
+                  className="edit-btn"
+                  onClick={() => navigate("/insuranceProfileSetup")}
+                >
+                  <FaEdit /> Edit
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
       <ConfirmDialog
         open={openLogoutConfirm}
         action="logout"
@@ -264,7 +278,7 @@ export default function Profile() {
         }}
       />
 
-      {/* ✅ Logout section */}
+      {/* Logout section */}
       <div className="profile-section logout">
         <button className="logout-btn" onClick={() => setOpenLogoutConfirm(true)}>
           Logout

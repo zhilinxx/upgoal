@@ -75,3 +75,23 @@ export async function deleteExpenseByIdRepo({ id, userId }) {
   const [res] = await pool.query(sql, [id, userId]);
   return res.affectedRows > 0;
 }
+
+export async function getOtherSpendByRange(userId, start, end) {
+  const conn = await pool.getConnection();
+  try {
+    const [rows] = await conn.query(
+      `
+      SELECT COALESCE(SUM(ABS(expenses_amt)), 0) AS other_total
+      FROM expenses
+      WHERE user_id = ?
+        AND UPPER(expenses_category) = 'OTHER'
+        AND expenses_date >= ?
+        AND expenses_date <  ?
+      `,
+      [userId, start, end]
+    );
+    return Number(rows?.[0]?.other_total || 0);
+  } finally {
+    conn.release();
+  }
+}

@@ -1,5 +1,9 @@
+// server/repositories/budgetRepository.js
 import pool from "../config/db.js";
 
+/**
+ * Latest income row for a user (net_income + lifestyle).
+ */
 export async function getLatestIncome(userId) {
   const conn = await pool.getConnection();
   try {
@@ -17,6 +21,9 @@ export async function getLatestIncome(userId) {
   }
 }
 
+/**
+ * Monthly commitments (typed + amount).
+ */
 export async function getMonthlyCommitments(userId) {
   const conn = await pool.getConnection();
   try {
@@ -32,6 +39,9 @@ export async function getMonthlyCommitments(userId) {
   }
 }
 
+/**
+ * Recent expenses in the last 30 days (name + ABS(amount)).
+ */
 export async function getRecentExpenses(userId) {
   const conn = await pool.getConnection();
   try {
@@ -50,12 +60,20 @@ export async function getRecentExpenses(userId) {
   }
 }
 
+/**
+ * Savings goals for the dashboard.
+ * ✅ Force deadline to plain 'YYYY-MM-DD' to avoid timezone shifts in UI.
+ */
 export async function getSavingsGoals(userId) {
   const conn = await pool.getConnection();
   try {
     const [rows] = await conn.query(
-      `SELECT goal_id AS id, goal_name AS name, saved_amt AS current,
-              goal_amt AS target, due_date AS deadline
+      `SELECT
+         goal_id AS id,
+         goal_name AS name,
+         saved_amt AS current,
+         goal_amt AS target,
+         DATE_FORMAT(due_date, '%Y-%m-%d') AS deadline  -- <- string, no TZ!
        FROM savings_goals
        WHERE user_id = ?
        ORDER BY goal_id DESC
@@ -68,30 +86,19 @@ export async function getSavingsGoals(userId) {
   }
 }
 
-// Compute this calendar month's total spending in the "Other" category
+/**
+ * This calendar month's total spending in the "Other" category.
+ */
 export async function getOtherSpendThisMonth(userId) {
   const conn = await pool.getConnection();
   try {
     const [rows] = await conn.query(
       `
       SELECT
-        COALESCE(
-          SUM(
-            -- amount column can be expenses_amt or amount; take absolute in case you store negatives
-            ABS(
-              CASE
-                WHEN expenses_amt IS NOT NULL THEN expenses_amt
-                WHEN amount IS NOT NULL       THEN amount
-                ELSE 0
-              END
-            )
-          ), 0
-        ) AS other_total
+        COALESCE(SUM(ABS(expenses_amt)), 0) AS other_total
       FROM expenses
       WHERE user_id = ?
-        -- category column can be expenses_category OR category OR type
-        AND COALESCE(expenses_category, category, type) = 'Other'
-        -- current month window [1st day, next month's 1st day)
+        AND UPPER(expenses_category) = 'OTHER'
         AND expenses_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
         AND expenses_date <  DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
       `,
@@ -102,4 +109,3 @@ export async function getOtherSpendThisMonth(userId) {
     conn.release();
   }
 }
-

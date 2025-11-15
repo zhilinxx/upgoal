@@ -87,6 +87,18 @@ const toPercent = (cur = 0, tgt = 0) => {
   return Math.max(0, Math.min(100, p));
 };
 
+// Local-date formatter to avoid UTC shifting
+function formatDueLocal(iso, locale = undefined) {
+  if (!iso) return "";
+  const [y, m, d] = String(iso).substring(0, 10).split("-").map(Number);
+  const dt = new Date(y, m - 1, d); // local midnight
+  return dt.toLocaleDateString(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 const GoalItem = ({ goal, currency, onEdit, onAskDelete }) => {
   const amountLeft = Math.max(0, (goal.target || 0) - (goal.current || 0));
   const progressPercent = toPercent(goal.current, goal.target);
@@ -119,14 +131,7 @@ const GoalItem = ({ goal, currency, onEdit, onAskDelete }) => {
       <p className="goal-deadline">
         Goal needs to be completed by{" "}
         <span className="date">
-          {goal.deadline
-            ? new Date(goal.deadline).toLocaleDateString(undefined, {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })
-            : "-"}
-          .
+          {goal.deadline ? formatDueLocal(goal.deadline) : "-"}.
         </span>
       </p>
     </div>
@@ -152,6 +157,7 @@ export default function SavingsGoals({ currency = "RM" }) {
     (async () => {
       try {
         const { data } = await listGoals();
+        console.log("RAW goals from API:", data);
         setItems(Array.isArray(data) ? data : []);
       } catch (e) {
         console.error(e);
@@ -219,7 +225,7 @@ export default function SavingsGoals({ currency = "RM" }) {
       target: goal.target,
       saved: goal.current,
       description: goal.description || "",
-      dueDate: goal.deadline,
+      dueDate: goal.deadline,   
     });
     setOpen(true);
   };
@@ -256,7 +262,7 @@ export default function SavingsGoals({ currency = "RM" }) {
         description: payload.description,
       };
       setItems((xs) => [created, ...xs]);
-      toast.success("Goal created");
+      toast.success("Goal created.");
     } else {
       const id = initial.id;
       const apiPayload = {
@@ -289,7 +295,7 @@ export default function SavingsGoals({ currency = "RM" }) {
             : g
         )
       );
-      toast.success("Goal updated");
+      toast.success("Goal updated.");
     }
   };
 
@@ -363,4 +369,3 @@ export default function SavingsGoals({ currency = "RM" }) {
     </section>
   );
 }
-

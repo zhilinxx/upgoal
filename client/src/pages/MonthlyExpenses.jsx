@@ -1,75 +1,3 @@
-// import React, { useState } from "react";
-// import "../styles/MonthlyExpenses.css";
-
-// function MonthlyExpenses() {
-//   const [expenses, setExpenses] = useState([
-//     { id: 5, name: "Tar Kopitiam", amount: 10.5, category: "Food & Drink" },
-//     { id: 4, name: "Digi topup", amount: 30.0, category: "Utility" },
-//     { id: 3, name: "Shopee", amount: 20.5, category: "Other" },
-//     { id: 2, name: "Milk tea", amount: 9.0, category: "Food & Drink" },
-//     { id: 1, name: "Earphones", amount: 9.0, category: "Other" },
-//   ]);
-
-//   return (
-//     <div className="expenses-container">
-//       <h2 className="title">Monthly Expenses</h2>
-
-//       <div className="top-controls">
-//         <input type="text" placeholder="Enter expense name" className="search-input" />
-//         <select className="category-filter">
-//           <option>All Categories</option>
-//         </select>
-//         <button className="icon-btn delete-btn">🗑</button>
-//         <button className="icon-btn add-btn">＋</button>
-//       </div>
-
-//       <div className="chart-section">
-//         <div className="donut-chart-placeholder">
-//           Aug Total <br /> RM 79.00
-//         </div>
-//         <ul className="legend">
-//           <li><span className="dot food"></span>Food & Drink • RM 19.50</li>
-//           <li><span className="dot utility"></span>Utility • RM 30.00</li>
-//           <li><span className="dot other"></span>Other • RM 29.50</li>
-//         </ul>
-//       </div>
-
-//       <table className="expense-table">
-//         <thead>
-//           <tr>
-//             <th>No</th>
-//             <th>Expenses</th>
-//             <th>Amount (RM)</th>
-//             <th>Category</th>
-//             <th></th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {expenses.map((item) => (
-//             <tr key={item.id}>
-//               <td>{item.id}</td>
-//               <td>{item.name}</td>
-//               <td>{item.amount.toFixed(2)}</td>
-//               <td>{item.category}</td>
-//               <td>
-//                 <button className="icon-btn edit-btn">✏️</button>
-//               </td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-
-//       <div className="pagination">
-//         <button className="page-btn">Previous</button>
-//         <span className="page-number">1</span>
-//         <button className="page-btn">Next</button>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default MonthlyExpenses;
-//--------------------------------------------------------------------
 // client/src/pages/MonthlyExpenses.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -85,6 +13,7 @@ import {
   deleteExpense,
 } from "../api/expensesAPI";
 
+import api from "../api/budgetAPI";               // ✅ to fetch netIncome
 import ExpenseDialog from "../components/ExpenseDialog.jsx";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
 import "../styles/MonthlyExpenses.css";
@@ -116,6 +45,10 @@ export default function MonthlyExpenses() {
   const [categoryTotals, setCategoryTotals] = useState({});
   const [loading, setLoading] = useState(true);
   const hasNoRows = !loading && records.length === 0;
+
+  // NEW: values for alert
+  const [otherThisMonth, setOtherThisMonth] = useState(0);
+  const [netIncome, setNetIncome] = useState(0);
 
   // search input mirrors URL param
   const [searchInput, setSearchInput] = useState(searchParam);
@@ -173,11 +106,13 @@ export default function MonthlyExpenses() {
     setRecords(res.items || []);
     setCategoryTotals(res.categoryTotals || {});
     setCurrency(res.currency || "RM");
+    setOtherThisMonth(Number(res.otherThisMonth || 0));     // ✅ from backend
 
     // Clear selection after every successful refetch
     setSelected(new Set());
   };
 
+  // fetch expenses data when inputs change
   useEffect(() => {
     let mounted = true;
     setLoading(true);
@@ -194,6 +129,20 @@ export default function MonthlyExpenses() {
     return () => { mounted = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize, searchParam, catParam, monthParam]);
+
+  // NEW: fetch netIncome (so alert is based on selected month vs user's net income)
+  useEffect(() => {
+    (async () => {
+      try {
+        const userId = Number(localStorage.getItem("userId"));
+        if (!userId) return;
+        const { data } = await api.get("/income/setup", { params: { userId } });
+        setNetIncome(Number(data?.netIncome || 0));
+      } catch (e) {
+        console.error("Failed to load netIncome for alert:", e);
+      }
+    })();
+  }, [monthParam]); // re-evaluate when month changes (not strictly necessary, but OK)
 
   // ---- Chart ----
   const chartLabels = useMemo(() => Object.keys(categoryTotals), [categoryTotals]);
@@ -268,10 +217,8 @@ export default function MonthlyExpenses() {
       toast.error("Please select at least one expense to delete!");
       return;
     }
-
     setConfirmOpen(true);
   };
-
 
   const handleCreate = async (payload) => {
     try {
@@ -294,7 +241,7 @@ export default function MonthlyExpenses() {
   const handleUpdate = async (payload) => {
     try {
       await updateExpense(payload.expenses_id, payload);
-      toast.success("Expense updated");
+      toast.success("Expense updated.");
 
       const updatedMonth = payload.expenses_date?.slice(0, 7);
       if (updatedMonth && updatedMonth !== monthParam) {
@@ -316,7 +263,7 @@ export default function MonthlyExpenses() {
       setSelected(new Set());
       setConfirmOpen(false);
       await refetch();
-      toast.success("Deleted");
+      toast.success("Expense(s) deleted.");
     } catch (e) {
       console.error(e);
       toast.error("Failed to delete expense(s).");
@@ -334,6 +281,12 @@ export default function MonthlyExpenses() {
     setPage(next);
     setParam("page", String(next));
   };
+
+  // ---- Alert visibility ----
+  const showOtherAlert = netIncome > 0 && otherThisMonth > netIncome * 0.1;
+  const pct = showOtherAlert
+    ? ((otherThisMonth / netIncome) * 100).toFixed(1)
+    : "0.0";
 
   return (
     <div className="expenses-container">
@@ -434,6 +387,14 @@ export default function MonthlyExpenses() {
               );
             })}
           </ul>
+
+          {/* INLINE ALERT directly under the legend */}
+          {showOtherAlert && (
+            <div className="expenses-warning-inline" role="alert">
+              <strong>⚠️ Warning:</strong> “Other” expenses for {monthLabel} reached{" "}
+              <strong>{pct}%</strong> of your net income
+            </div>
+          )}
         </div>
       </div>
 
@@ -503,17 +464,6 @@ export default function MonthlyExpenses() {
       {/* Dialogs (at bottom) */}
       {/* =================== */}
 
-      {/* --- TEMP: force-open to verify it appears. 
-           Uncomment this block when testing the dialog rendering/styling. --- */}
-      {/*
-      <ExpenseDialog
-        open={true}
-        mode="create"
-        onClose={() => setAddOpen(false)}
-        onSave={handleCreate}
-      />
-      */}
-
       {/* Add (create) dialog */}
       <ExpenseDialog
         open={addOpen}
@@ -544,5 +494,3 @@ export default function MonthlyExpenses() {
     </div>
   );
 }
-
-
