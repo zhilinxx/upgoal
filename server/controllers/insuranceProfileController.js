@@ -23,7 +23,7 @@ function mapYesNo(value) {
 function getPaymentSuggestion(age, allowance) {
   if (age < 30) {
     if (allowance < 4000) {
-      return "Flat rate low premium and increase with age growth";
+      return "Start with lower premium and increase with age growth";
     } else {
       return "Flat rate but higher premium for a short term";
     }
@@ -41,9 +41,9 @@ function getPaymentSuggestion(age, allowance) {
   // Age ≥ 35
   if (age >= 35) {
     if (allowance >= 5000) {
-      return "High premium but lower after certain age";
+      return "Start with higher premium and lower after certain age";
     } else if (allowance < 4000) {
-      return "Flat rate and low premium until coverage term";
+      return "Flat rate and lower premium until coverage term";
     } else {
       return "Flat rate but high premium for a short term";
     }

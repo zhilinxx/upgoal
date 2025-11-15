@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../styles/insurancePlanManagement.css";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getAllPlans, deletePlans } from "../api/insurancePlanAPI";
 import { FaPencilAlt, FaPlus, FaTrashAlt } from "react-icons/fa";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
@@ -18,21 +18,40 @@ export default function InsurancePlanManagement() {
   const [openRemoveConfirm, setOpenRemoveConfirm] = useState(false);
   const limit = 10;
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isRestoring, setIsRestoring] = useState(true);
+
+
+  useEffect(() => {
+    if (location.state) {
+      setIsRestoring(true);
+
+      setSearch(location.state.search || "");
+      setPlanType(location.state.planType || "All");
+      setPage(location.state.page || 1);
+
+      // allow next effect to run after values restored
+      setTimeout(() => setIsRestoring(false), 0);
+    } else {
+      setIsRestoring(false);
+    }
+  }, [location.state]);
 
   const fetchPlans = async () => {
     try {
       const searchQuery = search.trim();
       const { data } = await getAllPlans(searchQuery, page, limit, planType);
 
-      // ✅ Filter by plan type on frontend for simplicity
       const filteredPlans =
         planType === "All"
           ? data.plans
-          : data.plans.filter((p) => p.plan_type.toLowerCase() === planType.toLowerCase());
+          : data.plans.filter(
+              (p) => p.plan_type.toLowerCase() === planType.toLowerCase()
+            );
 
       setPlans(filteredPlans || []);
       setTotalPages(data.pagination?.totalPages || 1);
-      setTotalRecords(data.pagination?.totalRecords || 0); 
+      setTotalRecords(data.pagination?.totalRecords || 0);
       setSelectedIds([]);
       setSelectAll(false);
     } catch (err) {
@@ -41,19 +60,13 @@ export default function InsurancePlanManagement() {
     }
   };
 
-  useEffect(() => {
-    fetchPlans();
-  }, [page]); // 🔹 fetch when page changes
+  useEffect(() => { setPage(1); }, [search, planType]);
 
-  // 🔹 When search or filter changes → reset to page 1
   useEffect(() => {
-    setPage(1);
-  }, [search, planType]);
-
-  // 🔹 Re-fetch when search or filter changes (after reset)
-  useEffect(() => {
-    fetchPlans();
-  }, [search, planType, page]);
+    if (!isRestoring) {
+      fetchPlans();
+    }
+  }, [search, planType, page, isRestoring]);
 
   const handleSelect = (planId) => {
     setSelectedIds((prev) =>
@@ -74,17 +87,6 @@ export default function InsurancePlanManagement() {
     }
   };
 
-  // const handleDelete = async () => {
-  //   if (!window.confirm("Are you sure you want to delete selected plans?")) return;
-  //   try {
-  //     await deletePlans(selectedIds);
-  //     toast.success("Selected plan(s) deleted successfully");
-  //     fetchPlans();
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to delete plans");
-  //   }
-  // };
   const handleDelete = () => {
     const removedPlans = plans.filter((p) => selectedIds.includes(p.plan_id));
     setPlans((prev) => prev.filter((p) => !selectedIds.includes(p.plan_id)));
@@ -234,7 +236,11 @@ export default function InsurancePlanManagement() {
                   <td>
                     <button
                       className="edit-btn"
-                      onClick={() => navigate(`/addInsurancePlan/${p.plan_id}`)}
+                      onClick={() =>
+                        navigate(`/addInsurancePlan/${p.plan_id}`, {
+                          state: { search, planType, page }
+                        })
+                      }
                     >
                       <FaPencilAlt />
                     </button>

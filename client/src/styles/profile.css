@@ -118,6 +118,7 @@
 .edit-btn {
   margin-top: 20px;
   display: flex;
+  color: white;
 }
 
 .loading {
