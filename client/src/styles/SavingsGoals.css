@@ -360,3 +360,25 @@ video {
 .modal-card::-webkit-scrollbar {
     display: none;
 }
+
+/* When the carousel has only the empty card, center it and nudge right a bit */
+.goals-carousel .empty-align {
+  display: flex;
+  justify-content: center;   /* centers the inner goal-card */
+  width: 100%;
+  padding-left: 24px;        /* ← small rightward shift without scaling */
+  box-sizing: border-box;
+}
+
+/* Optional: a little more shift on wide screens */
+@media (min-width: 1024px) {
+  .goals-carousel .empty-align {
+    padding-left: 36px;
+  }
+}
+
+/* Make sure the empty card doesn’t stretch to full width */
+.goals-carousel .empty-align .goal-card {
+  max-width: 520px;          /* or whatever width you like */
+  margin: 0 auto;            /* keep it centered in the flex wrapper */
+}
