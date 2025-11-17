@@ -33,14 +33,24 @@ const toNum = (v) => Number(to2(v));
 // typing sanitizer
 const sanitizeMoney = (s) => String(s).replace(/[^0-9.]/g, "");
 
-// check if date is today or past
+// ✅ get local "YYYY-MM-DD" for today (no UTC shifting)
+const todayLocalISO = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
+// ✅ check if date is today or past (parse as LOCAL date)
 const isPastOrToday = (iso) => {
   if (!iso) return false;
+  const [y, m, d] = iso.split("-").map(Number);
+  const picked = new Date(y, m - 1, d); // local date
   const today = new Date();
+  picked.setHours(0, 0, 0, 0);
   today.setHours(0, 0, 0, 0);
-  const d = new Date(iso);
-  d.setHours(0, 0, 0, 0);
-  return d <= today;
+  return picked <= today;
 };
 
 export default function ExpenseDialog({
@@ -225,7 +235,8 @@ export default function ExpenseDialog({
               type="date"
               className="calendar-icon"
               value={date}
-              max={new Date().toISOString().slice(0, 10)}
+              /* ✅ use local today, not UTC */
+              max={todayLocalISO()}
               onChange={(e) => setDate(e.target.value)}
               data-placeholder={!date}
             />

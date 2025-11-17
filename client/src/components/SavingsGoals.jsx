@@ -285,13 +285,13 @@ export default function SavingsGoals({ currency = "RM" }) {
         xs.map((g) =>
           g.id === id
             ? {
-              ...g,
-              name: updated.name,
-              target: updated.target,
-              current: updated.current ?? apiPayload.saved,
-              deadline: updated.deadline ?? apiPayload.dueDate,
-              description: updated.description ?? apiPayload.description,
-            }
+                ...g,
+                name: updated.name,
+                target: updated.target,
+                current: updated.current ?? apiPayload.saved,
+                deadline: updated.deadline ?? apiPayload.dueDate,
+                description: updated.description ?? apiPayload.description,
+              }
             : g
         )
       );
@@ -305,7 +305,12 @@ export default function SavingsGoals({ currency = "RM" }) {
     <section className="savings-goals-section">
       <h3 className="section-title">My Savings Goals</h3>
 
-      <div className="goals-carousel" ref={scrollerRef} onScroll={handleScroll}>
+      {/* ✅ merged rail with conditional is-empty class */}
+      <div
+        className={`goals-carousel ${isEmpty ? "is-empty" : ""}`}
+        ref={scrollerRef}
+        onScroll={handleScroll}
+      >
         {/* Show the vertical Add pill ONLY when there is at least one goal */}
         {!isEmpty && (
           <button
@@ -326,12 +331,12 @@ export default function SavingsGoals({ currency = "RM" }) {
         {isEmpty ? (
           <div className="empty-align">
             <div className="goal-card">
-              <h4 style={{ margin: 0, color: "#999" }}>No savings goal.</h4>
+              <p style={{ margin: 0, color: "#999" }}>No savings goal yet.</p>
               <button
                 type="button"
                 className="save-btn"
                 onClick={startCreate}
-                style={{ marginTop: "8px", whiteSpace: "nowrap" }}
+                style={{ marginTop: "15px", whiteSpace: "nowrap" }}
               >
                 Add Goal
               </button>

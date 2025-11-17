@@ -1,3 +1,4 @@
+// client/src/hooks/useTheme.js
 import { useEffect, useState, useCallback } from "react";
 import { getTheme, setThemeAPI } from "../api/themeAPI";
 
@@ -6,54 +7,80 @@ function applyDomTheme(t) {
 }
 
 export default function useTheme() {
+  // 1) Initial theme from localStorage
   const [theme, setThemeState] = useState(() => {
     const saved = localStorage.getItem("theme");
     return saved === "dark" ? "dark" : "light";
   });
   const [loading, setLoading] = useState(true);
 
-  // fetch from DB on mount
+  // 2) Keep DOM + localStorage in sync whenever theme state changes
+  useEffect(() => {
+    applyDomTheme(theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  // 3) On mount, sync from DB ONLY if user is logged in
   useEffect(() => {
     let ignore = false;
+
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      // no logged-in user → just use localStorage / default
+      setLoading(false);
+      return;
+    }
+
     (async () => {
       try {
         const { data } = await getTheme();
         const t = data?.theme === "dark" ? "dark" : "light";
+
         if (!ignore) {
+          // this will also update DOM + localStorage via effect above
           setThemeState(t);
-          applyDomTheme(t);
-          localStorage.setItem("theme", t);
         }
-      } catch {
-        // fallback to current local value
-        applyDomTheme(theme);
+      } catch (e) {
+        console.error("Failed to fetch theme from server:", e);
       } finally {
         if (!ignore) setLoading(false);
       }
     })();
-    return () => { ignore = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
-  // pessimistic update: write server first, then commit UI
-  const setTheme = useCallback(async (next) => {
-    const desired = next === "dark" ? "dark" : "light";
-    const prev = theme;
+  // 4) Change theme; if logged in, also persist to server
+  const setTheme = useCallback(
+    async (next) => {
+      const desired = next === "dark" ? "dark" : "light";
+      const prev = theme;
+      const userId = localStorage.getItem("userId");
 
-    try {
-      await setThemeAPI(desired);                 // <-- wait server OK
-      setThemeState(desired);
-      applyDomTheme(desired);
-      localStorage.setItem("theme", desired);
-    } catch (e) {
-      console.error("Failed to save theme:", e);
-      // optional: toast error here
-      // revert UI (do nothing; it never changed)
-      applyDomTheme(prev);
-    }
-  }, [theme]);
+      // If no user logged in → just change local state (no API)
+      if (!userId) {
+        setThemeState(desired);
+        return;
+      }
 
-  const toggle = useCallback(() => setTheme(theme === "dark" ? "light" : "dark"), [theme, setTheme]);
+      try {
+        await setThemeAPI(desired); // wait server OK
+        setThemeState(desired);    // DOM + localStorage auto-sync
+      } catch (e) {
+        console.error("Failed to save theme:", e);
+        // revert
+        setThemeState(prev);
+      }
+    },
+    [theme]
+  );
+
+  const toggle = useCallback(
+    () => setTheme(theme === "dark" ? "light" : "dark"),
+    [theme, setTheme]
+  );
 
   return { theme, setTheme, toggle, loading };
 }

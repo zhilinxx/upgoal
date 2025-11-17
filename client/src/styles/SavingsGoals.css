@@ -361,24 +361,24 @@ video {
     display: none;
 }
 
-/* When the carousel has only the empty card, center it and nudge right a bit */
-.goals-carousel .empty-align {
+.goals-carousel.is-empty {
+  justify-content: center;
+  padding-left: 0;
+}
+
+.goals-carousel.is-empty .empty-align {
   display: flex;
-  justify-content: center;   /* centers the inner goal-card */
+  justify-content: center;
   width: 100%;
-  padding-left: 24px;        /* ← small rightward shift without scaling */
   box-sizing: border-box;
 }
 
-/* Optional: a little more shift on wide screens */
-@media (min-width: 1024px) {
-  .goals-carousel .empty-align {
-    padding-left: 36px;
-  }
+.goals-carousel.is-empty .goal-card {
+  transform: none;
+  width: 260px;  
+  max-width: 560px;
+  flex-basis: auto;
+  margin: 0 auto;
+  margin-top: 10px;
 }
 
-/* Make sure the empty card doesn’t stretch to full width */
-.goals-carousel .empty-align .goal-card {
-  max-width: 520px;          /* or whatever width you like */
-  margin: 0 auto;            /* keep it centered in the flex wrapper */
-}

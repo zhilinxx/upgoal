@@ -1,3 +1,4 @@
+// client/src/components/GoalDialog.jsx
 import React, { useEffect, useState } from "react";
 import ConfirmDialog from "./ConfirmDialog";
 import "../styles/SavingsGoals.css";
@@ -119,6 +120,15 @@ export default function GoalDialog({
     if (mode === "edit" && saved !== "") {
       if (!amountOK(saved)) {
         next.saved = `Saved Amount must be ≤ ${MAX_DECIMAL_STR} with up to 2 decimals.`;
+      } else {
+        // enforce saved ≤ target (user asked saved should not exceed goal)
+        const savedNum = toNum(saved);
+        const targetNum = amountOK(target) ? toNum(target) : NaN;
+        if (!Number.isFinite(targetNum)) {
+          next.target = `Please enter a valid Goal Amount first.`;
+        } else if (savedNum > targetNum) {
+          next.saved = "Saved Amount cannot exceed the Goal Amount.";
+        }
       }
     }
 
@@ -157,6 +167,7 @@ export default function GoalDialog({
 
   const askSave = () => {
     if (!validate()) return;
+    // normalize for display: convert to 2dp strings
     if (amountOK(target)) setTarget(to2(target));
     if (mode === "edit" && saved && amountOK(saved)) setSaved(to2(saved));
     setOpenSaveConfirm(true);
@@ -195,7 +206,7 @@ export default function GoalDialog({
           <input
             inputMode="decimal"
             autoComplete="off"
-            spellCheck={false}
+            spellCheck="false"
             placeholder={`Set amount for goal (≤ ${MAX_DECIMAL_STR})`}
             value={target}
             onChange={(e) => setField("target", e.target.value)}
@@ -209,7 +220,7 @@ export default function GoalDialog({
               <input
                 inputMode="decimal"
                 autoComplete="off"
-                spellCheck={false}
+                spellCheck="false"
                 placeholder="Enter saved amount"
                 value={saved}
                 onChange={(e) => setField("saved", e.target.value)}

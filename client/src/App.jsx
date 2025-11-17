@@ -1,11 +1,13 @@
+// client/src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from "react-router-dom";
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { FiMenu, FiX, FiUser, FiSettings } from "react-icons/fi";
 import "./App.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { logoutUser } from "./api/auth";
 import { useNavigate } from "react-router-dom";
+import useTheme from "./hooks/useTheme"; // <-- ensure this path matches your project
 
 // Pages
 import BudgetPlanner from "./pages/budgetPlanner";
@@ -51,8 +53,11 @@ const API = axios.create({
   withCredentials: true, // this ensures cookies are sent
 });
 
-
 function App() {
+  // === Theme: ensure global synchronization runs once per tab/app
+  // put the hook at the top-level so it mounts for every route/tab
+  const { loading: themeLoading } = useTheme();
+
   const [message, setMessage] = useState("");
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -61,7 +66,6 @@ function App() {
   const [showAdminMenu, setShowAdminMenu] = useState(false);
   const [adminEmail, setAdminEmail] = useState("");
 
-
   // Test backend connection
   useEffect(() => {
     fetch("http://localhost:5000/api", { credentials: "include" })
@@ -69,8 +73,6 @@ function App() {
       .then(d => setMessage(d.msg))
       .catch(err => console.error("Backend not reachable:", err));
   }, []);
-
-
 
   // ✅ Load auth state (try refresh if no token)
   useEffect(() => {
@@ -83,7 +85,6 @@ function App() {
           // Try refreshing
           const { data } = await API.get("/auth/refresh");
           localStorage.setItem("accessToken", data.accessToken);
-          // Optional: decode role if needed from token payload
           setIsLoggedIn(true);
         } else {
           setIsLoggedIn(true);
@@ -94,7 +95,10 @@ function App() {
       } catch (err) {
         console.warn("Auto login failed:", err);
         setIsLoggedIn(false);
+        // Don't wipe theme here — keep user preference
+        const savedTheme = localStorage.getItem("theme");
         localStorage.clear();
+        if (savedTheme) localStorage.setItem("theme", savedTheme);
       } finally {
         setIsCheckingAuth(false);
       }
@@ -109,28 +113,39 @@ function App() {
   // Protected route component
   const ProtectedRoute = ({ children, allowedRoles }) => {
     if (!isLoggedIn) return <Navigate to="/login" replace />;
-    if (allowedRoles && !allowedRoles.includes(role))
-      return <Navigate to="/" replace />;
+    if (allowedRoles && !allowedRoles.includes(role)) return <Navigate to="/" replace />;
     return children;
   };
 
   const AppContent = () => {
     const location = useLocation();
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     const handleLogout = async () => {
-    try {
-      await logoutUser();
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("role");
-      localStorage.removeItem("email");
-      setIsLoggedIn(false);
-      setShowAdminMenu(false);
-      navigate("/login");
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
-  };
+      try {
+        await logoutUser();
+
+        // preserve theme on logout
+        const savedTheme = localStorage.getItem("theme");
+
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("role");
+        localStorage.removeItem("email");
+        localStorage.removeItem("userId");
+
+        if (savedTheme) {
+          localStorage.setItem("theme", savedTheme);
+          document.documentElement.setAttribute("data-theme", savedTheme);
+        }
+
+        setIsLoggedIn(false);
+        setShowAdminMenu(false);
+        navigate("/login");
+      } catch (err) {
+        console.error("Logout failed:", err);
+      }
+    };
+
     // ===== Hide header/sidebar on these routes =====
     const hideLayoutRoutes = [
       "/login",
@@ -148,24 +163,14 @@ function App() {
 
     // ===== Navigation links =====
     const renderNavLinks = () => {
-      const getLinkClass = (path) =>
-        location.pathname === path ? "active-link" : "";
+      const getLinkClass = (path) => (location.pathname === path ? "active-link" : "");
 
       if (!isLoggedIn) {
         return (
           <>
-            <Link to="/login" className={getLinkClass("/login")}>
-              Login
-            </Link>
-            <Link to="/register" className={getLinkClass("/register")}>
-              Register
-            </Link>
-            <Link
-              to="/forgotPassword"
-              className={getLinkClass("/forgotPassword")}
-            >
-              Forgot Password
-            </Link>
+            <Link to="/login" className={getLinkClass("/login")}>Login</Link>
+            <Link to="/register" className={getLinkClass("/register")}>Register</Link>
+            <Link to="/forgotPassword" className={getLinkClass("/forgotPassword")}>Forgot Password</Link>
           </>
         );
       }
@@ -173,36 +178,16 @@ function App() {
       if (role === 1) {
         return (
           <>
-            <Link
-              to="/accountManagement"
-              className={getLinkClass("/accountManagement")}
-            >
-              Account Management
-            </Link>
-            <Link
-              to="/insurancePlanManagement"
-              className={getLinkClass("/insurancePlanManagement")}
-            >
-              Insurance Plans
-            </Link>
+            <Link to="/accountManagement" className={getLinkClass("/accountManagement")}>Account Management</Link>
+            <Link to="/insurancePlanManagement" className={getLinkClass("/insurancePlanManagement")}>Insurance Plans</Link>
           </>
         );
       }
 
       return (
         <>
-          <Link
-            to="/budgetPlanner"
-            className={getLinkClass("/budgetPlanner")}
-          >
-            Budget Planner
-          </Link>
-          <Link
-            to="/insuranceRecommendations"
-            className={getLinkClass("/insuranceRecommendations")}
-          >
-            Insurance Recommendations
-          </Link>
+          <Link to="/budgetPlanner" className={getLinkClass("/budgetPlanner")}>Budget Planner</Link>
+          <Link to="/insuranceRecommendations" className={getLinkClass("/insuranceRecommendations")}>Insurance Recommendations</Link>
         </>
       );
     };
@@ -214,13 +199,8 @@ function App() {
           <>
             <header className="header">
               <div className="left-section">
-                <button className="menu-btn" onClick={toggleSidebar}>
-                  <FiMenu />
-                </button>
-                <div className="logo">
-                  <img src={logo} alt="UpGoal" id="logo" />
-                </div>
-
+                <button className="menu-btn" onClick={toggleSidebar}><FiMenu /></button>
+                <div className="logo"><img src={logo} alt="UpGoal" id="logo" /></div>
                 <nav className="top-nav">{renderNavLinks()}</nav>
               </div>
 
@@ -231,109 +211,55 @@ function App() {
               <div className="right-icons">
                 {isLoggedIn ? (
                   role === 1 ? (
-                    // ✅ ADMIN DROPDOWN PROFILE MENU
                     <div className="admin-profile-menu">
-                      <button
-                        className="icon-btn"
-                        onClick={() => setShowAdminMenu(!showAdminMenu)}
-                        title="Admin Profile"
-                      >
+                      <button className="icon-btn" onClick={() => setShowAdminMenu(!showAdminMenu)} title="Admin Profile">
                         <FiUser />
                       </button>
-
                       {showAdminMenu && (
                         <div className="admin-dropdown">
                           <p className="admin-email">{adminEmail}</p>
                           <hr />
-                          <button
-                            className="dropdown-item"
-                            onClick={() => {
-                              setShowAdminMenu(false);
-                              navigate("/forgotPassword");
-                            }}
-                          >
+                          <button className="dropdown-item" onClick={() => { setShowAdminMenu(false); navigate("/forgotPassword"); }}>
                             Change Password
                           </button>
-                          <button
-                            className="dropdown-item logout"
-                            onClick={handleLogout}
-                          >
-                            Logout
-                          </button>
+                          <button className="dropdown-item logout" onClick={handleLogout}>Logout</button>
                         </div>
                       )}
                     </div>
                   ) : (
-                    // ✅ NORMAL USER
-                    <Link to="/profile" className="icon-btn" title="Profile">
-                      <FiUser />
-                    </Link>
+                    <Link to="/profile" className="icon-btn" title="Profile"><FiUser /></Link>
                   )
                 ) : (
-                  <Link to="/login" className="icon-btn" title="Login">
-                    <span id="login-btn">Login</span>
-                  </Link>
+                  <Link to="/login" className="icon-btn" title="Login"><span id="login-btn">Login</span></Link>
                 )}
-                <Link to="/settings" className="icon-btn" title="Settings">
-                  <FiSettings />
-                </Link>
+                <Link to="/settings" className="icon-btn" title="Settings"><FiSettings /></Link>
               </div>
             </header>
 
             <aside className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
               <div className="sidebar-header">
-                  <img src={logo} alt="UpGoal" id="sidelogo" />
-                  <button className="close-btn" onClick={closeSidebar}>
-                    <FiX />
-                  </button>
+                <img src={logo} alt="UpGoal" id="sidelogo" />
+                <button className="close-btn" onClick={closeSidebar}><FiX /></button>
               </div>
               <nav>
                 <ul>
                   {isLoggedIn ? (
                     role === 1 ? (
                       <>
-                        <li>
-                          <Link to="/accountManagement" onClick={closeSidebar}>
-                            Account Management
-                          </Link>
-                        </li>
-                        <li>
-                          <Link to="/insurancePlanManagement" onClick={closeSidebar}>
-                            Insurance Plans
-                          </Link>
-                        </li>
+                        <li><Link to="/accountManagement" onClick={closeSidebar}>Account Management</Link></li>
+                        <li><Link to="/insurancePlanManagement" onClick={closeSidebar}>Insurance Plans</Link></li>
                       </>
                     ) : (
                       <>
-                        <li>
-                          <Link to="/budgetPlanner" onClick={closeSidebar}>
-                            Budget Planner
-                          </Link>
-                        </li>
-                        <li>
-                          <Link to="/insuranceRecommendations" onClick={closeSidebar}>
-                            Insurance Recommendations
-                          </Link>
-                        </li>
+                        <li><Link to="/budgetPlanner" onClick={closeSidebar}>Budget Planner</Link></li>
+                        <li><Link to="/insuranceRecommendations" onClick={closeSidebar}>Insurance Recommendations</Link></li>
                       </>
                     )
                   ) : (
                     <>
-                      <li>
-                        <Link to="/login" onClick={closeSidebar}>
-                          Login
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="/register" onClick={closeSidebar}>
-                          Register
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="/forgotPassword" onClick={closeSidebar}>
-                          Forgot Password
-                        </Link>
-                      </li>
+                      <li><Link to="/login" onClick={closeSidebar}>Login</Link></li>
+                      <li><Link to="/register" onClick={closeSidebar}>Register</Link></li>
+                      <li><Link to="/forgotPassword" onClick={closeSidebar}>Forgot Password</Link></li>
                     </>
                   )}
                 </ul>
@@ -375,89 +301,26 @@ function App() {
             <Route path="/comparePlans" element={<ComparePlan />} />
 
             {/* Protected routes */}
-            <Route
-              path="/budgetPlanner"
-              element={
-                <ProtectedRoute allowedRoles={[0]}>
-                  <BudgetPlanner />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/budgetPlanner" element={<ProtectedRoute allowedRoles={[0]}><BudgetPlanner /></ProtectedRoute>} />
+            <Route path="/incomeSetup" element={<ProtectedRoute allowedRoles={[0]}><IncomeSetup /></ProtectedRoute>} />
+            <Route path="/monthlyExpenses" element={<ProtectedRoute allowedRoles={[0]}><MonthlyExpenses /></ProtectedRoute>} />
+            <Route path="/insuranceRecommendations" element={<ProtectedRoute allowedRoles={[0]}><InsuranceRecommendations /></ProtectedRoute>} />
+            <Route path="/insuranceProfileSetup" element={<ProtectedRoute allowedRoles={[0]}><InsuranceProfileSetup /></ProtectedRoute>} />
 
-            <Route path="/incomeSetup" element={
-              <ProtectedRoute allowedRoles={[0]}>
-                <IncomeSetup />
-              </ProtectedRoute>} 
-            />
-
-            <Route path="/monthlyExpenses" element={
-              <ProtectedRoute allowedRoles={[0]}>
-                <MonthlyExpenses />
-              </ProtectedRoute>} 
-            />
-
-            <Route path="/insuranceRecommendations" element={
-              <ProtectedRoute allowedRoles={[0]}>
-                <InsuranceRecommendations />
-              </ProtectedRoute>}
-            />
-
-            <Route path="/insuranceProfileSetup" element={
-              <ProtectedRoute allowedRoles={[0]}>
-                <InsuranceProfileSetup />
-              </ProtectedRoute>}
-            />
-
-            <Route
-              path="/accountManagement"
-              element={
-                <ProtectedRoute allowedRoles={[1]}>
-                  <AccountManagement />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/insurancePlanManagement"
-              element={
-                <ProtectedRoute allowedRoles={[1]}>
-                  <InsurancePlanManagement />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/addInsurancePlan/:id"
-              element={
-                <ProtectedRoute allowedRoles={[1]}>
-                  <AddInsurancePlan />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/addInsurancePlan"
-              element={
-                <ProtectedRoute allowedRoles={[1]}>
-                  <AddInsurancePlan />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute allowedRoles={[0, 1]}>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/accountManagement" element={<ProtectedRoute allowedRoles={[1]}><AccountManagement /></ProtectedRoute>} />
+            <Route path="/insurancePlanManagement" element={<ProtectedRoute allowedRoles={[1]}><InsurancePlanManagement /></ProtectedRoute>} />
+            <Route path="/addInsurancePlan/:id" element={<ProtectedRoute allowedRoles={[1]}><AddInsurancePlan /></ProtectedRoute>} />
+            <Route path="/addInsurancePlan" element={<ProtectedRoute allowedRoles={[1]}><AddInsurancePlan /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute allowedRoles={[0, 1]}><Profile /></ProtectedRoute>} />
           </Routes>
         </main>
       </>
     );
   };
 
-
-  // === Prevent rendering until auth check done ===
-  if (isCheckingAuth) {
-    return <div>Checking authentication...</div>;
+  // === Prevent rendering until auth check done OR theme sync done ===
+  if (isCheckingAuth || themeLoading) {
+    return <div>Loading...</div>;
   }
 
   return (
