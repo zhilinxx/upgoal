@@ -235,7 +235,6 @@ export default function ExpenseDialog({
               type="date"
               className="calendar-icon"
               value={date}
-              /* ✅ use local today, not UTC */
               max={todayLocalISO()}
               onChange={(e) => setDate(e.target.value)}
               data-placeholder={!date}

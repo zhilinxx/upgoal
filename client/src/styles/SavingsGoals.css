@@ -382,3 +382,6 @@ video {
   margin-top: 10px;
 }
 
+/* Date placeholder color for GoalDialog */
+.modal-card .calendar-icon::-webkit-datetime-edit { color: var(--text-color); }
+.modal-card .calendar-icon[data-placeholder="true"]::-webkit-datetime-edit { color: #999; }
