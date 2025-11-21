@@ -218,7 +218,7 @@ export default function InsuranceProfileSetup() {
                     setHeightValidation("");
                   }
                 }}
-                step="0.01"
+                step="0.1"
                 min="100"
                 max="250"
                 required
@@ -242,7 +242,7 @@ export default function InsuranceProfileSetup() {
                     setWeightValidation("");
                   }
                 }}
-                step="0.01"
+                step="0.1"
                 min="30"
                 max="250"
                 required

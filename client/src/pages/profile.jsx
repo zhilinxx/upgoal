@@ -138,7 +138,7 @@ export default function Profile() {
             <div className="info-list">
               <div className="info-row">
                 <span className="info-label">Monthly Income:</span>
-                <span className="info-value">RM {profile.net_income}</span>
+                <span className="info-value">RM {Number(profile.net_income).toFixed(2)}</span>
               </div>
               <div className="info-row">
                 <span className="info-label">Lifestyle:</span>
@@ -150,7 +150,7 @@ export default function Profile() {
                 profile.commitments.map((c, index) => (
                   <div key={index} className="info-row">
                     <span className="info-label">{c.type}:</span>
-                    <span className="info-value">RM {c.amt}</span>
+                    <span className="info-value">RM {Number(c.amt).toFixed(2)}</span>
                   </div>
                 ))
               ) : (
@@ -217,7 +217,7 @@ export default function Profile() {
               </div>
               <div className="info-row">
                 <span className="info-label">Cholesterol:</span>
-                <span className="info-value">{profile.cholesterol}</span>
+                <span className="info-value">{profile.cholesterol} mg/dL</span>
               </div>
               <div className="info-row">
                 <span className="info-label">Asthma:</span>
@@ -237,7 +237,7 @@ export default function Profile() {
               </div>
               <div className="info-row">
                 <span className="info-label">Allowance:</span>
-                <span className="info-value">RM {profile.allowance}</span>
+                <span className="info-value">RM {Number(profile.allowance).toFixed(2)}</span>
               </div>
             </div>
             <div className="btn-section">
