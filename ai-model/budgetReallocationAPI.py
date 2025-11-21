@@ -6,8 +6,8 @@ app = Flask(__name__)
 CORS(app)
 
 base_dir = os.path.dirname(__file__)
-model_path   = os.path.join(base_dir, "budget_model.pkl")   # your trained Pipeline (preprocess + kmeans)
-labels_path  = os.path.join(base_dir, "labels_mapping.pkl") # optional { "labels_mapping": {clusterId: "balanced spender", ...} }
+model_path   = os.path.join(base_dir, "budget_model.pkl")   # trained Pipeline (preprocess + kmeans)
+labels_path  = os.path.join(base_dir, "labels_mapping.pkl") 
 
 pipe = joblib.load(model_path)
 try:

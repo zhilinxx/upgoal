@@ -288,6 +288,9 @@ export default function MonthlyExpenses() {
     ? ((otherThisMonth / netIncome) * 100).toFixed(1)
     : "0.0";
 
+  // NEW: hide center label/amount when total is zero
+  const hasSpending = Number.isFinite(monthTotal) && monthTotal > 0;
+
   return (
     <div className="expenses-container">
       <div className="expenses-header">
@@ -359,12 +362,16 @@ export default function MonthlyExpenses() {
               },
             }}
           />
-          <div className="expenses-chart-center">
-            <p className="expenses-chart-label">{monthLabel} Total</p>
-            <h3 className="expenses-chart-amount">
-              {currency} {monthTotal.toFixed(2)}
-            </h3>
-          </div>
+
+          {/* Only show center label when there is spending */}
+          {hasSpending && (
+            <div className="expenses-chart-center">
+              <p className="expenses-chart-label">{monthLabel} Total</p>
+              <h3 className="expenses-chart-amount">
+                {currency} {monthTotal.toFixed(2)}
+              </h3>
+            </div>
+          )}
         </div>
 
         <div className="expenses-legend-area">

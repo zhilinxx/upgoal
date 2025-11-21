@@ -64,6 +64,9 @@
 
 // export default SavingsGoals;
 //------------------------------------------------------------------
+//----------------------------------------------------------------------
+// SavingsGoals.jsx
+//----------------------------------------------------------------------
 import React, { useEffect, useRef, useState } from "react";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import { toast } from "react-toastify";
@@ -157,7 +160,6 @@ export default function SavingsGoals({ currency = "RM" }) {
     (async () => {
       try {
         const { data } = await listGoals();
-        console.log("RAW goals from API:", data);
         setItems(Array.isArray(data) ? data : []);
       } catch (e) {
         console.error(e);
@@ -166,12 +168,12 @@ export default function SavingsGoals({ currency = "RM" }) {
     })();
   }, []);
 
-  // Ensure initial position shows the add pill
+  // Ensure initial position shows the start
   useEffect(() => {
     scrollerRef.current?.scrollTo({ left: 0 });
   }, []);
 
-  // --- Add button: tap vs drag detection ---
+  // --- Add pill: tap vs drag detection ---
   const handleAddPointerDown = (e) => {
     const p = e.touches?.[0] ?? e;
     setPress({ x: p.clientX, y: p.clientY });
@@ -184,8 +186,8 @@ export default function SavingsGoals({ currency = "RM" }) {
   };
 
   // --- Layout numbers: width of add pill + gap (kept for paginator math) ---
-  const RAIL = 56; // width of .add-goal-box (even though it's not sticky)
-  const GAP  = 18;
+  const RAIL = 56; // width of .add-goal-box
+  const GAP = 18;
 
   const slideWidth = () => {
     const el = scrollerRef.current;
@@ -197,13 +199,11 @@ export default function SavingsGoals({ currency = "RM" }) {
   const handleScroll = () => {
     const el = scrollerRef.current;
     if (!el) return;
-    // Subtract the space taken by the add pill + first gap
     const offset = Math.max(0, el.scrollLeft - (RAIL + GAP));
     const idx = Math.round(offset / stride());
     if (idx !== active) setActive(idx);
   };
 
-  // --- Dot click -> smooth scroll to the i-th goal (skip the add pill once) ---
   const goToSlide = (i) => {
     const el = scrollerRef.current;
     if (!el) return;
@@ -225,7 +225,7 @@ export default function SavingsGoals({ currency = "RM" }) {
       target: goal.target,
       saved: goal.current,
       description: goal.description || "",
-      dueDate: goal.deadline,   
+      dueDate: goal.deadline,
     });
     setOpen(true);
   };
@@ -299,51 +299,76 @@ export default function SavingsGoals({ currency = "RM" }) {
     }
   };
 
+  const isEmpty = items.length === 0;
+
   return (
     <section className="savings-goals-section">
       <h3 className="section-title">My Savings Goals</h3>
 
-      {/* Carousel */}
-      <div className="goals-carousel" ref={scrollerRef} onScroll={handleScroll}>
-        {/* Add Another Goal = first slide; now also a snap point */}
-        <button
-          type="button"
-          className="add-goal-box"
-          onPointerDown={handleAddPointerDown}
-          onPointerUp={handleAddPointerUp}
-          onTouchStart={handleAddPointerDown}
-          onTouchEnd={handleAddPointerUp}
-          aria-label="Add Another Goal"
-          tabIndex={0}
-        >
-          <div className="add-goal-icon">+</div>
-          <p className="add-goal-label">Add Another Goal</p>
-        </button>
-
-        {/* Goal slides */}
-        {items.map((g) => (
-          <GoalItem
-            key={g.id}
-            goal={g}
-            currency={currency}
-            onEdit={startEdit}
-            onAskDelete={askDelete}
-          />
-        ))}
-      </div>
-
-      {/* Paginator (one dot per GOAL) */}
-      <div className="paginator">
-        {items.map((_, i) => (
+      {/* ✅ merged rail with conditional is-empty class */}
+      <div
+        className={`goals-carousel ${isEmpty ? "is-empty" : ""}`}
+        ref={scrollerRef}
+        onScroll={handleScroll}
+      >
+        {/* Show the vertical Add pill ONLY when there is at least one goal */}
+        {!isEmpty && (
           <button
-            key={i}
             type="button"
-            className={`dot ${active === i ? "active" : ""}`}
-            onClick={() => goToSlide(i)}
-            aria-label={`Go to goal ${i + 1}`}
-          />
-        ))}
+            className="add-goal-box"
+            onPointerDown={handleAddPointerDown}
+            onPointerUp={handleAddPointerUp}
+            onTouchStart={handleAddPointerDown}
+            onTouchEnd={handleAddPointerUp}
+            aria-label="Add Another Goal"
+            tabIndex={0}
+          >
+            <div className="add-goal-icon">+</div>
+            <p className="add-goal-label">Add Another Goal</p>
+          </button>
+        )}
+
+        {isEmpty ? (
+          <div className="empty-align">
+            <div className="goal-card">
+              <p style={{ margin: 0, color: "#999" }}>No savings goal yet.</p>
+              <button
+                type="button"
+                className="save-btn"
+                onClick={startCreate}
+                style={{ marginTop: "15px", whiteSpace: "nowrap" }}
+              >
+                Add Goal
+              </button>
+            </div>
+          </div>
+        ) : (
+          items.map((g) => (
+            <GoalItem
+              key={g.id}
+              goal={g}
+              currency={currency}
+              onEdit={startEdit}
+              onAskDelete={askDelete}
+            />
+          ))
+        )}
       </div>
+
+      {/* Paginator (one dot per GOAL) — hidden when empty */}
+      {!isEmpty && (
+        <div className="paginator">
+          {items.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`dot ${active === i ? "active" : ""}`}
+              onClick={() => goToSlide(i)}
+              aria-label={`Go to goal ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
 
       <GoalDialog
         mode={mode}

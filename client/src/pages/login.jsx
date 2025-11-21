@@ -1,3 +1,4 @@
+// client/src/pages/Login.jsx
 import React, { useState } from "react";
 import { loginUser } from "../api/auth";
 import { Link } from "react-router-dom";
@@ -10,7 +11,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const togglePassword = () => {
     setShowPassword((prev) => !prev);
   };
@@ -19,11 +20,23 @@ export default function Login() {
     e.preventDefault();
     try {
       const res = await loginUser({ email, password });
+
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("role", res.data.role);
       localStorage.setItem("userId", res.data.userId);
       localStorage.setItem("email", res.data.email);
-      localStorage.setItem("theme", res.data.theme);
+      const serverTheme = res.data?.theme;
+      console.log("Login theme from server:", serverTheme);
+
+      if (serverTheme === "dark" || serverTheme === "light") {
+        localStorage.setItem("theme", serverTheme);
+        document.documentElement.setAttribute("data-theme", serverTheme);
+      } else {
+        // keep existing theme if backend doesn't send one
+        const existing = localStorage.getItem("theme") === "dark" ? "dark" : "light";
+        localStorage.setItem("theme", existing);
+        document.documentElement.setAttribute("data-theme", existing);
+      }
       window.location.href = "/"; // redirect to homepage
     } catch (err) {
       setMessage(err.response?.data?.message || "Error occurred");
@@ -33,11 +46,12 @@ export default function Login() {
   return (
     <div className="register-container">
       <div className="register-card">
-        <img src={logo} alt="UpGoal" className="register-logo"/>
+        <img src={logo} alt="UpGoal" className="register-logo" />
         <form onSubmit={handleSubmit}>
-          
           <div className="input-group">
-            <label>Email<span className="required">*</span></label>
+            <label>
+              Email<span className="required">*</span>
+            </label>
             <div className="input-wrapper">
               <FaEnvelope className="input-icon" />
               <input
@@ -73,18 +87,23 @@ export default function Login() {
               </button>
             </div>
           </div>
-          
 
           <p className="forget-psw">
             Forgot your password?{" "}
-            <Link to="/forgotPassword" className="login-link">Reset here</Link>
+            <Link to="/forgotPassword" className="login-link">
+              Reset here
+            </Link>
           </p>
           <p className="login-text">
-            Don’t have an account? <Link to="/register" className="login-link">Register</Link>
+            Don’t have an account?{" "}
+            <Link to="/register" className="login-link">
+              Register
+            </Link>
           </p>
-          
 
-          <button type="submit" className="register-btn">Login</button>
+          <button type="submit" className="register-btn">
+            Login
+          </button>
           {message && <p className="validation">{message}</p>}
         </form>
       </div>

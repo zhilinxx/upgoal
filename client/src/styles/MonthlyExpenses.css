@@ -399,3 +399,4 @@
 @media (min-width:1200px){
   .modal-card{ width:clamp(420px,46vw,820px); padding:22px; }
 }
+

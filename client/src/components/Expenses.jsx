@@ -11,6 +11,8 @@ const ExpenseItem = ({ expense, currency }) => (
 
 function Expenses({ expenses, currency }) {
   const navigate = useNavigate();
+  const hasExpenses = expenses && expenses.length > 0;
+
   return (
     <section className="expenses-list-section">
       <div className="expenses-list-header">
@@ -18,20 +20,32 @@ function Expenses({ expenses, currency }) {
         <span className="view-all" onClick={() => navigate("/monthlyExpenses")}>View all</span>
       </div>
 
-      <ul className="expenses-list">
-        {expenses
-          .map((e, i) => ({ ...e, _idx: i }))     // tag original position
-          .sort((a, b) => {
-            const dateDiff = new Date(b.date) - new Date(a.date);
-            if (dateDiff !== 0) return dateDiff;
-            return b._idx - a._idx;               // later in list → newer
-          })
-          .slice(0, 10)
-          .map((expense) => (
-            <ExpenseItem key={expense.id || expense._idx} expense={expense} currency={currency} />
-          ))}
-
-      </ul>
+      {/* ✅ Show message when there are no expenses */}
+      {!hasExpenses ? (
+        <div className="no-expense-message">
+          <p style={{ color: "#999", textAlign: "center", margin: "12px 0" }}>
+            No expense yet.
+          </p>
+        </div>
+      ) : (
+        <ul className="expenses-list">
+          {expenses
+            .map((e, i) => ({ ...e, _idx: i }))     // tag original position
+            .sort((a, b) => {
+              const dateDiff = new Date(b.date) - new Date(a.date);
+              if (dateDiff !== 0) return dateDiff;
+              return b._idx - a._idx;               // later in list → newer
+            })
+            .slice(0, 10)
+            .map((expense) => (
+              <ExpenseItem
+                key={expense.id || expense._idx}
+                expense={expense}
+                currency={currency}
+              />
+            ))}
+        </ul>
+      )}
     </section>
   );
 }

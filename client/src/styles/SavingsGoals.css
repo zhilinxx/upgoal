@@ -360,3 +360,28 @@ video {
 .modal-card::-webkit-scrollbar {
     display: none;
 }
+
+.goals-carousel.is-empty {
+  justify-content: center;
+  padding-left: 0;
+}
+
+.goals-carousel.is-empty .empty-align {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.goals-carousel.is-empty .goal-card {
+  transform: none;
+  width: 260px;  
+  max-width: 560px;
+  flex-basis: auto;
+  margin: 0 auto;
+  margin-top: 10px;
+}
+
+/* Date placeholder color for GoalDialog */
+.modal-card .calendar-icon::-webkit-datetime-edit { color: var(--text-color); }
+.modal-card .calendar-icon[data-placeholder="true"]::-webkit-datetime-edit { color: #999; }
