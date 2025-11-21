@@ -68,7 +68,7 @@ export default function InsuranceProfileSetup() {
     const fetchProfile = async () => {
       try {
         const { data } = await getInsuranceProfile(userId);
-        if (!data) return; // no record → keep default empty
+        if (!data) return; // no record keep default empty
 
         setFormData({
           gender: data.gender === "M" ? "Male" : data.gender === "F" ? "Female" : "",
@@ -87,7 +87,7 @@ export default function InsuranceProfileSetup() {
           allowance: data.allowance || "",
         });
       } catch (err) {
-        // ✅ If no profile or 404, just keep empty fields
+        // If no profile or 404, keep empty fields
         if (err.response?.status !== 404) {
           console.error("Error fetching profile:", err);
         }
@@ -207,7 +207,6 @@ export default function InsuranceProfileSetup() {
                 type="number"
                 name="height"
                 value={formData.height}
-                // onChange={handleChange}
                 onChange={(e) => {
                   const value = parseFloat(e.target.value);
                   handleChange(e);

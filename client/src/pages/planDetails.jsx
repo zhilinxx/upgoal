@@ -11,7 +11,6 @@ export default function InsurancePlanDetails() {
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
 
-  // ✅ Safe defaults
   const previousFilters = location.state?.filters || {};
   const score = location.state?.score || 0;
 
@@ -45,44 +44,11 @@ export default function InsurancePlanDetails() {
     fetchPlan();
   }, [planId, userId]);
 
-
   if (!plan) return <p>Loading...</p>;
 
-  // const checkFavStatus = async () => {
-  // const { data } = await checkFavourite(userId, planId);
-  //   setIsFavourite(data.isFavourite);
-  // };
-  // checkFavStatus();
   const displayedSumAssured = userSumAssured || plan.sum_assured;
   const displayedPremium = applyTaxRelief ? premiumWithTax : premiumNoTax;
 
-
-  // let premium = Number(displayedPremium);
-  // const originalPremium = Number(plan.premium);
-  // const passedPremium = Number(userPremium);
-
-  // if (previousFilters?.taxRelief) {
-  //   // Base premium already tax-relieved from recommendations
-  //   if(passedPremium == 0 || passedPremium == null){
-  //     if(applyTaxRelief){
-  //       premium = Math.max(passedPremium, 0);
-  //     }
-  //     else {
-  //       premium = originalPremium;
-  //     }
-  //   }
-  //   else{
-  //     premium = applyTaxRelief ? premium : premium + 250;
-  //   }
-
-  // } else {
-  //   // Apply or remove relief locally
-  //   premium = applyTaxRelief ? Math.max(premium - 250, 0) : premium;
-  // }
-
-  // premium = premium.toFixed(2);
-
-  // ✅ Suggested payment structures
   const paymentStructures = plan.payment_structure
     ? plan.payment_structure.split(",").map((s) => s.trim())
     : [];

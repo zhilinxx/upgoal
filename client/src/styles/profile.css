@@ -146,8 +146,6 @@
   background: var(--btn-hover);
 }
 
-
-/* Mobile collapsible behavior */
 @media (max-width: 768px) {
   .info-grid {
     grid-template-columns: 1fr;

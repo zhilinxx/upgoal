@@ -7,7 +7,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { logoutUser } from "./api/auth";
 import { useNavigate } from "react-router-dom";
-import useTheme from "./hooks/useTheme"; // <-- ensure this path matches your project
+import useTheme from "./hooks/useTheme";
 
 // Pages
 import BudgetPlanner from "./pages/budgetPlanner";
@@ -30,7 +30,7 @@ import FavouriteList from "./pages/insuranceFavouriteList";
 import Settings from "./pages/settings";
 import ComparePlan from "./pages/comparePlan";
 
-// ✅ Page titles for mobile header
+// Page titles for mobile header
 const PAGE_TITLES = {
   "/budgetPlanner": "Budget Planner",
   "/accountManagement": "Account Management",
@@ -54,7 +54,7 @@ const API = axios.create({
 });
 
 function App() {
-  // === Theme: ensure global synchronization runs once per tab/app
+  // Theme: ensure global synchronization runs once per tab/app
   // put the hook at the top-level so it mounts for every route/tab
   const { loading: themeLoading } = useTheme();
 
@@ -74,7 +74,7 @@ function App() {
       .catch(err => console.error("Backend not reachable:", err));
   }, []);
 
-  // ✅ Load auth state (try refresh if no token)
+  // Load auth state (try refresh if no token)
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     const storedRole = localStorage.getItem("role");
@@ -95,7 +95,7 @@ function App() {
       } catch (err) {
         console.warn("Auto login failed:", err);
         setIsLoggedIn(false);
-        // Don't wipe theme here — keep user preference
+        // Don't wipe theme here keep user preference
         const savedTheme = localStorage.getItem("theme");
         localStorage.clear();
         if (savedTheme) localStorage.setItem("theme", savedTheme);
@@ -146,7 +146,7 @@ function App() {
       }
     };
 
-    // ===== Hide header/sidebar on these routes =====
+    // Hide header/sidebar on these routes
     const hideLayoutRoutes = [
       "/login",
       "/register",
@@ -161,7 +161,7 @@ function App() {
 
     const hideLayout = hideLayoutRoutes.includes(location.pathname);
 
-    // ===== Navigation links =====
+    // Navigation links
     const renderNavLinks = () => {
       const getLinkClass = (path) => (location.pathname === path ? "active-link" : "");
 
@@ -194,7 +194,7 @@ function App() {
 
     return (
       <>
-        {/* ===== HEADER & SIDEBAR (only if not on auth pages) ===== */}
+        {/* HEADER & SIDEBAR (only if not on auth pages) */}
         {!hideLayout && (
           <>
             <header className="header">
@@ -268,7 +268,7 @@ function App() {
           </>
         )}
 
-        {/* ===== MAIN CONTENT ===== */}
+        {/*  MAIN CONTENT */}
         <main className="main-content">
           <Routes>
             {/* Default redirect depending on login and role */}
@@ -318,7 +318,7 @@ function App() {
     );
   };
 
-  // === Prevent rendering until auth check done OR theme sync done ===
+  // Prevent rendering until auth check done OR theme sync done
   if (isCheckingAuth || themeLoading) {
     return <div>Loading...</div>;
   }

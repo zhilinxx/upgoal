@@ -99,7 +99,7 @@ export default function InsurancePlanManagement() {
         <button
           onClick={() => {
             setPlans((prev) => [...prev, ...removedPlans]);
-            undoClicked = true; // ✅ mark undo as clicked
+            undoClicked = true; // mark undo as clicked
             toast.dismiss(undoToast);
           }}
           style={{
@@ -120,7 +120,7 @@ export default function InsurancePlanManagement() {
 
     // Wait 5 seconds before actually deleting
     setTimeout(async () => {
-      if (undoClicked) return; // ✅ skip deletion if Undo pressed
+      if (undoClicked) return; // skip deletion if Undo pressed
       try {
         await deletePlans(selectedIds);
         toast.success("Selected plan(s) deleted successfully");
@@ -150,7 +150,7 @@ export default function InsurancePlanManagement() {
         }}
       />
 
-      {/* ===== Filter Bar ===== */}
+      {/* Filter Bar */}
       <div className="filter-bar">
         <div className="search-area">
           <input
@@ -190,7 +190,7 @@ export default function InsurancePlanManagement() {
 
       <p className="record-line">{totalRecords} records found.</p>
 
-      {/* ===== Table Section ===== */}
+      {/* Table Section */}
       <div className="table-container">
         <table className="plan-table">
           <thead>
@@ -262,7 +262,7 @@ export default function InsurancePlanManagement() {
           </tbody>
         </table>
 
-        {/* ===== Pagination ===== */}
+        {/* Pagination */}
         <div className="pagination">
           <button
             className="page-btn"

@@ -36,7 +36,6 @@ export default function AccountManagement() {
     );
   };
 
-  // ✅ Select all rows
   const handleSelectAll = () => {
     if (selectAll) {
       setSelectedIds([]);

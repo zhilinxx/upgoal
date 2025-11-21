@@ -11,7 +11,7 @@ import App from "./App.jsx";
     // if saved is exactly "dark", use dark; otherwise default to light
     const t = saved === "dark" ? "dark" : "light";
 
-    // ✅ Always persist the decision so the key exists even on first load
+    // Always persist the decision so the key exists even on first load
     if (saved !== t) {
       localStorage.setItem("theme", t);
     }

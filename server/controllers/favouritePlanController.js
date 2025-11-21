@@ -1,6 +1,6 @@
 import { getDB } from "../config/db.js";
 
-// ✅ Get all favourites for a user
+// Get all favourites for a user
 export const getFavourites = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -21,7 +21,7 @@ export const getFavourites = async (req, res) => {
   }
 };
 
-// ✅ Add plan to favourites (with sum_assured)
+// Add plan to favourites (with sum_assured)
 export const addFavourite = async (req, res) => {
   try {
     const { userId, planId, sumAssured } = req.body;
@@ -42,7 +42,7 @@ export const addFavourite = async (req, res) => {
   }
 };
 
-// ✅ Remove favourite
+// Remove favourite
 export const removeFavourite = async (req, res) => {
   try {
     const { userId, planId } = req.body;
@@ -56,7 +56,7 @@ export const removeFavourite = async (req, res) => {
   }
 };
 
-// ✅ Remove multiple favourites
+// Remove multiple favourites
 export const removeMultipleFavourites = async (req, res) => {
   try {
     const { userId, plans } = req.body; // plans = [{ plan_id, sum_assured }]
@@ -76,7 +76,7 @@ export const removeMultipleFavourites = async (req, res) => {
   }
 };
 
-// ✅ Check if a plan is favourite
+// Check if a plan is favourite
 export const checkFavourite = async (req, res) => {
   try {
     const { userId, planId } = req.params;

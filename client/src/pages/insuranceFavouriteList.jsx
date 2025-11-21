@@ -21,14 +21,13 @@ export default function FavouriteList() {
     fetchFavourites();
   }, []);
 
-  // ✅ Fetch favourites and calculate plan scores
+  // Fetch favourites and calculate plan scores
   const fetchFavourites = async () => {
     try {
       setLoading(true);
       const res = await getFavourites(userId);
       const favs = res.data;
 
-      // 🔹 Call getPlanScore for each favourite
       const scoredFavourites = await Promise.all(
         favs.map(async (plan) => {
           try {
@@ -90,7 +89,7 @@ export default function FavouriteList() {
     fetchFavourites();
   };
 
-  // ✅ Navigate to plan details with accurate filters
+  // Navigate to plan details with accurate filters
   const handlePlanClick = (plan) => {
     navigate(`/plan/${plan.plan_id}`, {
       state: {

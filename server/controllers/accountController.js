@@ -1,7 +1,7 @@
 // controllers/accountController.js
 import { getDB } from "../config/db.js";
 
-// ✅ Get all users (with pagination + search + status filter)
+// Get all users (with pagination + search + status filter)
 export const getAllUsers = async (req, res) => {
   try {
     const { search = "", status = "All", page = 1, limit = 10 } = req.query;
@@ -17,7 +17,7 @@ export const getAllUsers = async (req, res) => {
       params.push(`%${search}%`, `%${search}%`);
     }
 
-    // ✅ Convert "Active"/"Inactive" → numeric 1/0
+    // Convert "Active"/"Inactive" to numeric 1/0
     if (status === "Active") {
       baseQuery += " AND status = 1";
     } else if (status === "Inactive") {
@@ -35,13 +35,13 @@ export const getAllUsers = async (req, res) => {
       [...params, parseInt(limit), parseInt(offset)]
     );
 
-    // ✅ Convert numeric status → readable string
+    // Convert numeric status to active/inactive
     const formattedUsers = users.map((u) => ({
       ...u,
       status: u.status === 1 ? "Active" : "Inactive",
     }));
 
-    // ✅ Return formatted users
+    // Return formatted users
     res.json({
       users: formattedUsers,
       pagination: {
@@ -56,7 +56,7 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-// ✅ Update user status (Activate / Deactivate)
+// Update user status (Activate / Deactivate)
 export const updateUserStatus = async (req, res) => {
   try {
     const { userIds, status } = req.body;
@@ -65,7 +65,7 @@ export const updateUserStatus = async (req, res) => {
 
     const db = getDB();
 
-    // Convert "Active"/"Inactive" → numeric 1/0
+    // Convert "Active"/"Inactive" to numeric 1/0
     const newStatus = status === "Active" ? 1 : 0;
 
     const [result] = await db.query(
@@ -75,7 +75,7 @@ export const updateUserStatus = async (req, res) => {
 
     res.json({ message: `Updated ${result.affectedRows} user(s)` });
   } catch (err) {
-    console.error("❌ updateUserStatus Error:", err);
+    console.error("updateUserStatus Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

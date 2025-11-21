@@ -9,7 +9,7 @@ export default function VerifyEmail() {
   const [showResend, setShowResend] = useState(false);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [verified, setVerified] = useState(false); // ✅ Add this state
+  const [verified, setVerified] = useState(false);
 
   useEffect(() => {
     const token = params.get("token");
@@ -17,7 +17,7 @@ export default function VerifyEmail() {
       verifyEmail(token)
         .then((res) => {
           setMessage(res.data.message);
-          setVerified(true); // ✅ Mark verified success
+          setVerified(true);
         })
         .catch((err) => {
           setMessage(err.response?.data?.message || "Verification failed or expired");
@@ -53,14 +53,12 @@ export default function VerifyEmail() {
         <img src={logo} alt="UpGoal" className="logo" />
         <h3>{message}</h3>
 
-        {/* ✅ Show "Go to Login" button if verified */}
         {verified && (
           <Link to="/login" className="login-link">
             <button className="login-btn">Go to Login</button>
           </Link>
         )}
 
-        {/* 🔁 Resend section for failed or expired links */}
         {showResend && (
           <div className="resend-section">
             <input

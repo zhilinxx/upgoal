@@ -29,7 +29,7 @@ const storage = multer.diskStorage({
       folder = "src/uploads/insuranceBrochures";
     }
 
-    // ✅ Ensure directory exists
+    // Ensure directory exists
     fs.mkdirSync(folder, { recursive: true });
     cb(null, folder);
   },
@@ -49,7 +49,7 @@ const storage = multer.diskStorage({
 
 export const upload = multer({ storage });
 
-// ✅ Get all plans
+// Get all plans
 export const getAllPlans = async (req, res) => {
   try {
     const { search = "", page = 1, limit = 10, sort = "plan_id", type = "All" } = req.query;
@@ -59,7 +59,7 @@ export const getAllPlans = async (req, res) => {
     let baseQuery = "FROM insurance_plan WHERE 1=1";
     const params = [];
 
-    // 🔍 Search by plan_id, plan_name, or provider
+    // Search by plan_id, plan_name, or provider
     if (search) {
       baseQuery += " AND (plan_id LIKE ? OR plan_name LIKE ? OR provider LIKE ?)";
       params.push(`%${search}%`, `%${search}%`, `%${search}%`);
@@ -71,13 +71,13 @@ export const getAllPlans = async (req, res) => {
       params.push(type);
     }
 
-    console.log("🔍 Filter received from frontend:", type);
-    // 📊 Count total records
+    console.log("Filter received from frontend:", type);
+    // Count total records
     const [countRows] = await db.query(`SELECT COUNT(*) AS total ${baseQuery}`, params);
     const totalRecords = countRows[0].total;
     const totalPages = Math.ceil(totalRecords / limit);
 
-    // 📋 Fetch plans
+    // Fetch plans
     const [plans] = await db.query(
       `SELECT plan_id, plan_name, provider, plan_type, premium, brochure_path, provider_logo, provider_phone, provider_email,
               sum_assured, coverage_age, coverage_scope, CI, annual_limit, lifetime_limit, hp_room_board, payment_structure
@@ -115,7 +115,7 @@ export const getPlanById = async (req, res) => {
   }
 };
 
-// ✅ Add new plan
+// Add new plan
 export const addPlan = async (req, res) => {
   try {
     const {
@@ -158,12 +158,12 @@ export const addPlan = async (req, res) => {
 
     res.json({ message: "Insurance plan added successfully" });
   } catch (err) {
-    console.error("❌ addPlan Error:", err);
+    console.error("addPlan Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// ✅ Update plan
+// Update plan
 export const updatePlan = async (req, res) => {
   try {
     const { id } = req.params;
@@ -208,12 +208,12 @@ export const updatePlan = async (req, res) => {
 
     res.json({ message: "Plan updated successfully" });
   } catch (err) {
-    console.error("❌ updatePlan Error:", err);
+    console.error("updatePlan Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// ✅ Delete selected plans
+// Delete selected plans
 export const deletePlans = async (req, res) => {
   try {
     const { planIds } = req.body;
@@ -224,7 +224,7 @@ export const deletePlans = async (req, res) => {
 
     res.json({ message: "Plans deleted successfully" });
   } catch (err) {
-    console.error("❌ deletePlans Error:", err);
+    console.error("deletePlans Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

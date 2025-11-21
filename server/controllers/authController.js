@@ -6,7 +6,7 @@ import { sendEmail } from "../utils/sendEmail.js";
 const createToken = (payload, expiresIn) =>
   jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
-// ✅ Register
+// Register
 export const register = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -50,7 +50,7 @@ export const register = async (req, res) => {
 };
 
 
-// ✅ Verify Email
+// Verify Email
 export const verifyEmail = async (req, res) => {
   try {
     const { token } = req.query;
@@ -63,7 +63,7 @@ export const verifyEmail = async (req, res) => {
   }
 };
 
-// ✅ Resend verification email
+// Resend verification email
 export const resendVerification = async (req, res) => {
   try {
     const { email } = req.body;
@@ -91,7 +91,7 @@ export const resendVerification = async (req, res) => {
 };
 
 
-// ✅ Login
+// Login
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -109,7 +109,7 @@ export const login = async (req, res) => {
     if (!valid)
       return res.status(400).json({ message: "Wrong password" });
 
-    // ✅ Generate tokens
+    // Generate tokens
     const accessToken = createToken(
       { user_id: user.user_id, role: user.role, email: user.email },
       "15m"
@@ -117,7 +117,7 @@ export const login = async (req, res) => {
     const refreshToken = createToken({ user_id: user.user_id }, "7d");
 
 
-    // ✅ Save refreshToken in DB
+    // Save refreshToken in db
     await db.query("UPDATE user SET refresh_token = ? WHERE user_id = ?", [
       refreshToken,
       user.user_id,
@@ -125,7 +125,7 @@ export const login = async (req, res) => {
     console.log("🟢 Stored refresh token for user:", user.user_id);
     console.log("🔹 Token preview:", refreshToken.substring(0, 30) + "...");
 
-    // ✅ Send refreshToken as cookie
+    // Send refreshToken as cookie
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       sameSite: "lax",
@@ -177,6 +177,7 @@ export const refresh = async (req, res) => {
   }
 };
 
+// Logout
 export const logout = async (req, res) => {
   try {
     const { refreshToken } = req.cookies;
@@ -192,7 +193,7 @@ export const logout = async (req, res) => {
   }
 };
 
-// ✅ Forgot Password
+// Forgot Password
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
   const db = getDB();
@@ -207,7 +208,7 @@ export const forgotPassword = async (req, res) => {
   res.json({ message: "Reset password email verification sent. Please check your inbox or spam" });
 };
 
-// ✅ Reset Password
+// Reset Password
 export const resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;

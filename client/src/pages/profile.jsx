@@ -74,7 +74,7 @@ export default function Profile() {
     })();
   }, []);
 
-  // ✅ Logout while preserving theme
+  // Logout while preserving theme
   const handleLogout = async () => {
     try {
       await logoutUser();
@@ -154,7 +154,7 @@ export default function Profile() {
                 <span className="info-value">{profile.lifestyle}</span>
               </div>
 
-              {/* ✅ Dynamically display all commitments */}
+              {/* Dynamically display all commitments */}
               {profile.commitments && profile.commitments.length > 0 ? (
                 profile.commitments.map((c, index) => (
                   <div key={index} className="info-row">

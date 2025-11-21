@@ -1,7 +1,6 @@
 import { getDB } from "../config/db.js";
 import axios from "axios";
 
-// ✅ Utility to calculate age
 function calculateAge(birth_date) {
   const diff = Date.now() - new Date(birth_date).getTime();
   return Math.abs(new Date(diff).getUTCFullYear() - 1970);
@@ -19,7 +18,7 @@ function mapYesNo(value) {
   return value ? 1 : 0;
 }
 
-// ✅ Utility for payment rule-based suggestion
+// payment rule-based suggestion
 function getPaymentSuggestion(age, allowance) {
   if (age < 30) {
     if (allowance < 4000) {
@@ -49,7 +48,7 @@ function getPaymentSuggestion(age, allowance) {
     }
   }
 
-  // Default fallback
+  // Default
   return "Flat rate and lower premium until coverage term";
 }
 
@@ -118,7 +117,7 @@ export const saveInsuranceProfile = async (req, res) => {
       [user_id]
     );
 
-    // ✅ Save or update profile
+    // Save or update profile
     if (existing.length > 0) {
       await db.query(
         `UPDATE insurance_profile SET gender=?, birth_date=?, height=?, weight=?, exercise=?, alcohol=?, 
@@ -167,7 +166,7 @@ export const saveInsuranceProfile = async (req, res) => {
       );
     }
 
-    // ✅ Call AI model for risk level
+    // Call AI model for risk level
     let risk_level = "Low"; // default
     try {
       const aiRes = await axios.post("http://localhost:5001/api/predict_risk", {
@@ -188,10 +187,10 @@ export const saveInsuranceProfile = async (req, res) => {
       console.error("AI model connection failed:", err.message);
     }
 
-    // ✅ Apply rule-based payment suggestion
+    // Apply rule-based payment suggestion
     const payment_suggestion = getPaymentSuggestion(age, allowance);
 
-    // ✅ Save risk & payment suggestion
+    // Save risk & payment suggestion
     await db.query(
       "UPDATE insurance_profile SET risk_level=?, payment_suggestion=? WHERE user_id=?",
       [risk_level, payment_suggestion, user_id]
@@ -226,7 +225,7 @@ export const getInsuranceProfile = async (req, res) => {
     
     res.json(rows[0]);
   } catch (err) {
-    console.error("❌ getInsuranceProfile Error:", err);
+    console.error("getInsuranceProfile Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

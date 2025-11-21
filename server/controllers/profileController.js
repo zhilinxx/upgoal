@@ -1,7 +1,7 @@
 // controllers/profileController.js
 import { getDB } from "../config/db.js";
 
-// ✅ Get user profile with dynamic monthly commitments
+// Get user profile
 export const getUserProfile = async (req, res) => {
   try {
     const userId = req.user?.user_id || req.query.userId;
@@ -29,28 +29,27 @@ export const getUserProfile = async (req, res) => {
 
     const profile = rows[0];
 
-    // 2️⃣ Fetch all monthly commitments for this user
+    // Fetch all monthly commitments for this user
     const [commitRows] = await db.query(
       "SELECT commitment_type, commitment_amt FROM monthly_commitments WHERE user_id = ?",
       [userId]
     );
 
-    // Attach as array
     profile.commitments = commitRows.map((c) => ({
       type: c.commitment_type,
       amt: parseFloat(c.commitment_amt),
     }));
 
-    // 3️⃣ Return full combined profile
+    // Return full combined profile
     res.json(profile);
   } catch (err) {
-    console.error("❌ getUserProfile Error:", err);
+    console.error("getUserProfile Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
 
-// ✅ Update insurance profile info
+// Update insurance profile info
 export const updateInsuranceProfile = async (req, res) => {
   try {
     const userId = req.user?.id;
@@ -99,7 +98,7 @@ export const updateInsuranceProfile = async (req, res) => {
 
     res.json({ message: "Insurance profile updated successfully" });
   } catch (err) {
-    console.error("❌ updateInsuranceProfile Error:", err);
+    console.error("updateInsuranceProfile Error:", err);
     res.status(500).json({ message: "Update failed" });
   }
 };

@@ -22,10 +22,8 @@ export default function ComparePlanPage() {
     const val1 = plan1[field];
     const val2 = plan2[field];
 
-    // If both undefined/null, same
     if (!val1 && !val2) return "";
 
-    // Special case: coverage_scope — order-insensitive comparison
     if (field === "coverage_scope") {
         const arr1 = val1
         ?.split(",")

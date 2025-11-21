@@ -43,7 +43,7 @@ export default function InsuranceRecommendations() {
     return () => window.removeEventListener("resize", resizeHandler);
   }, []);
 
-  // ✅ Restore filters AND re-fetch plans immediately if coming back from planDetails
+  // Restore filters and refetch plans if back from planDetails
   useEffect(() => {
     const fetchInitialData = async () => {
       await fetchProviders();
@@ -53,9 +53,9 @@ export default function InsuranceRecommendations() {
         setFilters(savedFilters);
         setActiveMobileTab("filter");
         setAppliedFilters(savedFilters);
-        fetchPlans(savedFilters); // ✅ re-fetch plans using those filters
+        fetchPlans(savedFilters); // refetch plans with applied filters
       } else {
-        fetchPlans(); // default
+        fetchPlans();
       }
     };
 
@@ -98,9 +98,8 @@ export default function InsuranceRecommendations() {
 
   const handleApply = () => {
     setShowFilter(false);
-    // fetchPlans();
     setActiveMobileTab("filter");
-    setAppliedFilters(filters); // ✅ Save these as active filters
+    setAppliedFilters(filters);
     fetchPlans(filters); 
   };
 
@@ -126,7 +125,6 @@ export default function InsuranceRecommendations() {
   const handleTaxReliefToggle = () => {
     const newState = !filters.taxRelief;
     setFilters({ ...filters, taxRelief: newState });
-    // fetchPlans({ ...filters, taxRelief: newState });
   };
 
   const handleViewDetails = (planId, premiumWithTax, premiumNoTax, sumAssured, score) => {
@@ -181,11 +179,7 @@ export default function InsuranceRecommendations() {
                 max="10000"
                 onChange={(e) => {
                   let value = e.target.value;
-
-                  // ✅ Prevent negative numbers
                   if (Number(value) < 0) value = "0";
-
-                  // ✅ Remove leading zeros (except when it's just "0")
                   value = value.replace(/^0+(?=\d)/, "");
 
                   setFilters({
@@ -396,11 +390,7 @@ export default function InsuranceRecommendations() {
                 max="10000"
                 onChange={(e) => {
                   let value = e.target.value;
-
-                  // ✅ Prevent negative numbers
                   if (Number(value) < 0) value = "0";
-
-                  // ✅ Remove leading zeros (except when it's just "0")
                   value = value.replace(/^0+(?=\d)/, "");
 
                   setFilters({
