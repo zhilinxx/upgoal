@@ -50,7 +50,7 @@ export default function ComparePlanPage() {
         {[plan1, plan2].map((p, i) => (
           <div key={i} className="compare-card">
             <div className="compare-header">
-                <img src={`http://localhost:5000/${p.provider_logo}`} alt={p.provider} className="provider-logo" />
+                <img src={`${import.meta.env.VITE_CLIENT_URL}/${p.provider_logo}`} alt={p.provider} className="provider-logo" />
                 <h3>{p.plan_name}</h3>
             </div>
 
