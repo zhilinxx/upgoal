@@ -179,7 +179,7 @@ export default function FavouriteList() {
               <div className="fav-card-content">
                 <div className="fav-side">
                   <img
-                    src={`${import.meta.env.VITE_API_URLL}/${plan.provider_logo}`}
+                    src={`${import.meta.env.VITE_API_URL}/${plan.provider_logo}`}
                     alt={plan.provider}
                     className="fav-logo"
                   />
