@@ -49,7 +49,7 @@ const PAGE_TITLES = {
 
 import axios from "axios";
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: `${import.meta.env.VITE_API_URL}/api`,
   withCredentials: true, // this ensures cookies are sent
 });
 
