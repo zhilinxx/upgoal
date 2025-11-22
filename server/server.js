@@ -17,7 +17,6 @@ import themeRoutes from "./routes/themeRoutes.js";
 
 
 dotenv.config();
-await connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;

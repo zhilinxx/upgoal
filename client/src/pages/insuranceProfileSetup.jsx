@@ -4,7 +4,7 @@ import { FaChevronLeft } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { getInsuranceProfile, saveInsuranceProfile } from "../api/insuranceAPI";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
-import "../styles/InsuranceProfileSetup.css";
+import "../styles/insuranceProfileSetup.css";
 
 export default function InsuranceProfileSetup() {
   const navigate = useNavigate();
