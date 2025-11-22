@@ -250,7 +250,7 @@ export default function AddInsurancePlan() {
               {isEditMode && formData.provider_logo && (
                 <p className="existing-file">
                   Current provider logo:
-                  <a href={`${import.meta.env.VITE_CLIENT_URL}/${formData.provider_logo}`} target="_blank" rel="noreferrer">
+                  <a href={`${import.meta.env.VITE_API_URL}/${formData.provider_logo}`} target="_blank" rel="noreferrer">
                     View
                   </a>
                 </p>
@@ -387,7 +387,7 @@ export default function AddInsurancePlan() {
               {isEditMode && formData.brochure_path && (
                 <p className="existing-file">
                   Current brochure:
-                  <a href={`${import.meta.env.VITE_CLIENT_URL}/${formData.brochure_path}`} target="_blank" rel="noreferrer">
+                  <a href={`${import.meta.env.VITE_API_URL}/${formData.brochure_path}`} target="_blank" rel="noreferrer">
                     View
                   </a>
                 </p>

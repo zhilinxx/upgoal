@@ -333,7 +333,7 @@ export default function InsuranceRecommendations() {
                         RM {Number(p.finalPremium).toFixed(2)} /month
                       </p>
                     </div>
-                    <img src={`${import.meta.env.VITE_CLIENT_URL}/${p.provider_logo}`} alt={p.provider} />
+                    <img src={`${import.meta.env.VITE_API_URL}/${p.provider_logo}`} alt={p.provider} />
                   </div>
 
                   <div className="insurance-card-content">

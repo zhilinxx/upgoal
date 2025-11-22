@@ -91,7 +91,7 @@ export default function InsurancePlanDetails() {
       </button>
       <div className="plan-details-inner">
         <div className="plan-header">
-          <img src={`${import.meta.env.VITE_CLIENT_URL}/${plan.provider_logo}`} alt={plan.provider} className="provider-logo" />
+          <img src={`${import.meta.env.VITE_API_URL}/${plan.provider_logo}`} alt={plan.provider} className="provider-logo" />
           <div>
             <h3>{plan.plan_name}</h3>
             <button className="fav-btn" onClick={handleFavourite}>
@@ -168,7 +168,7 @@ export default function InsurancePlanDetails() {
               </div>
               <div>
                 <p><strong>More details</strong></p>
-                <a href={`${import.meta.env.VITE_CLIENT_URL}/${plan.brochure_path}`} target="_blank" rel="noreferrer">brochure.pdf</a>
+                <a href={`${import.meta.env.VITE_API_URL}/${plan.brochure_path}`} target="_blank" rel="noreferrer">brochure.pdf</a>
               </div>
             </div>
           </div>

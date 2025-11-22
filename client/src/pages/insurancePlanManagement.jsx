@@ -223,7 +223,7 @@ export default function InsurancePlanManagement() {
                   <td>
                     {p.brochure_path ? (
                       <a
-                        href={`${import.meta.env.VITE_CLIENT_URL}/${p.brochure_path}`}
+                        href={`${import.meta.env.VITE_API_URL}/${p.brochure_path}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
