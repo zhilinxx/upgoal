@@ -49,7 +49,7 @@ const PAGE_TITLES = {
 
 import axios from "axios";
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL:  process.env.VITE_API_URL + "/api" ?? "http://localhost:5000/api",
   withCredentials: true, // this ensures cookies are sent
 });
 
@@ -65,14 +65,6 @@ function App() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [showAdminMenu, setShowAdminMenu] = useState(false);
   const [adminEmail, setAdminEmail] = useState("");
-
-  // Test backend connection
-  useEffect(() => {
-    fetch("http://localhost:5000/api", { credentials: "include" })
-      .then(r => r.json())
-      .then(d => setMessage(d.msg))
-      .catch(err => console.error("Backend not reachable:", err));
-  }, []);
 
   // Load auth state (try refresh if no token)
   useEffect(() => {

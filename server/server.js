@@ -31,7 +31,10 @@ connectDB()
     app.use("/uploads", express.static(path.join(process.cwd(), "src/uploads")));
 
     // CORS + routes (keep your previous CORS config)
-    const ALLOWED = new Set(["http://localhost:5173"]);
+    const ALLOWED = new Set([
+      "http://localhost:5173",           // local dev
+      process.env.CLIENT_URL // deployed frontend
+    ]);
     app.use((req, res, next) => {
       const origin = req.headers.origin;
       if (!origin || ALLOWED.has(origin)) {
