@@ -36,14 +36,17 @@ connectDB()
       process.env.CLIENT_URL // deployed frontend
     ]);
     app.use((req, res, next) => {
-      res.setHeader("Access-Control-Allow-Origin", "*");  // only for testing
-      res.setHeader("Access-Control-Allow-Credentials", "true");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-      res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
+      const origin = req.headers.origin;
+      if (!origin || ALLOWED.has(origin)) {
+        if (origin) res.setHeader("Access-Control-Allow-Origin", origin);
+        res.setHeader("Vary", "Origin");
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
+      }
       if (req.method === "OPTIONS") return res.sendStatus(204);
       next();
     });
-
 
     app.use("/api/auth", authRoutes);
     app.use("/api/profile", profileRoutes);
