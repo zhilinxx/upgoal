@@ -169,7 +169,8 @@ export const saveInsuranceProfile = async (req, res) => {
     // Call AI model for risk level
     let risk_level = "Low"; // default
     try {
-      const aiRes = await axios.post("http://localhost:5001/api/predict_risk", {
+      const aiRes = await axios.post(
+        process.env.RISK_AI_API + "/api/predict_risk", {
         age,
         cholesterol,
         occupation: mapOccupation(occupation),
