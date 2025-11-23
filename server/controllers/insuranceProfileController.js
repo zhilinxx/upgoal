@@ -188,6 +188,13 @@ export const saveInsuranceProfile = async (req, res) => {
       console.error("AI model connection failed:", err.message);
     }
 
+    const riskMap = {
+      Low: "L",
+      Medium: "M",
+      High: "H"
+    };
+    risk_level = riskMap[risk_level] || "L";
+
     // Apply rule-based payment suggestion
     const payment_suggestion = getPaymentSuggestion(age, allowance);
 
