@@ -43,7 +43,7 @@ export async function buildDashboardData(userId) {
   let aiAdvice = { label: "fallback", ratios: null, source: "fallback" };
   try {
     const { data } = await axios.post(
-      process.env.AI_BUDGET_URL || "http://localhost:5002/api/segment",
+      process.env.BUDGET_AI_API + "/api/segment"|| "http://localhost:5002/api/segment",
       {
         income: incomeNum,
         commitments: { housingLoan, carLoan, insurance, others },
