@@ -2,7 +2,7 @@
 import axios from "axios";
 
 // ✅ keep using your existing env var
-const ROOT = process.env.VITE_API_URL ?? "http://localhost:5000";
+const ROOT = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
 // All APIs live under /api
 const API_BASE = `${ROOT}/api`;
