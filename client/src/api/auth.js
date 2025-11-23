@@ -21,9 +21,8 @@ API.interceptors.response.use(
 
     // if token expired and not retried yet
     if (
-      error.response?.status === 403 &&
-      !originalRequest._retry &&
-      error.response.data.message?.includes("expired")
+      (error.response?.status === 401 || error.response?.status === 403) &&
+      !originalRequest._retry
     ) {
       originalRequest._retry = true;
       try {

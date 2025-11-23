@@ -128,8 +128,8 @@ export const login = async (req, res) => {
     // Send refreshToken as cookie
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      sameSite: "lax",
-      secure: false, // true only in HTTPS
+      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
