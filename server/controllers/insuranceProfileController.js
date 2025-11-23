@@ -12,10 +12,10 @@ function mapGender(value) {
 }
 
 function mapYesNo(value) {
-  if (typeof value === "string") {
-    return value.toLowerCase() === "yes" ? 1 : 0;
-  }
-  return value ? 1 : 0;
+  if (typeof val === "string") return val.toLowerCase() === "yes" ? "Yes" : "No";
+  if (typeof val === "number") return val === 1 ? "Yes" : "No";
+  if (typeof val === "boolean") return val ? "Yes" : "No";
+  return "No";
 }
 
 // payment rule-based suggestion
@@ -186,6 +186,7 @@ export const saveInsuranceProfile = async (req, res) => {
       risk_level = aiRes.data.risk_level || "Low";
     } catch (err) {
       console.error("AI model connection failed:", err.message);
+      risk_level = "Low"; 
     }
 
     const riskMap = {
