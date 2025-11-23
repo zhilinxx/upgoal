@@ -72,17 +72,15 @@ function mapOccupationDB(value) {
   }
 }
 
-function mapOccupation(value){
-  switch (value) {
-    case "Unemployed" || "Low Risk e.g.Office Worker/Techer/Government": return 1;
-    case "Moderate Risk e.g.Driver/Security Guard/Chef": return 2;
-    case "High Risk e.g.Manual,Industrial Worker/Police/Army": return 3;
-    default: return 0;
-  }
+function mapOccupation(value) {
+  const map = {
+    "Unemployed": 0,
+    "Low Risk e.g.Office Worker/Techer/Government": 1,
+    "Moderate Risk e.g.Driver/Security Guard/Chef": 2,
+    "High Risk e.g.Manual,Industrial Worker/Police/Army": 3
+  };
+  return map[value] ?? 0;
 }
-
-
-
 
 export const saveInsuranceProfile = async (req, res) => {
   try {
@@ -195,6 +193,7 @@ export const saveInsuranceProfile = async (req, res) => {
       High: "H"
     };
     risk_level = riskMap[risk_level] || "L";
+    console.log("Final Risk Level:", risk_level);
 
     // Apply rule-based payment suggestion
     const payment_suggestion = getPaymentSuggestion(age, allowance);
