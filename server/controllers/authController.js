@@ -24,7 +24,28 @@ export const register = async (req, res) => {
     const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, {
       expiresIn: "15m",
     });
-    // Default values for required columns
+
+    // Generate verification link
+    const verifyLink = `${process.env.CLIENT_URL}/verifyEmail?token=${verificationToken}`;
+
+    // Try sending email FIRST
+    try {
+      await sendEmail(
+        email,
+        "Verify Your Email",
+        `
+        <p>Click the link below to verify your email. This link expires in 15 minutes.</p>
+        <a href="${verifyLink}">${verifyLink}</a>
+        `
+      );
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+      return res.status(500).json({
+        message: "Verification email failed to send. Please try again later.",
+      });
+    }
+
+    // Insert only AFTER email successfully sent
     const role = 0;
     const is_verified = 0;
     const refresh_token = "";
@@ -38,16 +59,16 @@ export const register = async (req, res) => {
       [email, hashed, role, is_verified, verificationToken, refresh_token, status, theme]
     );
 
-    // Send verification email
-    const verifyLink = `${process.env.CLIENT_URL}/verifyEmail?token=${verificationToken}`;
-    await sendEmail(email, "Verify Your Email", `Click the link below to verify. This link will expired after 15 mins. \n ${verifyLink}`);
-
-    res.json({ message: "Verification email sent. Please check you inbox or spam email, you can login after verified." });
+    res.json({
+      message:
+        "Verification email sent successfully. Please check your inbox or spam to verify your account.",
+    });
   } catch (error) {
     console.error("Register Error:", error);
     res.status(500).json({ message: "Error Occurred" });
   }
 };
+
 
 
 // Verify Email
