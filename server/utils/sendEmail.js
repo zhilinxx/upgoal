@@ -1,19 +1,29 @@
-import { Resend } from "resend";
+import axios from "axios";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-export const sendEmail = async (to, subject, html) => {
+export async function sendEmail(to, subject, html) {
   try {
-    await resend.emails.send({
-      from: process.env.EMAIL_FROM,
-      to,
-      subject,
-      html,   // supports HTML or plain text
-    });
+    const response = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "UpGoal Support",
+          email: process.env.BREVO_SENDER_EMAIL,
+        },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      },
+      {
+        headers: {
+          "api-key": process.env.BREVO_API_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    console.log("Email sent to:", to);
+    return response.data;
   } catch (error) {
-    console.error("Email send failed:", error);
+    console.error("Brevo Send Email Error:", error.response?.data || error);
     throw error;
   }
-}; 
+}
