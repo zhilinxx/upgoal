@@ -29,6 +29,7 @@ export const register = async (req, res) => {
     const verifyLink = `${process.env.CLIENT_URL}/verifyEmail?token=${verificationToken}`;
 
     // Try sending email FIRST
+    // Send email with Resend
     try {
       await sendEmail(
         email,
