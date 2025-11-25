@@ -22,7 +22,7 @@ export const register = async (req, res) => {
 
     // Create verification token
     const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, {
-      expiresIn: "15m",
+      expiresIn: "1d",
     });
 
     // Generate verification link
@@ -35,7 +35,7 @@ export const register = async (req, res) => {
         email,
         "Verify Your Email",
         `
-        <p>Click the link below to verify your email. This link expires in 15 minutes.</p>
+        <p>Click the link below to verify your email. This link expires in 1 day.</p>
         <a href="${verifyLink}">${verifyLink}</a>
         `
       );
@@ -103,7 +103,7 @@ export const resendVerification = async (req, res) => {
 
     const token = createToken({ email }, "1d");
     const verifyLink = `${process.env.CLIENT_URL}/verifyEmail?token=${token}`;
-    await sendEmail(email, "Verify your email", `Click the link below to verify. This link will expired after 15 mins. \n ${verifyLink}`);
+    await sendEmail(email, "Verify your email", `Click the link below to verify. This link will expired after 1 day. \n ${verifyLink}`);
 
     res.json({ message: "New verification link sent" });
   } catch (err) {
