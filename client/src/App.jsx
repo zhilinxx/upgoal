@@ -68,36 +68,40 @@ function App() {
 
   // Load auth state (try refresh if no token)
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    const storedRole = localStorage.getItem("role");
-
     const checkAuth = async () => {
       try {
+        const token = localStorage.getItem("accessToken");   // moved inside
+        const storedRole = localStorage.getItem("role");
+
         if (!token) {
-          // Try refreshing
           const { data } = await API.get("/auth/refresh");
           localStorage.setItem("accessToken", data.accessToken);
           setIsLoggedIn(true);
         } else {
           setIsLoggedIn(true);
         }
+
         if (storedRole !== null) setRole(parseInt(storedRole));
+
         const storedEmail = localStorage.getItem("email");
         if (storedEmail) setAdminEmail(storedEmail);
+
       } catch (err) {
         console.warn("Auto login failed:", err);
-        setIsLoggedIn(false);
-        // Don't wipe theme here keep user preference
+
         const savedTheme = localStorage.getItem("theme");
         localStorage.clear();
         if (savedTheme) localStorage.setItem("theme", savedTheme);
+
+        // REAL REDIRECT
+        window.location.href = "/login";
       } finally {
         setIsCheckingAuth(false);
       }
     };
 
     checkAuth();
-  }, []);
+}, []);
 
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
