@@ -66,49 +66,66 @@ function App() {
   const [showAdminMenu, setShowAdminMenu] = useState(false);
   const [adminEmail, setAdminEmail] = useState("");
 
-  // Load auth state (try refresh if no token)
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    const storedRole = localStorage.getItem("role");
+    const authCheck = async () => {
+      const token = localStorage.getItem("accessToken");
+      const storedRole = localStorage.getItem("role");
 
-    const checkAuth = async () => {
       try {
         if (!token) {
-          // Try refreshing
+          // No access token? → Try refresh
           const { data } = await API.get("/auth/refresh");
           localStorage.setItem("accessToken", data.accessToken);
           setIsLoggedIn(true);
         } else {
+          // Already have access token
           setIsLoggedIn(true);
         }
-        if (storedRole !== null) setRole(parseInt(storedRole));
+
+        // restore user info
+        if (storedRole) setRole(parseInt(storedRole));
         const storedEmail = localStorage.getItem("email");
         if (storedEmail) setAdminEmail(storedEmail);
-      } catch (err) {
-        console.warn("Auto login failed:", err);
-        setIsLoggedIn(false);
-        // Don't wipe theme here keep user preference
+
+      } catch (error) {
+        console.warn("Auth failed:", error);
+
+        // Only clear auth info (not theme)
         const savedTheme = localStorage.getItem("theme");
         localStorage.clear();
         if (savedTheme) localStorage.setItem("theme", savedTheme);
-        window.location.href = "/login";
-      } finally {
-        setIsCheckingAuth(false);
+
+        setIsLoggedIn(false);
+        setRole(null);
+        setAdminEmail(null);
       }
+
+      // 🟩 Now routes can render
+      setIsCheckingAuth(false);
     };
 
-    checkAuth();
+    authCheck();
   }, []);
+
 
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
 
-  // Protected route component
-  const ProtectedRoute = ({ children, allowedRoles }) => {
-    if (!isLoggedIn) return <Navigate to="/login" replace />;
-    if (allowedRoles && !allowedRoles.includes(role)) return <Navigate to="/" replace />;
+  // Protected Route Component
+  const ProtectedRoute = ({ children, allowedRoles = null }) => {
+    if (isCheckingAuth) return <div>Loading...</div>;
+
+    if (!isLoggedIn) {
+      return <Navigate to="/login" replace />;
+    }
+
+    if (allowedRoles && !allowedRoles.includes(role)) {
+      return <Navigate to="/" replace />;
+    }
+
     return children;
   };
+  
 
   const AppContent = () => {
     const location = useLocation();
