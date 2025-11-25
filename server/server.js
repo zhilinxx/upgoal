@@ -30,8 +30,6 @@ connectDB()
     app.use(cookieParser());
     app.use("/uploads", express.static(path.join(process.cwd(), "src/uploads")));
 
-    console.log("Incoming origin:", req.headers.origin);
-    console.log("Allowed origins:", ALLOWED);
 
     // CORS + routes (keep your previous CORS config)
     const ALLOWED = new Set([
