@@ -1,5 +1,5 @@
-// client/src/api/expensesAPI.js
-import api from "./budgetAPI";
+// client/src/API/expensesAPI.js
+import { API } from "./auth";
 
 function getUserId() {
     const id = Number(localStorage.getItem("userId"));
@@ -9,7 +9,7 @@ function getUserId() {
 
 export async function fetchMonthlyExpenses(params) {
     const userId = getUserId();
-    const { data } = await api.get("/expenses", {
+    const { data } = await API.get("/expenses", {
         params: { userId, ...params },
     });
     // now returns { items, totalPages, categoryTotals, currency, otherThisMonth }
@@ -18,15 +18,15 @@ export async function fetchMonthlyExpenses(params) {
 
 export const createExpense = (payload) => {
     const userId = getUserId();
-    return api.post("/expenses", { userId, ...payload });
+    return API.post("/expenses", { userId, ...payload });
 };
 
 export const updateExpense = (id, payload) => {
     const userId = getUserId();
-    return api.put(`/expenses/${id}`, { userId, ...payload });
+    return API.put(`/expenses/${id}`, { userId, ...payload });
 };
 
 export const deleteExpense = (id) => {
     const userId = getUserId();
-    return api.delete(`/expenses/${id}`, { data: { userId } });
+    return API.delete(`/expenses/${id}`, { data: { userId } });
 };

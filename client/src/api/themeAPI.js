@@ -1,14 +1,14 @@
-import api from "./budgetAPI";
+import { API } from "./auth";
 
 const getUserId = () => Number(localStorage.getItem("userId"));
 
 export const getTheme = () => {
   const userId = getUserId();
-  return api.get("/theme", { params: { userId } });
+  return API.get("/theme", { params: { userId } });
 };
 
 export const setThemeAPI = (theme) => {
   const userId = getUserId();
   // send the simplest payload the server expects
-  return api.put("/theme", { userId, theme }); // theme: 'light' | 'dark'
+  return API.put("/theme", { userId, theme }); // theme: 'light' | 'dark'
 };
