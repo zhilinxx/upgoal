@@ -54,7 +54,6 @@ function App() {
   // put the hook at the top-level so it mounts for every route/tab
   const { loading: themeLoading } = useTheme();
 
-  const [message, setMessage] = useState("");
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState(null);
@@ -314,7 +313,7 @@ function App() {
             <Route path="/insurancePlanManagement" element={<ProtectedRoute allowedRoles={[1]}><InsurancePlanManagement /></ProtectedRoute>} />
             <Route path="/addInsurancePlan/:id" element={<ProtectedRoute allowedRoles={[1]}><AddInsurancePlan /></ProtectedRoute>} />
             <Route path="/addInsurancePlan" element={<ProtectedRoute allowedRoles={[1]}><AddInsurancePlan /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute allowedRoles={[1]}><Profile /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute allowedRoles={[0, 1]}><Profile /></ProtectedRoute>} />
           </Routes>
         </main>
       </>
