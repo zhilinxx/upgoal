@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { registerUser } from "../api/auth";
+import { registerUser, resendVerificationEmail } from "../api/auth";
 import { Link } from "react-router-dom";
-import logo from "../assets/upgoal_logo.png"; // replace with your upgoal logo (e.g. "../assets/upgoal-logo.png")
+import logo from "../assets/upgoal_logo.png";
 import { FaEnvelope, FaKey, FaEye, FaEyeSlash } from "react-icons/fa";
 import "../styles/register.css";
 
@@ -11,6 +11,8 @@ export default function Register() {
   const [message, setMessage] = useState("");
   const [validation, setValidation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showResend, setShowResend] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
 
   const togglePassword = () => {
     setShowPassword((prev) => !prev);
@@ -30,18 +32,33 @@ export default function Register() {
     try {
       const res = await registerUser({ email, password });
       setMessage(res.data.message);
+
+      // If backend sent verification email successfully → show resend option
+      if (res.data.message.includes("Verification email sent")) {
+        setShowResend(true);
+      }
     } catch (err) {
       setValidation(err.response?.data?.message || "Error occurred");
     }
   };
 
+  const handleResend = async () => {
+    setResendLoading(true);
+    try {
+      const res = await resendVerificationEmail(email);
+      setMessage(res.data.message);
+      setShowResend(false);
+    } catch (err) {
+      setMessage(err.response?.data?.message || "Failed to resend");
+    }
+    setResendLoading(false);
+  };
+
   return (
     <div className="register-container">
       <div className="register-card">
-        {/* Logo */}
         <img src={logo} alt="UpGoal" className="register-logo" />
 
-        {/* Register Form */}
         <form onSubmit={handleSubmit} className="register-form">
           <div className="input-group">
             <label>Email<span className="required">*</span></label>
@@ -58,9 +75,7 @@ export default function Register() {
           </div>
 
           <div className="input-group">
-            <label>
-              Password<span className="required">*</span>
-            </label>
+            <label>Password<span className="required">*</span></label>
             <div className="input-wrapper">
               <FaKey className="input-icon" />
               <input
@@ -74,7 +89,6 @@ export default function Register() {
                 type="button"
                 className="toggle-password"
                 onClick={togglePassword}
-                aria-label="Toggle password visibility"
               >
                 {showPassword ? <FaEye /> : <FaEyeSlash />}
               </button>
@@ -84,11 +98,21 @@ export default function Register() {
           {validation && <p className="validation">{validation}</p>}
 
           <p className="login-text">
-            Already registered? <Link to="/login" className="login-link">Login</Link>
+            Already registered? <Link to="/login">Login</Link>
           </p>
 
           <button type="submit" className="register-btn">Register</button>
+
           {message && <p className="message">{message}</p>}
+
+          {showResend && (
+            <div className="resend-section">
+              <p>Didn’t receive?</p>
+              <button onClick={handleResend} disabled={resendLoading}>
+                {resendLoading ? "Resending..." : "Resend Verification Email"}
+              </button>
+            </div>
+          )}
         </form>
       </div>
     </div>

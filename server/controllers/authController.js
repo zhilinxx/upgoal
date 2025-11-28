@@ -223,7 +223,7 @@ export const forgotPassword = async (req, res) => {
   const [rows] = await db.query("SELECT * FROM user WHERE email = ?", [email]);
   if (rows.length === 0) return res.status(400).json({ message: "Email not found" });
 
-  const token = createToken({ email }, "10m");
+  const token = createToken({ email }, "15m");
   const resetLink = `${process.env.CLIENT_URL}/resetPassword?token=${token}`;
   await sendEmail(email, "Reset Password", `Click to reset your password: ${resetLink}`);
 
