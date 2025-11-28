@@ -131,7 +131,7 @@
 }
 
 @media (max-width: 768px) {
-  .input-wrapper input{
+  .register-container .input-wrapper input{
     font-size: 13px;
   }
 }
