@@ -443,7 +443,7 @@ export default function InsuranceRecommendations() {
                 step="100000"
                 onChange={(e) => {
                   let value = Number(e.target.value);
-                  if (Number(value) < 0) value = "0";
+                  if (value < 100000) value = 100000;
                   if (value > 500000) value = 500000;
                   setFilters({ ...filters, sumMax: value });
                 }}
