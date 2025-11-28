@@ -107,7 +107,7 @@ export default function Register() {
 
           {showResend && (
             <div className="resend-section">
-              <p>Didn’t receive?</p>
+              <p style={{ color: "#f28b8b" }}>Didn’t receive?</p>
               <button onClick={handleResend} disabled={resendLoading}>
                 {resendLoading ? "Resending..." : "Resend"}
               </button>

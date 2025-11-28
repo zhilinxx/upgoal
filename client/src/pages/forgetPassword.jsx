@@ -6,6 +6,7 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [showResend, setShowResend] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,6 +18,18 @@ export default function ForgotPassword() {
       setMessage(err.response?.data?.message || "Error occurred");
     }
   };
+
+  const handleResend = async () => {
+      setResendLoading(true);
+      try {
+        const res = await forgotPassword({ email });
+        setMessage("New reset link sent");
+        setShowResend(false);
+      } catch (err) {
+        setMessage(err.response?.data?.message || "Failed to resend");
+      }
+      setResendLoading(false);
+    };
 
   return (
     <div className="container">
@@ -41,7 +54,10 @@ export default function ForgotPassword() {
         {showResend && (
           <div className="resend-section">
             <p style={{ color: "#f28b8b" }}>Didn’t receive?</p>
-            <button onClick={handleSubmit}>Resend</button>
+            {/* <button onClick={handleSubmit}>Resend</button> */}
+            <button onClick={handleResend} disabled={resendLoading}>
+              {resendLoading ? "Resending..." : "Resend"}
+            </button>
           </div>
         )}
       </div>
