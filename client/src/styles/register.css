@@ -129,3 +129,9 @@
 .register-btn:hover {
   background: var(--btn-hover);
 }
+
+@media (max-width: 768px) {
+  .input-wrapper input{
+    font-size: 13px;
+  }
+}
