@@ -13,7 +13,7 @@ import {
   deleteExpense,
 } from "../api/expensesAPI";
 
-import api from "../api/budgetAPI";               // ✅ to fetch netIncome
+import { API } from "./api/auth";              // ✅ to fetch netIncome
 import ExpenseDialog from "../components/ExpenseDialog.jsx";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
 import "../styles/MonthlyExpenses.css";
@@ -136,7 +136,7 @@ export default function MonthlyExpenses() {
       try {
         const userId = Number(localStorage.getItem("userId"));
         if (!userId) return;
-        const { data } = await api.get("/income/setup", { params: { userId } });
+        const { data } = await API.get("/income/setup", { params: { userId } });
         setNetIncome(Number(data?.netIncome || 0));
       } catch (e) {
         console.error("Failed to load netIncome for alert:", e);
