@@ -13,7 +13,7 @@ import {
   deleteExpense,
 } from "../api/expensesAPI";
 
-import { API } from "./api/auth";              // ✅ to fetch netIncome
+import { API } from "../api/auth";              // ✅ to fetch netIncome
 import ExpenseDialog from "../components/ExpenseDialog.jsx";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
 import "../styles/MonthlyExpenses.css";
