@@ -109,7 +109,7 @@ export default function Register() {
             <div className="resend-section">
               <p>Didn’t receive?</p>
               <button onClick={handleResend} disabled={resendLoading}>
-                {resendLoading ? "Resending..." : "Resend Verification Email"}
+                {resendLoading ? "Resending..." : "Resend"}
               </button>
             </div>
           )}

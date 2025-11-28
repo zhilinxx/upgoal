@@ -374,7 +374,7 @@ body label {
 
 .resend-section {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 }
 
 @keyframes fadeIn {
