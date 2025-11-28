@@ -47,11 +47,7 @@ const PAGE_TITLES = {
   "/comparePlans" : "Plan Comparison",
 };
 
-import axios from "axios";
-const API = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api`,
-  withCredentials: true, // this ensures cookies are sent
-});
+import { API } from "./api/auth";
 
 function App() {
   // Theme: ensure global synchronization runs once per tab/app
@@ -68,29 +64,27 @@ function App() {
 
   useEffect(() => {
     const authCheck = async () => {
-      const token = localStorage.getItem("accessToken");
-      const storedRole = localStorage.getItem("role");
+      setIsCheckingAuth(true);
 
       try {
+        let token = localStorage.getItem("accessToken");
+        const storedRole = localStorage.getItem("role");
+        const storedEmail = localStorage.getItem("email");
+
+        // No access token? try refresh
         if (!token) {
-          // No access token? → Try refresh
           const { data } = await API.get("/auth/refresh");
-          localStorage.setItem("accessToken", data.accessToken);
-          setIsLoggedIn(true);
-        } else {
-          // Already have access token
-          setIsLoggedIn(true);
+          token = data.accessToken;
+          localStorage.setItem("accessToken", token);
         }
 
-        // restore user info
+        setIsLoggedIn(true);
         if (storedRole) setRole(parseInt(storedRole));
-        const storedEmail = localStorage.getItem("email");
         if (storedEmail) setAdminEmail(storedEmail);
-
       } catch (error) {
-        console.warn("Auth failed:", error);
+        console.warn("Auth check failed:", error);
 
-        // Only clear auth info (not theme)
+        // keep theme
         const savedTheme = localStorage.getItem("theme");
         localStorage.clear();
         if (savedTheme) localStorage.setItem("theme", savedTheme);
@@ -100,7 +94,6 @@ function App() {
         setAdminEmail(null);
       }
 
-      // 🟩 Now routes can render
       setIsCheckingAuth(false);
     };
 
@@ -321,7 +314,7 @@ function App() {
             <Route path="/insurancePlanManagement" element={<ProtectedRoute allowedRoles={[1]}><InsurancePlanManagement /></ProtectedRoute>} />
             <Route path="/addInsurancePlan/:id" element={<ProtectedRoute allowedRoles={[1]}><AddInsurancePlan /></ProtectedRoute>} />
             <Route path="/addInsurancePlan" element={<ProtectedRoute allowedRoles={[1]}><AddInsurancePlan /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute allowedRoles={[0, 1]}><Profile /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute allowedRoles={[1]}><Profile /></ProtectedRoute>} />
           </Routes>
         </main>
       </>
