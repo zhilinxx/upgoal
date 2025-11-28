@@ -40,9 +40,8 @@ export default function ForgotPassword() {
 
         {showResend && (
           <div className="resend-section">
-            <p>Didn’t receive?</p>
-            <button onClick={handleSubmit}>
-            </button>
+            <p style={{ color: "#f28b8b" }}>Didn’t receive?</p>
+            <button onClick={handleSubmit}>Resend</button>
           </div>
         )}
       </div>
