@@ -230,7 +230,6 @@ export default function InsuranceRecommendations() {
                 type="number"
                 placeholder="Max"
                 value={filters.sumMax}
-                min="100000"
                 max="500000"
                 step="100000"
                 onChange={(e) => {
@@ -440,7 +439,6 @@ export default function InsuranceRecommendations() {
                 type="number"
                 placeholder="Max"
                 value={filters.sumMax}
-                min="100000"
                 max="500000"
                 step="100000"
                 onChange={(e) => {
