@@ -53,7 +53,7 @@ function App() {
   // Theme: ensure global synchronization runs once per tab/app
   // put the hook at the top-level so it mounts for every route/tab
   const { loading: themeLoading } = useTheme();
-
+  const navigate = useNavigate();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState(null);
@@ -64,7 +64,6 @@ function App() {
   useEffect(() => {
     const authCheck = async () => {
       setIsCheckingAuth(true);
-      const navigate = useNavigate();
 
       try {
         let token = localStorage.getItem("accessToken");
@@ -126,7 +125,6 @@ function App() {
 
   const AppContent = () => {
     const location = useLocation();
-    const navigate = useNavigate();
 
     const handleLogout = async () => {
       try {
