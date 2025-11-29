@@ -66,7 +66,10 @@ function App() {
 
         if (!token) {
           try {
-            const { data } = await API.get("/auth/refresh");
+            // When calling /auth/refresh
+            const { data } = await API.get("/auth/refresh", {
+              withCredentials: true  // <-- important
+            });
             token = data.accessToken;
             localStorage.setItem("accessToken", token);
           } catch (err) {
