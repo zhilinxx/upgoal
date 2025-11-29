@@ -91,18 +91,18 @@ function App() {
           setRole(null);
           setAdminEmail(null);
 
-          navigate("/login", { replace: true });
+          window.location.href = "/login"; 
         }
       } catch (err) {
         console.error("Unexpected auth check error:", err);
-        navigate("/login", { replace: true });
+        window.location.href = "/login"; 
       } finally {
         setIsCheckingAuth(false);
       }
     };
 
     authCheck();
-  }, [navigate]);
+  }, []);
 
 
   if (isCheckingAuth || themeLoading) return <div>Loading...</div>;
