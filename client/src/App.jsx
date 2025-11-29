@@ -53,12 +53,56 @@ function App() {
   // Theme: ensure global synchronization runs once per tab/app
   // put the hook at the top-level so it mounts for every route/tab
   const { loading: themeLoading } = useTheme();
+
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [showAdminMenu, setShowAdminMenu] = useState(false);
   const [adminEmail, setAdminEmail] = useState("");
+
+  useEffect(() => {
+    const authCheck = async () => {
+      setIsCheckingAuth(true);
+
+      try {
+        let token = localStorage.getItem("accessToken");
+        const storedRole = localStorage.getItem("role");
+        const storedEmail = localStorage.getItem("email");
+
+        // No access token? try refresh
+        if (!token) {
+          const { data } = await API.get("/auth/refresh");
+          token = data.accessToken;
+          localStorage.setItem("accessToken", token);
+        }
+
+        setIsLoggedIn(true);
+        if (storedRole) setRole(parseInt(storedRole));
+        if (storedEmail) setAdminEmail(storedEmail);
+      } catch (error) {
+        console.warn("Auth check failed:", error);
+
+        // Clear all user info except theme
+        const savedTheme = localStorage.getItem("theme");
+        localStorage.clear();
+        if (savedTheme) localStorage.setItem("theme", savedTheme);
+
+        setIsLoggedIn(false);
+        setRole(null);
+        setAdminEmail(null);
+
+        // Redirect to login immediately
+        window.location.href = "/login"; // <-- redirect
+      }
+
+      setIsCheckingAuth(false);
+    };
+
+    authCheck();
+  }, []);
+
+
 
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
@@ -82,47 +126,7 @@ function App() {
   const AppContent = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    useEffect(() => {
-      const authCheck = async () => {
-        setIsCheckingAuth(true);
 
-        try {
-          let token = localStorage.getItem("accessToken");
-          const storedRole = localStorage.getItem("role");
-          const storedEmail = localStorage.getItem("email");
-
-          // No access token? try refresh
-          if (!token) {
-            const { data } = await API.get("/auth/refresh");
-            token = data.accessToken;
-            localStorage.setItem("accessToken", token);
-          }
-
-          setIsLoggedIn(true);
-          if (storedRole) setRole(parseInt(storedRole));
-          if (storedEmail) setAdminEmail(storedEmail);
-        } catch (error) {
-          console.warn("Auth check failed:", error);
-
-          // Clear all user info except theme
-          const savedTheme = localStorage.getItem("theme");
-          localStorage.clear();
-          if (savedTheme) localStorage.setItem("theme", savedTheme);
-
-          setIsLoggedIn(false);
-          setRole(null);
-          setAdminEmail(null);
-
-          // Redirect to login immediately
-          navigate("/login", { replace: true });// <-- redirect
-        }
-
-        setIsCheckingAuth(false);
-      };
-
-      authCheck();
-    }, []);
-    
     const handleLogout = async () => {
       try {
         await logoutUser();
