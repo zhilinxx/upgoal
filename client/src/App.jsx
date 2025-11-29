@@ -57,6 +57,7 @@ function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   // Protected Route Component
   const ProtectedRoute = ({ children, allowedRoles = null }) => {
@@ -78,7 +79,6 @@ function App() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
     const [showAdminMenu, setShowAdminMenu] = useState(false);
     const [adminEmail, setAdminEmail] = useState("");
 
