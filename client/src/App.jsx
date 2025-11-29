@@ -57,55 +57,6 @@ function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [showAdminMenu, setShowAdminMenu] = useState(false);
-  const [adminEmail, setAdminEmail] = useState("");
-
-  useEffect(() => {
-    const authCheck = async () => {
-      setIsCheckingAuth(true);
-
-      try {
-        let token = localStorage.getItem("accessToken");
-        const storedRole = localStorage.getItem("role");
-        const storedEmail = localStorage.getItem("email");
-
-        // No access token? try refresh
-        if (!token) {
-          const { data } = await API.get("/auth/refresh");
-          token = data.accessToken;
-          localStorage.setItem("accessToken", token);
-        }
-
-        setIsLoggedIn(true);
-        if (storedRole) setRole(parseInt(storedRole));
-        if (storedEmail) setAdminEmail(storedEmail);
-      } catch (error) {
-        console.warn("Auth check failed:", error);
-
-        // Clear all user info except theme
-        const savedTheme = localStorage.getItem("theme");
-        localStorage.clear();
-        if (savedTheme) localStorage.setItem("theme", savedTheme);
-
-        setIsLoggedIn(false);
-        setRole(null);
-        setAdminEmail(null);
-
-        // Redirect to login immediately
-        window.location.href = "/login"; // <-- redirect
-      }
-
-      setIsCheckingAuth(false);
-    };
-
-    authCheck();
-  }, []);
-
-
-
-  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
-  const closeSidebar = () => setSidebarOpen(false);
 
   // Protected Route Component
   const ProtectedRoute = ({ children, allowedRoles = null }) => {
@@ -127,13 +78,62 @@ function App() {
     const location = useLocation();
     const navigate = useNavigate();
 
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+    const [showAdminMenu, setShowAdminMenu] = useState(false);
+    const [adminEmail, setAdminEmail] = useState("");
+
+    // Auth check inside Router
+    useEffect(() => {
+      const authCheck = async () => {
+        setIsCheckingAuth(true);
+
+        try {
+          let token = localStorage.getItem("accessToken");
+          const storedRole = localStorage.getItem("role");
+          const storedEmail = localStorage.getItem("email");
+
+          // No access token? try refresh
+          if (!token) {
+            const { data } = await API.get("/auth/refresh");
+            token = data.accessToken;
+            localStorage.setItem("accessToken", token);
+          }
+
+          setIsLoggedIn(true);
+          if (storedRole) setRole(parseInt(storedRole));
+          if (storedEmail) setAdminEmail(storedEmail);
+        } catch (error) {
+          console.warn("Auth check failed:", error);
+
+          // Clear user info but keep theme
+          const savedTheme = localStorage.getItem("theme");
+          localStorage.clear();
+          if (savedTheme) localStorage.setItem("theme", savedTheme);
+
+          setIsLoggedIn(false);
+          setRole(null);
+          setAdminEmail(null);
+
+          // ✅ SPA-friendly redirect
+          navigate("/login", { replace: true });
+        } finally {
+          setIsCheckingAuth(false);
+        }
+      };
+
+      authCheck();
+    }, [navigate]);
+
+    // Sidebar toggle helpers
+    const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
+    const closeSidebar = () => setSidebarOpen(false);
+
+    // Logout handler
     const handleLogout = async () => {
       try {
         await logoutUser();
 
-        // preserve theme on logout
         const savedTheme = localStorage.getItem("theme");
-
         localStorage.removeItem("accessToken");
         localStorage.removeItem("role");
         localStorage.removeItem("email");
@@ -146,7 +146,7 @@ function App() {
 
         setIsLoggedIn(false);
         setShowAdminMenu(false);
-        navigate("/login");
+        navigate("/login", { replace: true });
       } catch (err) {
         console.error("Logout failed:", err);
       }
