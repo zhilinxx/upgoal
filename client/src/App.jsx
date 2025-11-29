@@ -19,6 +19,7 @@ import VerifyEmail from "./pages/verifyEmail";
 import ForgotPassword from "./pages/forgetPassword";
 import ResetPassword from "./pages/resetPassword";
 import logo from "./assets/upgoal_logo.png";
+import IncomeSetup from "./pages/IncomeSetup";
 import Profile from "./pages/profile";
 import InsuranceRecommendations from "./pages/insuranceRecommendations";
 import InsuranceProfileSetup from "./pages/insuranceProfileSetup";
@@ -303,6 +304,7 @@ function App() {
 
             {/* Protected routes */}
             <Route path="/budgetPlanner" element={<ProtectedRoute allowedRoles={[0]}><BudgetPlanner /></ProtectedRoute>} />
+            <Route path="/incomeSetup" element={<ProtectedRoute allowedRoles={[0]}><IncomeSetup /></ProtectedRoute>} />
             <Route path="/monthlyExpenses" element={<ProtectedRoute allowedRoles={[0]}><MonthlyExpenses /></ProtectedRoute>} />
             <Route path="/insuranceRecommendations" element={<ProtectedRoute allowedRoles={[0]}><InsuranceRecommendations /></ProtectedRoute>} />
             <Route path="/insuranceProfileSetup" element={<ProtectedRoute allowedRoles={[0]}><InsuranceProfileSetup /></ProtectedRoute>} />
@@ -311,7 +313,7 @@ function App() {
             <Route path="/insurancePlanManagement" element={<ProtectedRoute allowedRoles={[1]}><InsurancePlanManagement /></ProtectedRoute>} />
             <Route path="/addInsurancePlan/:id" element={<ProtectedRoute allowedRoles={[1]}><AddInsurancePlan /></ProtectedRoute>} />
             <Route path="/addInsurancePlan" element={<ProtectedRoute allowedRoles={[1]}><AddInsurancePlan /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute allowedRoles={[0, 1]}><Profile /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute allowedRoles={[0,1]}><Profile /></ProtectedRoute>} />
           </Routes>
         </main>
       </>
