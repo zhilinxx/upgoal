@@ -64,6 +64,7 @@ function App() {
   useEffect(() => {
     const authCheck = async () => {
       setIsCheckingAuth(true);
+      const navigate = useNavigate();
 
       try {
         let token = localStorage.getItem("accessToken");
@@ -83,7 +84,7 @@ function App() {
       } catch (error) {
         console.warn("Auth check failed:", error);
 
-        // keep theme
+        // Clear all user info except theme
         const savedTheme = localStorage.getItem("theme");
         localStorage.clear();
         if (savedTheme) localStorage.setItem("theme", savedTheme);
@@ -91,6 +92,9 @@ function App() {
         setIsLoggedIn(false);
         setRole(null);
         setAdminEmail(null);
+
+        // Redirect to login immediately
+        navigate("/login", { replace: true });// <-- redirect
       }
 
       setIsCheckingAuth(false);
@@ -98,6 +102,7 @@ function App() {
 
     authCheck();
   }, []);
+
 
 
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
