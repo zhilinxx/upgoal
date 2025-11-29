@@ -1,5 +1,11 @@
-// client/src/API/budgetAPI.js
+// client/src/api/budgetAPI.js
 import { API } from "./auth";
+
+// ✅ keep using your existing env var
+const ROOT = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+
+// All APIs live under /api
+const API_BASE = `${ROOT}/api`;
 
 /* =========================
    Budget-specific endpoints
@@ -32,26 +38,26 @@ export const postAdjustBudgets = (payload) =>
    ========================= */
 
 export const listGoals = () =>
-  API.get(`/budget/goals`, {
+  api.get(`/budget/goals`, {
     params: { userId: Number(localStorage.getItem("userId")) },
   });
 
-// POST /API/budget/goals
+// POST /api/budget/goals
 export const createGoal = (payload) =>
-  API.post(`/budget/goals`, {
+  api.post(`/budget/goals`, {
     userId: Number(localStorage.getItem("userId")),
     ...payload,
   });
 
-// PUT /API/budget/goals/:id
+// PUT /api/budget/goals/:id
 export const updateGoal = (id, payload) =>
-  API.put(`/budget/goals/${id}`, {
+  api.put(`/budget/goals/${id}`, {
     userId: Number(localStorage.getItem("userId")),
     ...payload,
   });
 
-// DELETE /API/budget/goals/:id
+// DELETE /api/budget/goals/:id
 export const deleteGoal = (id) =>
-  API.delete(`/budget/goals/${id}`, {
+  api.delete(`/budget/goals/${id}`, {
     data: { userId: Number(localStorage.getItem("userId")) },
   });
