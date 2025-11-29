@@ -57,48 +57,53 @@ function App() {
 
   // Top-level auth check
   useEffect(() => {
-    const checkAuth = async () => {
+    const authCheck = async () => {
       setIsCheckingAuth(true);
+
       try {
         let token = localStorage.getItem("accessToken");
         const storedRole = localStorage.getItem("role");
         const storedEmail = localStorage.getItem("email");
 
+        // If no access token, try refresh
         if (!token) {
           try {
-            // When calling /auth/refresh
-            const { data } = await API.get("/auth/refresh", {
-              withCredentials: true  // <-- important
-            });
+            const { data } = await API.get("/auth/refresh", { withCredentials: true });
             token = data.accessToken;
             localStorage.setItem("accessToken", token);
           } catch (err) {
-            console.warn("Refresh failed", err);
-            token = null;
+            console.warn("Refresh token failed:", err);
+            token = null; // failed refresh
           }
         }
 
         if (token) {
           setIsLoggedIn(true);
-          setRole(storedRole ? parseInt(storedRole) : null);
-          setAdminEmail(storedEmail || "");
+          if (storedRole) setRole(parseInt(storedRole));
+          if (storedEmail) setAdminEmail(storedEmail);
         } else {
+          // No valid token → force logout
+          const savedTheme = localStorage.getItem("theme");
+          localStorage.clear();
+          if (savedTheme) localStorage.setItem("theme", savedTheme);
+
           setIsLoggedIn(false);
           setRole(null);
-          setAdminEmail("");
+          setAdminEmail(null);
+
+          navigate("/login", { replace: true });
         }
       } catch (err) {
-        console.error(err);
-        setIsLoggedIn(false);
-        setRole(null);
-        setAdminEmail("");
+        console.error("Unexpected auth check error:", err);
+        navigate("/login", { replace: true });
       } finally {
         setIsCheckingAuth(false);
       }
     };
 
-    checkAuth();
-  }, []);
+    authCheck();
+  }, [navigate]);
+
 
   if (isCheckingAuth || themeLoading) return <div>Loading...</div>;
 
