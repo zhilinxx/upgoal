@@ -86,43 +86,59 @@ function App() {
     useEffect(() => {
       const authCheck = async () => {
         setIsCheckingAuth(true);
-
         try {
           let token = localStorage.getItem("accessToken");
           const storedRole = localStorage.getItem("role");
           const storedEmail = localStorage.getItem("email");
 
-          // No access token? try refresh
+          // If no token, try refresh with timeout
           if (!token) {
-            const { data } = await API.get("/auth/refresh");
-            token = data.accessToken;
-            localStorage.setItem("accessToken", token);
+            try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 10000); // 5 sec timeout
+
+              const { data } = await API.get("/auth/refresh", {
+                signal: controller.signal,
+              });
+
+              clearTimeout(timeoutId);
+
+              token = data.accessToken;
+              localStorage.setItem("accessToken", token);
+            } catch (err) {
+              console.warn("Refresh token failed or timed out:", err);
+              token = null;
+            }
           }
 
-          setIsLoggedIn(true);
-          if (storedRole) setRole(parseInt(storedRole));
-          if (storedEmail) setAdminEmail(storedEmail);
-        } catch (error) {
-          console.warn("Auth check failed:", error);
+          if (token) {
+            setIsLoggedIn(true);
+            if (storedRole) setRole(parseInt(storedRole));
+            if (storedEmail) setAdminEmail(storedEmail);
+          } else {
+            // No valid token → force logout
+            const savedTheme = localStorage.getItem("theme");
+            localStorage.clear();
+            if (savedTheme) localStorage.setItem("theme", savedTheme);
 
-          // Clear user info but keep theme
-          const savedTheme = localStorage.getItem("theme");
-          localStorage.clear();
-          if (savedTheme) localStorage.setItem("theme", savedTheme);
+            setIsLoggedIn(false);
+            setRole(null);
+            setAdminEmail(null);
 
-          setIsLoggedIn(false);
-          setRole(null);
-          setAdminEmail(null);
-
-          // ✅ SPA-friendly redirect
+            navigate("/login", { replace: true });
+          }
+        } catch (err) {
+          console.error("Auth check unexpected error:", err);
+          // Fallback to login
           navigate("/login", { replace: true });
         } finally {
-          setIsCheckingAuth(false);
+          setIsCheckingAuth(false); // ALWAYS clear loading
         }
       };
 
       authCheck();
     }, [navigate]);
+
 
     // Sidebar toggle helpers
     const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
