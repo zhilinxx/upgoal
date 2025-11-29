@@ -19,27 +19,51 @@ API.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // if token expired and not retried yet
-    if (
-      (error.response?.status === 401 || error.response?.status === 403) &&
-      !originalRequest._retry
-    ) {
+    // If there's no response (network error), just reject
+    if (!error.response) {
+      return Promise.reject(error);
+    }
+
+    const status = error.response.status;
+
+    // 🚫 IMPORTANT: do NOT try to refresh if the failing request IS the refresh endpoint
+    if (originalRequest.url?.includes("/auth/refresh")) {
+      return Promise.reject(error);
+    }
+
+    // ✅ Only handle 401/403 once per request
+    if ((status === 401 || status === 403) && !originalRequest._retry) {
       originalRequest._retry = true;
+
       try {
-        const { data } = await API.get("/auth/refresh");
+        const { data } = await API.get("/auth/refresh", { withCredentials: true });
+
         localStorage.setItem("accessToken", data.accessToken);
         API.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
-        return API(originalRequest); // retry the original request
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        }
+
+        // 🔁 Retry the original failed request
+        return API(originalRequest);
       } catch (refreshErr) {
         console.error("Refresh token failed:", refreshErr);
+
+        // Optional: preserve theme
+        const savedTheme = localStorage.getItem("theme");
         localStorage.clear();
+        if (savedTheme) localStorage.setItem("theme", savedTheme);
+
         window.location.href = "/login";
+        return Promise.reject(refreshErr);
       }
     }
 
+    // If not a handled case, just pass the error through
     return Promise.reject(error);
   }
 );
+
 
 // === Auth functions ===
 export const registerUser = (formData) => API.post("/auth/register", formData);
