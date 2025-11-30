@@ -64,9 +64,17 @@ function App() {
         const res = await getMe(); // this will auto-refresh if needed
         setUser(res.data.user);
         setIsLoggedIn(true);
+        if (storedRole) setRole(parseInt(storedRole));
+        if (storedEmail) setAdminEmail(storedEmail);
       } catch (err) {
         setUser(null);
+        const savedTheme = localStorage.getItem("theme");
+        localStorage.clear();
+        if (savedTheme) localStorage.setItem("theme", savedTheme);
+
         setIsLoggedIn(false);
+        setRole(null);
+        setAdminEmail(null);
       }
 
       setLoadingAuth(false);

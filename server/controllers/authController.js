@@ -151,7 +151,7 @@ export const login = async (req, res) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       sameSite: "none",
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -246,3 +246,21 @@ export const resetPassword = async (req, res) => {
 };
 
 
+// --- Get current user (/auth/me) ---
+export const getMe = async (req, res) => {
+  try {
+    const db = getDB();
+    const [rows] = await db.query("SELECT user_id, email, role, theme FROM user WHERE user_id = ?", [
+      req.user.user_id,
+    ]);
+
+    if (!rows.length) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ user: rows[0] });
+  } catch (error) {
+    console.error("GetMe Error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
