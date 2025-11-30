@@ -1,3 +1,4 @@
+// src/controllers/authController.js
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { getDB } from "../config/db.js";
@@ -6,30 +7,24 @@ import { sendEmail } from "../utils/sendEmail.js";
 const createToken = (payload, expiresIn) =>
   jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
-// Register
+// --- Register ---
 export const register = async (req, res) => {
   try {
     const { email, password } = req.body;
     const db = getDB();
 
-    // Check existing email
     const [existing] = await db.query("SELECT * FROM user WHERE email = ?", [email]);
     if (existing.length > 0)
       return res.status(400).json({ message: "Email already registered" });
 
-    // Hash password
     const hashed = await bcrypt.hash(password, 10);
 
-    // Create verification token
     const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
 
-    // Generate verification link
     const verifyLink = `${process.env.CLIENT_URL}/verifyEmail?token=${verificationToken}`;
 
-    // Try sending email FIRST
-    // Send email with Resend
     try {
       await sendEmail(
         email,
@@ -46,7 +41,6 @@ export const register = async (req, res) => {
       });
     }
 
-    // Insert only AFTER email successfully sent
     const role = 0;
     const is_verified = 0;
     const refresh_token = "";
@@ -55,8 +49,8 @@ export const register = async (req, res) => {
 
     await db.query(
       `INSERT INTO user 
-        (email, password, role, is_verified, verification_token, refresh_token, status, theme) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+       (email, password, role, is_verified, verification_token, refresh_token, status, theme) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [email, hashed, role, is_verified, verificationToken, refresh_token, status, theme]
     );
 
@@ -70,9 +64,7 @@ export const register = async (req, res) => {
   }
 };
 
-
-
-// Verify Email
+// --- Verify Email ---
 export const verifyEmail = async (req, res) => {
   try {
     const { token } = req.query;
@@ -85,7 +77,7 @@ export const verifyEmail = async (req, res) => {
   }
 };
 
-// Resend verification email
+// --- Resend Verification ---
 export const resendVerification = async (req, res) => {
   try {
     const { email } = req.body;
@@ -103,7 +95,11 @@ export const resendVerification = async (req, res) => {
 
     const token = createToken({ email }, "1d");
     const verifyLink = `${process.env.CLIENT_URL}/verifyEmail?token=${token}`;
-    await sendEmail(email, "Verify your email", `Click the link below to verify. This link will expired after 1 day. \n ${verifyLink}`);
+    await sendEmail(
+      email,
+      "Verify your email",
+      `Click the link below to verify. This link will expire after 1 day.\n ${verifyLink}`
+    );
 
     res.json({ message: "New verification link sent" });
   } catch (err) {
@@ -112,23 +108,23 @@ export const resendVerification = async (req, res) => {
   }
 };
 
-
-// Login
+// --- Login ---
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const db = getDB();
 
     const [rows] = await db.query("SELECT * FROM user WHERE email = ?", [email]);
-    if (!rows.length) return res.status(400).json({ message: "User not found" });
+    if (rows.length === 0)
+      return res.status(400).json({ message: "User not found" });
 
     const user = rows[0];
-
     if (!user.is_verified)
       return res.status(400).json({ message: "Please verify your email" });
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(400).json({ message: "Wrong password" });
+    if (!valid)
+      return res.status(400).json({ message: "Wrong password" });
 
     const accessToken = createToken(
       { user_id: user.user_id, role: user.role, email: user.email },
@@ -153,33 +149,33 @@ export const login = async (req, res) => {
       accessToken,
       role: user.role,
       email,
+      theme: user.theme,
       message: "Login successful",
     });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Login failed" });
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-
+// --- Refresh ---
 export const refresh = async (req, res) => {
   try {
-    const token = req.cookies.refreshToken;
-    if (!token) return res.status(401).json({ message: "No refresh token" });
+    const { refreshToken } = req.cookies;
+    if (!refreshToken)
+      return res.status(401).json({ message: "No refresh token" });
 
     const db = getDB();
     const [rows] = await db.query(
       "SELECT * FROM user WHERE refresh_token = ?",
-      [token]
+      [refreshToken]
     );
-
-    if (!rows.length)
+    if (rows.length === 0)
       return res.status(403).json({ message: "Invalid refresh token" });
 
-    jwt.verify(token, process.env.JWT_SECRET);
-
     const user = rows[0];
+
+    jwt.verify(refreshToken, process.env.JWT_SECRET);
 
     const newAccessToken = createToken(
       { user_id: user.user_id, role: user.role, email: user.email },
@@ -187,49 +183,61 @@ export const refresh = async (req, res) => {
     );
 
     res.json({ accessToken: newAccessToken });
-
-  } catch (err) {
-    console.error(err);
-    res.status(403).json({ message: "Invalid or expired token" });
+  } catch (error) {
+    console.error("Refresh Error:", error);
+    res.status(403).json({ message: "Invalid or expired refresh token" });
   }
 };
 
-
-// Logout
+// --- Logout ---
 export const logout = async (req, res) => {
   try {
-    const token = req.cookies.refreshToken;
-
-    if (token) {
+    const { refreshToken } = req.cookies;
+    if (refreshToken) {
       const db = getDB();
-      await db.query("UPDATE user SET refresh_token = '' WHERE refresh_token = ?", [token]);
+      await db.query("UPDATE user SET refresh_token = '' WHERE refresh_token = ?", [
+        refreshToken,
+      ]);
     }
 
     res.clearCookie("refreshToken");
     res.json({ message: "Logged out successfully" });
-
-  } catch (err) {
+  } catch (error) {
+    console.error("Logout Error:", error);
     res.status(500).json({ message: "Logout failed" });
   }
 };
 
-
-// Forgot Password
+// --- Forgot Password ---
 export const forgotPassword = async (req, res) => {
-  const { email } = req.body;
-  const db = getDB();
+  try {
+    const { email } = req.body;
+    const db = getDB();
 
-  const [rows] = await db.query("SELECT * FROM user WHERE email = ?", [email]);
-  if (rows.length === 0) return res.status(400).json({ message: "Email not found" });
+    const [rows] = await db.query("SELECT * FROM user WHERE email = ?", [email]);
+    if (rows.length === 0)
+      return res.status(400).json({ message: "Email not found" });
 
-  const token = createToken({ email }, "15m");
-  const resetLink = `${process.env.CLIENT_URL}/resetPassword?token=${token}`;
-  await sendEmail(email, "Reset Password", `Click to reset your password: ${resetLink}`);
+    const token = createToken({ email }, "15m");
+    const resetLink = `${process.env.CLIENT_URL}/resetPassword?token=${token}`;
 
-  res.json({ message: "Reset password email verification sent. Please check your inbox or spam" });
+    await sendEmail(
+      email,
+      "Reset Password",
+      `Click to reset your password: ${resetLink}`
+    );
+
+    res.json({
+      message:
+        "Reset password email verification sent. Please check your inbox or spam",
+    });
+  } catch (error) {
+    console.error("ForgotPassword Error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
-// Reset Password
+// --- Reset Password ---
 export const resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
@@ -237,11 +245,33 @@ export const resetPassword = async (req, res) => {
 
     const hashed = await bcrypt.hash(newPassword, 10);
     const db = getDB();
-    await db.query("UPDATE user SET password = ? WHERE email = ?", [hashed, decoded.email]);
+    await db.query("UPDATE user SET password = ? WHERE email = ?", [
+      hashed,
+      decoded.email,
+    ]);
+
     res.json({ message: "Password updated successfully" });
-  } catch {
+  } catch (error) {
+    console.error("ResetPassword Error:", error);
     res.status(400).json({ message: "Invalid or expired token" });
   }
 };
 
+// --- Get current user (/auth/me) ---
+export const getMe = async (req, res) => {
+  try {
+    const db = getDB();
+    const [rows] = await db.query("SELECT user_id, email, role, theme FROM user WHERE user_id = ?", [
+      req.user.user_id,
+    ]);
 
+    if (!rows.length) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ user: rows[0] });
+  } catch (error) {
+    console.error("GetMe Error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

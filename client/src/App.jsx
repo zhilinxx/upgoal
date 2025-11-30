@@ -7,7 +7,8 @@ import "react-toastify/dist/ReactToastify.css";
 
 import "./App.css";
 import useTheme from "./hooks/useTheme";
-import { API, logoutUser } from "./api/auth";
+import { logoutUser } from "./api/auth";
+import { API, getMe } from "./api/auth";
 
 // Pages
 import BudgetPlanner from "./pages/budgetPlanner";
@@ -55,18 +56,20 @@ function App() {
   const [role, setRole] = useState(null);
   const [adminEmail, setAdminEmail] = useState("");
 
-  // Top-level auth check
+  const [user, setUser] = useState(null);
+
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-
-    if (token) {
-      setIsLoggedIn(true);
-      setRole(parseInt(localStorage.getItem("role")));
-      setAdminEmail(localStorage.getItem("email"));
-    } else {
-      setIsLoggedIn(false);
-    }
-
+    const initAuth = async () => {
+      try {
+        const res = await getMe(); // will auto-refresh if needed
+        setUser(res.data.user);
+      } catch {
+        setUser(null);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+    initAuth();
   }, []);
 
 
