@@ -17,6 +17,15 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    config.headers["Authorization"] = "Bearer " + token;
+  }
+  return config;
+});
+
+
 API.interceptors.response.use(
   res => res,
   async err => {
@@ -39,7 +48,7 @@ API.interceptors.response.use(
       try {
         const res = await API.post("/auth/refresh");
         const newToken = res.data.accessToken;
-
+        localStorage.setItem("accessToken", newToken);
         API.defaults.headers.common["Authorization"] = "Bearer " + newToken;
         processQueue(null, newToken);
         isRefreshing = false;
