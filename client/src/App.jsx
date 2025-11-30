@@ -51,9 +51,12 @@ const PAGE_TITLES = {
 function App() {
   const { loading: themeLoading } = useTheme();
 
-  const [loadingAuth, setLoadingAuth] = useState(true);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [role, setRole] = useState(null);
+  const [adminEmail, setAdminEmail] = useState("");
   const [user, setUser] = useState(null);
+  const [loadingAuth, setLoadingAuth] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -76,7 +79,6 @@ function App() {
     return <div>Loading...</div>;
   }
 
-
   return (
     <Router>
       <AppContent
@@ -84,6 +86,7 @@ function App() {
         setIsLoggedIn={setIsLoggedIn}
         role={role}
         adminEmail={adminEmail}
+        user={user}
       />
       <ToastContainer position="top-right" autoClose={3000} />
     </Router>
