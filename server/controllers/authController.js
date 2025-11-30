@@ -120,100 +120,99 @@ export const login = async (req, res) => {
     const db = getDB();
 
     const [rows] = await db.query("SELECT * FROM user WHERE email = ?", [email]);
-    if (rows.length === 0)
-      return res.status(400).json({ message: "User not found" });
+    if (!rows.length) return res.status(400).json({ message: "User not found" });
 
     const user = rows[0];
+
     if (!user.is_verified)
       return res.status(400).json({ message: "Please verify your email" });
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid)
-      return res.status(400).json({ message: "Wrong password" });
+    if (!valid) return res.status(400).json({ message: "Wrong password" });
 
-    // Generate tokens
     const accessToken = createToken(
       { user_id: user.user_id, role: user.role, email: user.email },
       "15m"
     );
+
     const refreshToken = createToken({ user_id: user.user_id }, "7d");
 
-
-    // Save refreshToken in db
     await db.query("UPDATE user SET refresh_token = ? WHERE user_id = ?", [
       refreshToken,
       user.user_id,
     ]);
-    console.log("🟢 Stored refresh token for user:", user.user_id);
-    console.log("🔹 Token preview:", refreshToken.substring(0, 30) + "...");
 
-    // Send refreshToken as cookie
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      sameSite: "none",
       secure: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.json({
       accessToken,
       role: user.role,
-      userId: user.user_id,
       email,
-      theme: user.theme,
       message: "Login successful",
     });
-  } catch (error) {
-    console.error("Login Error:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Login failed" });
   }
 };
 
+
 export const refresh = async (req, res) => {
   try {
-    const { refreshToken } = req.cookies;
-    if (!refreshToken)
-      return res.status(401).json({ message: "No refresh token" });
+    const token = req.cookies.refreshToken;
+    if (!token) return res.status(401).json({ message: "No refresh token" });
 
     const db = getDB();
-    const [rows] = await db.query("SELECT * FROM user WHERE refresh_token = ?", [refreshToken]);
-    if (rows.length === 0)
+    const [rows] = await db.query(
+      "SELECT * FROM user WHERE refresh_token = ?",
+      [token]
+    );
+
+    if (!rows.length)
       return res.status(403).json({ message: "Invalid refresh token" });
+
+    jwt.verify(token, process.env.JWT_SECRET);
 
     const user = rows[0];
 
-    // Verify and decode token
-    jwt.verify(refreshToken, process.env.JWT_SECRET);
-
-    // Generate a new access token
     const newAccessToken = createToken(
       { user_id: user.user_id, role: user.role, email: user.email },
       "15m"
     );
 
-
     res.json({ accessToken: newAccessToken });
-  } catch (error) {
-    console.error("Refresh Error:", error);
-    res.status(403).json({ message: "Invalid or expired refresh token" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(403).json({ message: "Invalid or expired token" });
   }
 };
+
 
 // Logout
 export const logout = async (req, res) => {
   try {
-    const { refreshToken } = req.cookies;
-    if (refreshToken) {
+    const token = req.cookies.refreshToken;
+
+    if (token) {
       const db = getDB();
-      await db.query("UPDATE user SET refresh_token = '' WHERE refresh_token = ?", [refreshToken]);
+      await db.query("UPDATE user SET refresh_token = '' WHERE refresh_token = ?", [token]);
     }
 
     res.clearCookie("refreshToken");
     res.json({ message: "Logged out successfully" });
-  } catch (error) {
+
+  } catch (err) {
     res.status(500).json({ message: "Logout failed" });
   }
 };
+
 
 // Forgot Password
 export const forgotPassword = async (req, res) => {

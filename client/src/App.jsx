@@ -57,52 +57,18 @@ function App() {
 
   // Top-level auth check
   useEffect(() => {
-    const authCheck = async () => {
-      setIsCheckingAuth(true);
+    const token = localStorage.getItem("accessToken");
 
-      try {
-        let token = localStorage.getItem("accessToken");
-        const storedRole = localStorage.getItem("role");
-        const storedEmail = localStorage.getItem("email");
+    if (token) {
+      setIsLoggedIn(true);
+      setRole(parseInt(localStorage.getItem("role")));
+      setAdminEmail(localStorage.getItem("email"));
+    } else {
+      setIsLoggedIn(false);
+    }
 
-        // If no access token, try refresh
-        if (!token) {
-          try {
-            const { data } = await API.get("/auth/refresh", { withCredentials: true });
-            token = data.accessToken;
-            localStorage.setItem("accessToken", token);
-          } catch (err) {
-            console.warn("Refresh token failed:", err);
-            token = null; // failed refresh
-          }
-        }
-
-        if (token) {
-          setIsLoggedIn(true);
-          if (storedRole) setRole(parseInt(storedRole));
-          if (storedEmail) setAdminEmail(storedEmail);
-        } else {
-          // No valid token → force logout
-          const savedTheme = localStorage.getItem("theme");
-          localStorage.clear();
-          if (savedTheme) localStorage.setItem("theme", savedTheme);
-
-          setIsLoggedIn(false);
-          setRole(null);
-          setAdminEmail(null);
-
-          window.location.href = "/login"; 
-        }
-      } catch (err) {
-        console.error("Unexpected auth check error:", err);
-        window.location.href = "/login"; 
-      } finally {
-        setIsCheckingAuth(false);
-      }
-    };
-
-    authCheck();
   }, []);
+
 
 
   if (isCheckingAuth || themeLoading) return <div>Loading...</div>;
