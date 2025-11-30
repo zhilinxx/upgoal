@@ -50,6 +50,7 @@ API.interceptors.response.use(
         const newToken = res.data.accessToken;
         localStorage.setItem("accessToken", newToken);
         API.defaults.headers.common["Authorization"] = "Bearer " + newToken;
+        
         processQueue(null, newToken);
         isRefreshing = false;
 

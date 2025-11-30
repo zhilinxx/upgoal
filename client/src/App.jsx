@@ -64,12 +64,18 @@ function App() {
         const res = await getMe(); // this will auto-refresh if needed
         setUser(res.data.user);
         setIsLoggedIn(true);
+        const storedRole = localStorage.getItem("role");
+        const storedEmail = localStorage.getItem("adminEmail");
+
         if (storedRole) setRole(parseInt(storedRole));
         if (storedEmail) setAdminEmail(storedEmail);
       } catch (err) {
         setUser(null);
         const savedTheme = localStorage.getItem("theme");
-        localStorage.clear();
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("role");
+        localStorage.removeItem("adminEmail");
+
         if (savedTheme) localStorage.setItem("theme", savedTheme);
 
         setIsLoggedIn(false);
