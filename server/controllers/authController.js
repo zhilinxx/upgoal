@@ -142,6 +142,7 @@ export const login = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -164,20 +165,19 @@ export const refresh = async (req, res) => {
     const token = req.cookies.refreshToken;
     if (!token) return res.status(401).json({ message: "No refresh token" });
 
-    // verify token
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
       if (err) return res.status(401).json({ message: "Expired refresh token" });
 
       const accessToken = jwt.sign(
-        { id: user.id },
-        process.env.ACCESS_TOKEN_SECRET,
+        { user_id: user.user_id },
+        process.env.JWT_SECRET,
         { expiresIn: "15m" }
       );
 
       res.json({ accessToken });
     });
 
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: "Server error" });
   }
 };

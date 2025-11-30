@@ -22,6 +22,7 @@ router.get("/verify-email", verifyEmail);
 router.post("/resend-verification", resendVerification);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
+router.post("/refresh", refresh);
 
 // Refresh + logout
 router.get("/refresh", refresh);
