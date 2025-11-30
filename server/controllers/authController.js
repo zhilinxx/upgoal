@@ -159,7 +159,7 @@ export const login = async (req, res) => {
 };
 
 // --- Refresh ---
-export const refreshToken = async (req, res) => {
+export const refresh = async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
     if (!token) return res.status(401).json({ message: "No refresh token" });
