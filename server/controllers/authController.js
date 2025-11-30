@@ -165,7 +165,7 @@ export const refresh = async (req, res) => {
     if (!token) return res.status(401).json({ message: "No refresh token" });
 
     // verify token
-    jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
       if (err) return res.status(401).json({ message: "Expired refresh token" });
 
       const accessToken = jwt.sign(
