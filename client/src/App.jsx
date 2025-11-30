@@ -51,30 +51,31 @@ const PAGE_TITLES = {
 function App() {
   const { loading: themeLoading } = useTheme();
 
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [loadingAuth, setLoadingAuth] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [role, setRole] = useState(null);
-  const [adminEmail, setAdminEmail] = useState("");
-
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const initAuth = async () => {
+    const checkAuth = async () => {
       try {
-        const res = await getMe(); // will auto-refresh if needed
+        const res = await getMe(); // this will auto-refresh if needed
         setUser(res.data.user);
-      } catch {
+        setIsLoggedIn(true);
+      } catch (err) {
         setUser(null);
-      } finally {
-        setIsCheckingAuth(false);
+        setIsLoggedIn(false);
       }
+
+      setLoadingAuth(false);
     };
-    initAuth();
+
+    checkAuth();
   }, []);
 
+  if (loadingAuth || themeLoading) {
+    return <div>Loading...</div>;
+  }
 
-
-  if (isCheckingAuth || themeLoading) return <div>Loading...</div>;
 
   return (
     <Router>

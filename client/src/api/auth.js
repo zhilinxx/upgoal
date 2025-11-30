@@ -6,39 +6,55 @@ export const API = axios.create({
   withCredentials: true, // send cookies (refreshToken)
 });
 
-// Request interceptor - attach access token
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+let isRefreshing = false;
+let failedQueue = [];
 
-// Response interceptor - handle 401 and refresh
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) prom.reject(error);
+    else prom.resolve(token);
+  });
+  failedQueue = [];
+};
+
 API.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+  res => res,
+  async err => {
+    const original = err.config;
 
-    if (
-      (error.response?.status === 401 || error.response?.status === 403) &&
-      !originalRequest._retry &&
-      !originalRequest.url.includes("/auth/login") &&
-      !originalRequest.url.includes("/auth/refresh")
-    ) {
-      originalRequest._retry = true;
+    if (err.response?.status === 401 && !original._retry) {
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then(token => {
+          original.headers["Authorization"] = "Bearer " + token;
+          return API(original);
+        });
+      }
+
+      original._retry = true;
+      isRefreshing = true;
+
       try {
-        const { data } = await API.get("/auth/refresh");
-        localStorage.setItem("accessToken", data.accessToken);
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
-        return API(originalRequest);
-      } catch (refreshErr) {
-        console.error("Refresh token failed:", refreshErr);
-        localStorage.clear();
-        window.location.href = "/login";
+        const res = await API.post("/auth/refresh");
+        const newToken = res.data.accessToken;
+
+        API.defaults.headers.common["Authorization"] = "Bearer " + newToken;
+        processQueue(null, newToken);
+        isRefreshing = false;
+
+        original.headers["Authorization"] = "Bearer " + newToken;
+        return API(original);
+
+      } catch (e) {
+        processQueue(e, null);
+        isRefreshing = false;
+        return Promise.reject(e);
       }
     }
 
-    return Promise.reject(error);
+    return Promise.reject(err);
   }
 );
 
