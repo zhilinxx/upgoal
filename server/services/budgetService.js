@@ -15,85 +15,78 @@ export async function buildDashboardData(userId) {
   const incomeRow = await getLatestIncome(userId);
   if (!incomeRow) return null;
 
-  const { net_income: netIncome, lifestyle } = incomeRow;
+  const { net_income: netIncome } = incomeRow;
   const incomeNum = Number(netIncome) || 0;
 
   const otherThisMonth = Number(await getOtherSpendThisMonth(userId) || 0);
-  const otherRatio = incomeNum > 0 ? otherThisMonth / incomeNum : 0;
+  const lastMonthOther = Number(await getOtherSpendLastMonth(userId) || 0);
 
   const commitments = (await getMonthlyCommitments(userId)) || [];
   const expenses = (await getRecentExpenses(userId)) || [];
   const goals = (await getSavingsGoals(userId)) || [];
 
-  let housingLoan = 0, carLoan = 0, insurance = 0, others = 0;
+  let housingLoan = 0, carLoan = 0, insurance = 0, othersCommit = 0;
   for (const r of commitments) {
     const t = (r?.type || "").toLowerCase();
     const amt = Number(r?.amount || 0);
     if (t.includes("house") || t.includes("mortgage") || t.includes("rent")) housingLoan += amt;
     else if (t.includes("car") || t.includes("vehicle") || t.includes("auto")) carLoan += amt;
     else if (t.includes("insurance")) insurance += amt;
-    else others += amt;
+    else othersCommit += amt;
   }
-  const commitmentsTotal = housingLoan + carLoan + insurance + others;
+  const commitTotal = housingLoan + carLoan + insurance + othersCommit;
 
-  // -----------------------------
-  // Step 1: Base allocation ratios (fallback)
-  let baseRatios = { essentials: 0.55, savings: 0.25, insurance: 0.1, other: 0.1 };
+  // Base fallback ratios
+  let ratios = { essentials: 0.55, savings: 0.25, insurance: 0.10, other: 0.10 };
 
-  // Step 2: Cap Other if last month Other >10%
-  const lastMonthOther = Number(await getOtherSpendLastMonth(userId) || 0);
-  const lastMonthOtherRatio = incomeNum > 0 ? lastMonthOther / incomeNum : 0;
+  // Apply last month overspend cap for "Other"
+  const lastMonthRatio = lastMonthOther / incomeNum;
+  if (lastMonthRatio > 0.10) {
+    let cap = 0.05; // default
+    if (lastMonthRatio <= 0.15) cap = 0.08;
+    else if (lastMonthRatio <= 0.20) cap = 0.06;
 
-  let finalRatios = { ...baseRatios };
-  if (lastMonthOtherRatio > 0.10) {
-    // Determine cap based on last month's overspend
-    let capRatio;
-    if (lastMonthOtherRatio <= 0.15) capRatio = 0.08;
-    else if (lastMonthOtherRatio <= 0.20) capRatio = 0.06;
-    else capRatio = 0.05;
-
-    const deltaRatio = lastMonthOtherRatio - capRatio;
-    if (deltaRatio > 0) {
-      const available = Math.max(0, incomeNum - commitmentsTotal);
-      finalRatios.other = capRatio;
-      const redistributeAmount = deltaRatio * available;
-      finalRatios.savings += redistributeAmount * 0.7;
-      finalRatios.essentials += redistributeAmount * 0.3;
+    const delta = ratios.other - cap;
+    if (delta > 0) {
+      ratios.other = cap;
+      ratios.savings += delta * 0.7;
+      ratios.essentials += delta * 0.3;
     }
   }
 
-  // Step 3: Multiply ratios by available amount (income minus commitments)
-  const available = Math.max(0, incomeNum - commitmentsTotal);
+  // Compute allocations based on **full net income**
+  let essentialsAmt = round2(ratios.essentials * incomeNum);
+  let savingsAmt = round2(ratios.savings * incomeNum);
+  let insuranceAmt = round2(ratios.insurance * incomeNum);
+  let otherAmt = round2(ratios.other * incomeNum);
+
+  // Adjust rounding drift to ensure total = net income
+  const totalAlloc = essentialsAmt + savingsAmt + insuranceAmt + otherAmt;
+  const drift = round2(incomeNum - totalAlloc);
+  essentialsAmt += drift;
+
   const breakdown = [
-    { name: "Essentials", amount: round2(finalRatios.essentials * available) },
-    { name: "Savings", amount: round2(finalRatios.savings * available) },
-    { name: "Insurance", amount: round2(finalRatios.insurance * available) },
-    { name: "Other", amount: round2(finalRatios.other * available) },
+    { name: "Essentials", amount: essentialsAmt },
+    { name: "Savings", amount: savingsAmt },
+    { name: "Insurance", amount: insuranceAmt },
+    { name: "Other", amount: otherAmt }
   ];
-
-  // Step 4: Adjust for rounding drift to ensure total = available
-  const sum = breakdown.reduce((acc, b) => acc + b.amount, 0);
-  const drift = round2(available - sum);
-  if (drift !== 0) breakdown[1].amount += drift; // adjust savings
-
-  const savingsGoals = goals.map(g => ({
-    id: g.id,
-    name: g.name,
-    current: Number(g.current || 0),
-    target: Number(g.target || 0),
-    deadline: g.deadline,
-  }));
-
-  const expensesList = expenses.map(e => ({ name: e.name, amount: Number(e.amount || 0) }));
 
   return {
     income: incomeNum,
     currency: "RM",
     breakdown: breakdown.map((row, i) => ({ ...row, color: pickColors(4)[i] })),
-    savingsGoals,
-    expenses: expensesList,
+    savingsGoals: goals.map(g => ({
+      id: g.id,
+      name: g.name,
+      current: Number(g.current || 0),
+      target: Number(g.target || 0),
+      deadline: g.deadline,
+    })),
+    expenses: expenses.map(e => ({ name: e.name, amount: Number(e.amount || 0) })),
     _lastMonthOther: lastMonthOther,
-    _lastMonthOtherRatio: lastMonthOtherRatio,
+    _lastMonthOtherRatio: lastMonthRatio,
+    _commitmentsTotal: commitTotal
   };
 }
 
