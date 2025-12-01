@@ -37,7 +37,7 @@ export async function buildDashboardData(userId) {
   const commitmentsTotal = housingLoan + carLoan + insurance + others;
 
   // -----------------------------
-  // Step 1: base AI allocation (fallback)
+  // Step 1: Base allocation ratios (fallback)
   let baseRatios = { essentials: 0.55, savings: 0.25, insurance: 0.1, other: 0.1 };
 
   // Step 2: Cap Other if last month Other >10%
@@ -46,26 +46,23 @@ export async function buildDashboardData(userId) {
 
   let finalRatios = { ...baseRatios };
   if (lastMonthOtherRatio > 0.10) {
-    // enforce cap depending on last month ratio
-    let cap = 0.08; // default 8%
-    if (lastMonthOtherRatio <= 0.15) cap = 0.08;
-    else if (lastMonthOtherRatio <= 0.2) cap = 0.06;
-    else cap = 0.05;
+    // Determine cap based on last month's overspend
+    let capRatio;
+    if (lastMonthOtherRatio <= 0.15) capRatio = 0.08;
+    else if (lastMonthOtherRatio <= 0.20) capRatio = 0.06;
+    else capRatio = 0.05;
 
-    const currentOther = baseRatios.other;
-    const delta = currentOther - cap;
-
-    if (delta > 0) {
-      finalRatios.other = cap;
-      // redistribute delta to Savings and Essentials
-      const totalRedistribute = delta;
-      const wSavings = 0.7, wEssentials = 0.3;
-      finalRatios.savings += totalRedistribute * wSavings;
-      finalRatios.essentials += totalRedistribute * wEssentials;
+    const deltaRatio = lastMonthOtherRatio - capRatio;
+    if (deltaRatio > 0) {
+      const available = Math.max(0, incomeNum - commitmentsTotal);
+      finalRatios.other = capRatio;
+      const redistributeAmount = deltaRatio * available;
+      finalRatios.savings += redistributeAmount * 0.7;
+      finalRatios.essentials += redistributeAmount * 0.3;
     }
   }
 
-  // Step 3: Multiply ratios by available amount (net income - commitments total)
+  // Step 3: Multiply ratios by available amount (income minus commitments)
   const available = Math.max(0, incomeNum - commitmentsTotal);
   const breakdown = [
     { name: "Essentials", amount: round2(finalRatios.essentials * available) },
@@ -74,7 +71,7 @@ export async function buildDashboardData(userId) {
     { name: "Other", amount: round2(finalRatios.other * available) },
   ];
 
-  // Adjust for rounding drift to ensure total = income - commitments
+  // Step 4: Adjust for rounding drift to ensure total = available
   const sum = breakdown.reduce((acc, b) => acc + b.amount, 0);
   const drift = round2(available - sum);
   if (drift !== 0) breakdown[1].amount += drift; // adjust savings
