@@ -22,30 +22,47 @@ def segment():
         income = float(data.get("income") or 0)
         last_month_other = float(data.get("last_month_other") or 0)
 
-        # Step 1: base ratios
+        # Base ratios
         ratios = {"essentials": 0.55, "savings": 0.25, "insurance": 0.10, "other": 0.10}
 
-        # Step 2: apply last month overspend cap
+        # Apply last month Other cap
         last_month_ratio = last_month_other / income if income > 0 else 0
         if last_month_ratio > 0.10:
             cap = cap_other_by_last_month(last_month_ratio)
             delta = ratios["other"] - cap
             if delta > 0:
                 ratios["other"] = cap
-                # redistribute delta to savings/essentials
                 ratios["savings"] += delta * 0.7
                 ratios["essentials"] += delta * 0.3
 
-        # Step 3: compute allocations based on full income
+        # Step 1: calculate tentative allocations
         essentials_amt = round(income * ratios["essentials"], 2)
         savings_amt = round(income * ratios["savings"], 2)
         insurance_amt = round(income * ratios["insurance"], 2)
         other_amt = round(income * ratios["other"], 2)
 
-        # Step 4: adjust rounding drift to ensure total = income
-        total_alloc = essentials_amt + savings_amt + insurance_amt + other_amt
-        drift = round(income - total_alloc, 2)
-        essentials_amt += drift  # add drift to essentials
+        # Step 2: check if Essentials + Insurance + Other exceeds income
+        fixed_total = essentials_amt + insurance_amt + other_amt
+        if fixed_total > income:
+            # Too tight: prioritize Essentials first
+            essentials_amt = min(essentials_amt, income)
+            remaining = max(0.0, income - essentials_amt)
+            insurance_amt = min(insurance_amt, remaining)
+            remaining -= insurance_amt
+            other_amt = min(other_amt, remaining)
+            remaining -= other_amt
+            savings_amt = remaining  # whatever is left goes to savings
+        else:
+            # Step 3: adjust savings to absorb rounding drift
+            total_alloc = essentials_amt + savings_amt + insurance_amt + other_amt
+            drift = round(income - total_alloc, 2)
+            savings_amt += drift
+
+        # Ensure non-negative
+        essentials_amt = max(0.0, essentials_amt)
+        savings_amt = max(0.0, savings_amt)
+        insurance_amt = max(0.0, insurance_amt)
+        other_amt = max(0.0, other_amt)
 
         return jsonify({
             "label": "adjusted_budget",
