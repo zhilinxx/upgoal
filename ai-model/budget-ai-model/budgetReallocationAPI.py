@@ -227,7 +227,7 @@ def segment():
             ratios = normalize(map_segment_to_ratios(label))
 
             # ⬇️ Apply "Other overspend" rule if provided
-            ratios = apply_other_overspend_rules(
+            ratios, repayment_plan = apply_other_overspend_rules(
                 ratios,
                 other_ratio = data.get("other_spend_ratio"),
                 income     = income,
@@ -235,7 +235,7 @@ def segment():
                 label      = label
             )
 
-            return jsonify({"label": label, "ratios": ratios})
+            return jsonify({"label": label, "ratios": ratios, "repayment_plan": repayment_plan})
 
         return jsonify({"error": "Unsupported payload"}), 400
 

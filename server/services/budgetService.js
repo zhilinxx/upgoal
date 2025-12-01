@@ -68,7 +68,8 @@ export async function buildDashboardData(userId) {
 
   // --- Allocation and rules (Banded allocator) ---
   // fetch last month's other (needs repository function)
-  const lastMonthOther = await getOtherSpendLastMonth(userId);
+  const lastMonthOther = round2(Number(await getOtherSpendLastMonth(userId) || 0));
+  const lastMonthOtherRatio = incomeNum > 0 ? lastMonthOther / incomeNum : 0;
 
   const baseResult = allocateBudgetBanded(
     incomeNum,
@@ -110,7 +111,7 @@ export async function buildDashboardData(userId) {
   }
 
   // Then: apply local recovery logic using last month observed other (preferred)
-  const finalResult = hardCapOtherWithRecovery(
+  const interimResult = hardCapOtherWithRecovery(
     baseResult,
     incomeNum,
     otherRatio,
@@ -118,6 +119,44 @@ export async function buildDashboardData(userId) {
     3,
     aiAdvice?.label || aiAdvice?.segment
   );
+
+  // --- NEW: enforce cap this month if lastMonthOtherRatio > 10%
+  // We compute a cap based on lastMonthOtherRatio and force this month's Other down to that cap now,
+  // redistributing delta into savings (preferred) and essentials (fallback).
+  let finalResult = { ...interimResult };
+
+  const capRatioFromBand = capOtherByBandJS(lastMonthOtherRatio); // may be null
+  if (capRatioFromBand != null && capRatioFromBand > 0) {
+    const capAmt = round2(capRatioFromBand * incomeNum);
+
+    if (finalResult.other > capAmt) {
+      const prevOther = finalResult.other;
+      const deltaNow = round2(prevOther - capAmt);
+
+      // Prefer to move delta into savings, then essentials
+      let addToSavings = round2(deltaNow * 0.7); // 70%
+      let addToEss = round2(deltaNow * 0.3); // 30%
+
+      // If savings exist, add; otherwise try to put more into essentials
+      finalResult.other = capAmt;
+
+      finalResult.savings = round2(Math.max(0, (finalResult.savings || 0) + addToSavings));
+      finalResult.essentials = round2(Math.max(0, (finalResult.essentials || 0) + addToEss));
+
+      // If after adding, we exceed income due to rounding, fix drift by adjusting savings
+      const sum = finalResult.essentials + finalResult.savings + finalResult.insBucket + finalResult.other;
+      const drift = round2(incomeNum - sum);
+      if (drift !== 0) finalResult.savings = round2(Math.max(0, finalResult.savings + drift));
+
+      // annotate recovery plan
+      finalResult._recoveryPlan = finalResult._recoveryPlan || {};
+      finalResult._recoveryPlan.enforced_immediate = true;
+      finalResult._recoveryPlan.capRatioThisMonth = capRatioFromBand;
+      finalResult._recoveryPlan.capAmtThisMonth = capAmt;
+      finalResult._recoveryPlan.deltaNow = deltaNow;
+      finalResult._recoveryPlan.note = `Because last month Other was ${Math.round(lastMonthOther)} (${Math.round(lastMonthOtherRatio*1000)/10}%), we capped Other to ${capRatioFromBand*100}% this month (RM ${capAmt}).`;
+    }
+  }
 
   // --- Prepare final structure ---
   const breakdown = [
@@ -388,6 +427,19 @@ function hardCapOtherWithRecovery(finals, income, otherRatio, lastMonthOtherAmou
   return out;
 }
 
+/* =========================
+   Helpers for immediate enforcement
+   ========================= */
+// Compute cap ratio from a last-month other ratio (mirrors Python cap_other_by_band)
+function capOtherByBandJS(otherRatio) {
+  if (otherRatio == null) return null;
+  const r = Number(otherRatio);
+  if (Number.isNaN(r)) return null;
+  if (r <= 0.10) return null;
+  if (r <= 0.15) return 0.08;
+  if (r <= 0.20) return 0.06;
+  return 0.05;
+}
 
 /* =========================
    Utils
