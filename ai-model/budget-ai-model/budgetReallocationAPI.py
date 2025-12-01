@@ -54,21 +54,61 @@ def cap_other_by_band(other_ratio):
     if r <= 0.20:     return 0.06
     return 0.05
 
-def apply_other_overspend_rules(ratios, other_ratio, income=None, lifestyle=None, label=None):
+# UPDATED apply_other_overspend_rules (paste in replacement)
+def apply_other_overspend_rules(ratios, other_ratio, income=None, lifestyle=None, label=None,
+                               repay_months_default=3):
     """
-    If 'Other' spending is too high, cap 'other' and redistribute the excess.
+    If 'Other' spending is too high, compute a repayment plan instead of forcibly capping
+    the current month. Return (ratios_dict, repayment_plan_or_None).
+
+    repayment_plan = {
+        "excess_amount": <float in currency>,
+        "excess_ratio": <float>,
+        "months": <int>,
+        "monthly_amount": <float>,
+        "strategy": "reduce_savings_first",
+        "suggested_future_ratios": { ... }  # what future months' ratios might look like
+    }
     """
     cap = cap_other_by_band(other_ratio)
-    if cap is None:
-        return normalize(ratios)
-
+    # normalize original ratios (this represents current month / suggested allocations)
     r = normalize(ratios)
-    current_other = float(r.get("other", 0.0))
-    if current_other <= cap:
-        return r
 
+    # If no cap or current other <= cap -> nothing to do
+    try:
+        current_other = float(r.get("other", 0.0))
+    except Exception:
+        current_other = 0.0
+
+    if cap is None or current_other <= cap:
+        return r, None
+
+    # compute excess ratio and amount (if income provided)
+    excess_ratio = current_other - cap
+    income_val = None
+    try:
+        income_val = float(income) if income is not None else None
+    except Exception:
+        income_val = None
+
+    excess_amount = round(excess_ratio * income_val, 2) if income_val else None
+
+    # Decide repayment months (can be tuned)
+    months = repay_months_default
+    # adaptive policy: small overspend -> fewer months, big -> more months
+    if excess_ratio <= 0.03:
+        months = 2
+    elif excess_ratio <= 0.07:
+        months = 3
+    else:
+        months = 4
+
+    monthly_amount = round(excess_amount / months, 2) if excess_amount is not None else None
+
+    # Build suggested future ratios by capping 'other' and redistributing delta
+    suggested = dict(r)  # copy
+    suggested["other"] = cap
     delta = current_other - cap
-    r["other"] = cap
 
     key = (label or lifestyle or "").lower()
     if "conservative" in key:
@@ -78,10 +118,23 @@ def apply_other_overspend_rules(ratios, other_ratio, income=None, lifestyle=None
     else:
         w_s, w_e = 0.60, 0.40
 
-    r["savings"]    = float(r.get("savings",    0.0)) + delta * w_s
-    r["essentials"] = float(r.get("essentials", 0.0)) + delta * w_e
+    suggested["savings"]    = float(suggested.get("savings", 0.0)) + delta * w_s
+    suggested["essentials"] = float(suggested.get("essentials", 0.0)) + delta * w_e
+    suggested = normalize(suggested)
 
-    return normalize(r)
+    repayment_plan = {
+        "excess_ratio": round(excess_ratio, 4),
+        "excess_amount": excess_amount,
+        "months": months,
+        "monthly_amount": monthly_amount,
+        "strategy": "reduce_savings_first",
+        "suggested_future_ratios": suggested
+    }
+
+    # IMPORTANT: Return the actual normalized ratios for the current month (honest),
+    # plus the repayment_plan the frontend can show / apply for next months.
+    return r, repayment_plan
+
 
 
 def predict_with_pipeline(d):
@@ -144,15 +197,15 @@ def segment():
             ratios = normalize(map_segment_to_ratios(label))
 
             # ⬇️ Apply "Other overspend" rule if client sent ratio
-            ratios = apply_other_overspend_rules(
+            ratios, repayment_plan = apply_other_overspend_rules(
                 ratios,
                 other_ratio = data.get("other_spend_ratio"),
                 income     = income,
                 lifestyle  = data.get("lifestyle"),
                 label      = label
             )
+            return jsonify({"label": label, "ratios": ratios, "repayment_plan": repayment_plan})
 
-            return jsonify({"label": label, "ratios": ratios})
 
         # ---- Case A: full feature schema (columns like Rent, Groceries, etc.) ----
         if "Income" in data:

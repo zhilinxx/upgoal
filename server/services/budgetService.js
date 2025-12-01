@@ -6,6 +6,7 @@ import {
   getRecentExpenses,
   getSavingsGoals,
   getOtherSpendThisMonth,
+  getOtherSpendLastMonth,
 } from "../repositories/budgetRepository.js";
 
 const COLORS = ["#ff7b8c", "#f8a9a8", "#ffb9b6", "#c4e0b5", "#b3d4ff", "#ffd27f"];
@@ -43,7 +44,7 @@ export async function buildDashboardData(userId) {
   let aiAdvice = { label: "fallback", ratios: null, source: "fallback" };
   try {
     const { data } = await axios.post(
-      process.env.BUDGET_AI_API + "/api/segment"|| "http://localhost:5002/api/segment",
+      (process.env.BUDGET_AI_API + "/api/segment") || "http://localhost:5002/api/segment",
       {
         income: incomeNum,
         commitments: { housingLoan, carLoan, insurance, others },
@@ -58,20 +59,65 @@ export async function buildDashboardData(userId) {
       label: data?.label ?? "ai",
       ratios: data?.ratios ?? null,
       source: data?.source ?? "ai",
+      repayment_plan: data?.repayment_plan ?? null
     };
   } catch (err) {
     console.error("AI offline, using fallback:", err?.message || err);
   }
 
+
   // --- Allocation and rules (Banded allocator) ---
+  // fetch last month's other (needs repository function)
+  const lastMonthOther = await getOtherSpendLastMonth(userId);
+
   const baseResult = allocateBudgetBanded(
     incomeNum,
     commitmentsTotal,
     safeRatios(aiAdvice.ratios),
   );
 
-  // ✅ SIMPLE, VISIBLE RULE: if Other > 10% this month, force Other = 6% of income
-  const finalResult = hardCapOther(baseResult, incomeNum, otherRatio, aiAdvice?.label || aiAdvice?.segment);
+  // First: if AI suggests a repayment_plan from its model, apply the monthly repayment to baseResult
+  if (aiAdvice.repayment_plan && aiAdvice.repayment_plan.monthly_amount) {
+    const monthlyRepayAmt = Number(aiAdvice.repayment_plan.monthly_amount || 0);
+    // reduce savings first
+    let out = { ...baseResult };
+    const savingsAvail = Number(out.savings || 0);
+    const takeFromSavings = Math.min(savingsAvail, monthlyRepayAmt);
+    out.savings = round2(savingsAvail - takeFromSavings);
+
+    let remaining = round2(monthlyRepayAmt - takeFromSavings);
+    if (remaining > 0) {
+      // pull from essentials but preserve commitments
+      const essentialsAvail = Math.max(0, Number(out.essentials || 0) - Number(commitmentsTotal || 0));
+      const takeFromEss = Math.min(essentialsAvail, remaining);
+      out.essentials = round2(Number(out.essentials || 0) - takeFromEss);
+      remaining = round2(remaining - takeFromEss);
+    }
+    if (remaining > 0) {
+      const takeFromIns = Math.min(Number(out.insBucket || 0), remaining);
+      out.insBucket = round2(Number(out.insBucket || 0) - takeFromIns);
+      remaining = round2(remaining - takeFromIns);
+    }
+
+    out._repayment_applied = {
+      monthly_amount: monthlyRepayAmt,
+      months: aiAdvice.repayment_plan.months,
+      remaining_unfunded: remaining
+    };
+
+    // use adjusted baseResult for final caps
+    Object.assign(baseResult, out);
+  }
+
+  // Then: apply local recovery logic using last month observed other (preferred)
+  const finalResult = hardCapOtherWithRecovery(
+    baseResult,
+    incomeNum,
+    otherRatio,
+    lastMonthOther,
+    3,
+    aiAdvice?.label || aiAdvice?.segment
+  );
 
   // --- Prepare final structure ---
   const breakdown = [
@@ -80,6 +126,7 @@ export async function buildDashboardData(userId) {
     { name: "Insurance", amount: finalResult.insBucket },
     { name: "Other", amount: finalResult.other },
   ].map((row, i) => ({ ...row, color: pickColors(4)[i] }));
+
 
   const savingsGoals = goals.map((g) => ({
     id: g.id,
@@ -97,10 +144,11 @@ export async function buildDashboardData(userId) {
     breakdown,
     savingsGoals,
     expenses: expensesList,
-    ai: { source: aiAdvice.source, segment: aiAdvice.label },
-    // optional: add a status flag if you want to show UI hints
-    // status: baseResult._status,
+    ai: { source: aiAdvice.source, segment: aiAdvice.label, repayment_plan: aiAdvice.repayment_plan },
+    _repayment_applied: baseResult._repayment_applied || null,
+    _recoveryPlan: finalResult._recoveryPlan || null,
   };
+
 }
 
 /* =========================
@@ -253,7 +301,7 @@ function hardCapOther(finals, income, otherRatio, label = "balanced spender") {
   if (!income || otherRatio <= 0.10) return finals; // only act if >10%
 
   const capRatio = 0.06;                 // visible & simple
-  const capAmt   = round2(capRatio * income);
+  const capAmt = round2(capRatio * income);
 
   if (finals.other <= capAmt) return finals; // already at/under cap
 
@@ -263,23 +311,83 @@ function hardCapOther(finals, income, otherRatio, label = "balanced spender") {
   let wS = 0.70, wE = 0.30;
   const key = String(label || "").toLowerCase();
   if (key.includes("conservative")) { wS = 0.80; wE = 0.20; }
-  else if (key.includes("over"))     { wS = 0.90; wE = 0.10; }
+  else if (key.includes("over")) { wS = 0.90; wE = 0.10; }
 
   const addS = round2(delta * wS);
   const addE = round2(delta * wE);
 
   const out = { ...finals };
-  out.other      = capAmt;
-  out.savings    = round2(out.savings + addS);
+  out.other = capAmt;
+  out.savings = round2(out.savings + addS);
   out.essentials = round2(out.essentials + addE);
 
   // keep insurance unchanged; fix rounding drift to match income exactly
-  const sum   = out.essentials + out.savings + out.insBucket + out.other;
+  const sum = out.essentials + out.savings + out.insBucket + out.other;
   const drift = round2(income - sum);
   out.savings = round2(out.savings + drift);
 
   return out;
 }
+
+// New: hardCapOtherWithRecovery - keeps this month's observed Other but plans recovery next months
+function hardCapOtherWithRecovery(finals, income, otherRatio, lastMonthOtherAmount = 0, recoveryMonths = 3, label = "balanced spender") {
+  if (!income || otherRatio <= 0.10) return finals;
+
+  const capRatio = 0.06;                 // visible & simple target
+  const capAmt = round2(capRatio * income);
+
+  const lastOther = round2(Number(lastMonthOtherAmount || 0));
+  const excess = Math.max(0, round2(lastOther - capAmt));
+
+  // If no observable excess, fallback to immediate cap behavior
+  if (excess <= 0) {
+    return hardCapOther(finals, income, otherRatio, label);
+  }
+
+  const recoveryShare = round2(excess / Math.max(1, recoveryMonths));
+  const out = { ...finals };
+
+  // Ensure UI reflects reality for this month: keep other at least lastMonth observed
+  out.other = Math.min(Math.max(out.other, lastOther), income);
+
+  // Deduct recoveryShare from savings first
+  const availableSavings = Math.max(0, out.savings);
+  if (availableSavings >= recoveryShare) {
+    out.savings = round2(availableSavings - recoveryShare);
+  } else {
+    // partial from savings, then from 'other' down to capAmt, then essentials
+    const need = round2(recoveryShare - availableSavings);
+    out.savings = 0;
+    const reducibleOther = Math.max(0, out.other - capAmt);
+    const takeFromOther = Math.min(reducibleOther, need);
+    out.other = round2(out.other - takeFromOther);
+    let remaining = round2(need - takeFromOther);
+    if (remaining > 0) {
+      // last resort: pull from essentials (but not below commitments)
+      out.essentials = round2(Math.max(0, out.essentials - remaining));
+      remaining = 0;
+    }
+  }
+
+  // Fix rounding drift so sum == income (prefer adjusting savings)
+  const sum = out.essentials + out.savings + out.insBucket + out.other;
+  const drift = round2(income - sum);
+  if (drift !== 0) out.savings = round2(Math.max(0, out.savings + drift));
+
+  // attach a plan so UI can show it
+  out._recoveryPlan = {
+    capRatio,
+    capAmt,
+    lastOther,
+    excess,
+    recoveryMonths,
+    recoveryShare,
+    note: `Recover ${excess} over ${recoveryMonths} months by reducing savings first.`
+  };
+
+  return out;
+}
+
 
 /* =========================
    Utils
