@@ -19,7 +19,7 @@ def map_segment_to_ratios(label: str):
     key = (label or "").lower()
     if "conservative" in key:
         return {"essentials": 0.50, "savings": 0.30, "insurance": 0.10, "other": 0.10}
-    if "over" in key:  # frequent over-spender
+    if "over" in key:
         return {"essentials": 0.58, "savings": 0.20, "insurance": 0.10, "other": 0.12}
     return {"essentials": 0.55, "savings": 0.25, "insurance": 0.10, "other": 0.10}
 
@@ -105,16 +105,16 @@ def predict_with_pipeline(d):
 def segment():
     try:
         data = request.get_json() or {}
+        # Ensure commitments dict is safe
+        c = data.get("commitments") or {}
+        income = float(data.get("income") or 0.0)
 
         if "income" in data and "commitments" in data:
-            income = float(data.get("income") or 0.0)
-            c = data.get("commitments") or {}
-
             commit_total = (
-                float(c.get("housingLoan", 0)) +
-                float(c.get("carLoan", 0)) +
-                float(c.get("insurance", 0)) +
-                float(c.get("others", 0))
+                float(c.get("housingLoan", 0) or 0) +
+                float(c.get("carLoan", 0) or 0) +
+                float(c.get("insurance", 0) or 0) +
+                float(c.get("others", 0) or 0)
             )
             burden = (commit_total / income) if income > 0 else 0.0
 
@@ -136,15 +136,16 @@ def segment():
             )
             return jsonify({"label": label, "ratios": ratios, "repayment_plan": repayment_plan})
 
+        # Fallback for older style input
         if "Income" in data:
             d = dict(data)
             income = float(d.get("Income") or 0.0) or 1.0
             d["Savings_Ratio"] = (float(d.get("Desired_Savings", 0.0)) / income) if income else 0.0
-            for c in [
+            for c_name in [
                 "Rent","Loan_Repayment","Insurance","Groceries","Transport","Eating_Out",
                 "Entertainment","Utilities","Healthcare","Education","Miscellaneous"
             ]:
-                d[f"{c}_PctIncome"] = (float(d.get(c, 0.0)) / income) if income else 0.0
+                d[f"{c_name}_PctIncome"] = (float(d.get(c_name, 0.0)) / income) if income else 0.0
 
             label = predict_with_pipeline(d)
             ratios = normalize(map_segment_to_ratios(label))
@@ -156,7 +157,6 @@ def segment():
                 lifestyle  = None,
                 label      = label
             )
-
             return jsonify({"label": label, "ratios": ratios, "repayment_plan": repayment_plan})
 
         return jsonify({"error": "Unsupported payload"}), 400
@@ -166,6 +166,5 @@ def segment():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", 5002))
     app.run(host="0.0.0.0", port=port)
