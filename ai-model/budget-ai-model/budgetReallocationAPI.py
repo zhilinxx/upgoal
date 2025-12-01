@@ -22,37 +22,30 @@ def segment():
         income = float(data.get("income") or 0)
         last_month_other = float(data.get("last_month_other") or 0)
 
-        # Monthly commitments (included in Essentials)
-        c = data.get("commitments") or {}
-        housingLoan = float(c.get("housingLoan") or 0)
-        carLoan = float(c.get("carLoan") or 0)
-        insurance_commit = float(c.get("insurance") or 0)
-        others_commit = float(c.get("others") or 0)
-        commit_total = housingLoan + carLoan + insurance_commit + others_commit
-
-        # Step 1: fallback ratios
+        # Step 1: base ratios
         ratios = {"essentials": 0.55, "savings": 0.25, "insurance": 0.10, "other": 0.10}
 
-        # Step 2: apply last month overspend cap for "Other"
+        # Step 2: apply last month overspend cap
         last_month_ratio = last_month_other / income if income > 0 else 0
         if last_month_ratio > 0.10:
             cap = cap_other_by_last_month(last_month_ratio)
             delta = ratios["other"] - cap
             if delta > 0:
                 ratios["other"] = cap
+                # redistribute delta to savings/essentials
                 ratios["savings"] += delta * 0.7
                 ratios["essentials"] += delta * 0.3
 
-        # Step 3: calculate allocations based on **full net income**
+        # Step 3: compute allocations based on full income
         essentials_amt = round(income * ratios["essentials"], 2)
         savings_amt = round(income * ratios["savings"], 2)
         insurance_amt = round(income * ratios["insurance"], 2)
         other_amt = round(income * ratios["other"], 2)
 
-        # Step 4: adjust drift to ensure total = net income
+        # Step 4: adjust rounding drift to ensure total = income
         total_alloc = essentials_amt + savings_amt + insurance_amt + other_amt
         drift = round(income - total_alloc, 2)
-        essentials_amt += drift
+        essentials_amt += drift  # add drift to essentials
 
         return jsonify({
             "label": "adjusted_budget",
@@ -63,8 +56,7 @@ def segment():
                 "savings": savings_amt,
                 "insurance": insurance_amt,
                 "other": other_amt,
-                "commitments_total": commit_total,
-                "net_income": income
+                "income_total": income
             }
         })
 

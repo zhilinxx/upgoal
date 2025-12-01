@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   getLatestIncome,
   getMonthlyCommitments,
@@ -15,36 +14,26 @@ export async function buildDashboardData(userId) {
   const incomeRow = await getLatestIncome(userId);
   if (!incomeRow) return null;
 
-  const { net_income: netIncome } = incomeRow;
-  const incomeNum = Number(netIncome) || 0;
-
-  const otherThisMonth = Number(await getOtherSpendThisMonth(userId) || 0);
+  const income = Number(incomeRow.net_income || 0);
   const lastMonthOther = Number(await getOtherSpendLastMonth(userId) || 0);
+  const commitments = await getMonthlyCommitments(userId) || [];
+  const expenses = await getRecentExpenses(userId) || [];
+  const goals = await getSavingsGoals(userId) || [];
 
-  const commitments = (await getMonthlyCommitments(userId)) || [];
-  const expenses = (await getRecentExpenses(userId)) || [];
-  const goals = (await getSavingsGoals(userId)) || [];
+  // Compute total commitments (for display only)
+  let commitTotal = 0;
+  commitments.forEach(c => commitTotal += Number(c.amount || 0));
 
-  let housingLoan = 0, carLoan = 0, insurance = 0, othersCommit = 0;
-  for (const r of commitments) {
-    const t = (r?.type || "").toLowerCase();
-    const amt = Number(r?.amount || 0);
-    if (t.includes("house") || t.includes("mortgage") || t.includes("rent")) housingLoan += amt;
-    else if (t.includes("car") || t.includes("vehicle") || t.includes("auto")) carLoan += amt;
-    else if (t.includes("insurance")) insurance += amt;
-    else othersCommit += amt;
-  }
-  const commitTotal = housingLoan + carLoan + insurance + othersCommit;
-
-  // Base fallback ratios
+  // Step 1: fallback ratios
   let ratios = { essentials: 0.55, savings: 0.25, insurance: 0.10, other: 0.10 };
 
-  // Apply last month overspend cap for "Other"
-  const lastMonthRatio = lastMonthOther / incomeNum;
+  // Step 2: cap Other if last month >10%
+  const lastMonthRatio = income > 0 ? lastMonthOther / income : 0;
   if (lastMonthRatio > 0.10) {
-    let cap = 0.05; // default
+    let cap = 0.08;
     if (lastMonthRatio <= 0.15) cap = 0.08;
-    else if (lastMonthRatio <= 0.20) cap = 0.06;
+    else if (lastMonthRatio <= 0.2) cap = 0.06;
+    else cap = 0.05;
 
     const delta = ratios.other - cap;
     if (delta > 0) {
@@ -54,41 +43,45 @@ export async function buildDashboardData(userId) {
     }
   }
 
-  // Compute allocations based on **full net income**
-  let essentialsAmt = round2(ratios.essentials * incomeNum);
-  let savingsAmt = round2(ratios.savings * incomeNum);
-  let insuranceAmt = round2(ratios.insurance * incomeNum);
-  let otherAmt = round2(ratios.other * incomeNum);
+  // Step 3: compute amounts based on full income
+  let essentialsAmt = round2(income * ratios.essentials);
+  let savingsAmt = round2(income * ratios.savings);
+  let insuranceAmt = round2(income * ratios.insurance);
+  let otherAmt = round2(income * ratios.other);
 
-  // Adjust rounding drift to ensure total = net income
+  // Step 4: adjust drift
   const totalAlloc = essentialsAmt + savingsAmt + insuranceAmt + otherAmt;
-  const drift = round2(incomeNum - totalAlloc);
-  essentialsAmt += drift;
+  const drift = round2(income - totalAlloc);
+  essentialsAmt += drift; // add drift to essentials
 
   const breakdown = [
     { name: "Essentials", amount: essentialsAmt },
     { name: "Savings", amount: savingsAmt },
     { name: "Insurance", amount: insuranceAmt },
     { name: "Other", amount: otherAmt }
-  ];
+  ].map((row, i) => ({ ...row, color: pickColors(4)[i] }));
+
+  const savingsGoals = goals.map(g => ({
+    id: g.id,
+    name: g.name,
+    current: Number(g.current || 0),
+    target: Number(g.target || 0),
+    deadline: g.deadline
+  }));
+
+  const expensesList = expenses.map(e => ({ name: e.name, amount: Number(e.amount || 0) }));
 
   return {
-    income: incomeNum,
+    income,
     currency: "RM",
-    breakdown: breakdown.map((row, i) => ({ ...row, color: pickColors(4)[i] })),
-    savingsGoals: goals.map(g => ({
-      id: g.id,
-      name: g.name,
-      current: Number(g.current || 0),
-      target: Number(g.target || 0),
-      deadline: g.deadline,
-    })),
-    expenses: expenses.map(e => ({ name: e.name, amount: Number(e.amount || 0) })),
+    breakdown,
+    savingsGoals,
+    expenses: expensesList,
     _lastMonthOther: lastMonthOther,
-    _lastMonthOtherRatio: lastMonthRatio,
-    _commitmentsTotal: commitTotal
+    _lastMonthOtherRatio: lastMonthRatio
   };
 }
 
-/* ===== Helpers ===== */
-function round2(n) { return Math.round((Number(n) || 0) * 100) / 100; }
+function round2(n) {
+  return Math.round((Number(n) || 0) * 100) / 100;
+}
