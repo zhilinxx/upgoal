@@ -246,3 +246,21 @@ export const resetPassword = async (req, res) => {
 };
 
 
+// --- Get current user (/auth/me) ---
+export const getMe = async (req, res) => {
+  try {
+    const db = getDB();
+    const [rows] = await db.query("SELECT user_id, email, role, theme FROM user WHERE user_id = ?", [
+      req.user.user_id,
+    ]);
+
+    if (!rows.length) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ user: rows[0] });
+  } catch (error) {
+    console.error("GetMe Error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
