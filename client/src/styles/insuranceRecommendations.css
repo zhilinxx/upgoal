@@ -70,11 +70,6 @@
   margin: 0;
 }
 
-.slider-container input[type="range"] {
-  accent-color: var(--mid-pink);
-}
-
-
 .plan-types {
   display: flex;
   gap: 5px;
