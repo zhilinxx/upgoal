@@ -82,7 +82,7 @@ export default function IncomeSetup() {
         setNetIncome(data.netIncome ? to2(data.netIncome) : "");
 
         // Only assign if the saved value is one of our allowed options.
-        const valid = ["Frugal", "Balanced", "Luxury"];
+        const valid = ["Frugal", "Balanced", "Luxury", "None"];
         const saved = data.lifestyle;
         setLifestyle(valid.includes(saved) ? saved : "");
 
@@ -191,9 +191,30 @@ export default function IncomeSetup() {
 
     next.housingLoan = validateMoney("Housing Loan", housingLoan);
     next.carLoan = validateMoney("Car Loan", carLoan);
-    next.others = otherCommitments.map((row) =>
-      validateMoney("Other Amount", row.amount)
-    );
+
+    // ---------------------------
+    // Validate other commitments (NEW RULES)
+    // - If amount is provided (>0) then name is required.
+    // - If name is provided (non-empty) then amount must be provided and > 0.
+    // - Also validate amount format using validateMoney.
+    next.others = otherCommitments.map((row, idx) => {
+      const name = (row.name || "").trim();
+      const amountStr = row.amount ?? "";
+      const amountErr = validateMoney("Other Amount", amountStr);
+
+      const amountNum = amountStr === "" ? 0 : toNum(amountStr);
+
+      if (name && (amountStr === "" || amountNum <= 0)) {
+        return "Please enter an amount greater than 0 for this Other commitment.";
+      }
+      if (!name && amountStr !== "" && amountNum > 0) {
+        return "Please give a name/label for this Other commitment.";
+      }
+      // if the amount format itself is wrong, return that message
+      if (amountErr) return amountErr;
+
+      return "";
+    });
 
     setErrors(next);
     const hasErrors =
@@ -207,8 +228,10 @@ export default function IncomeSetup() {
 
   // Actual save logic (called after user confirms)
   const doSubmit = async () => {
+    // validate before attempting save
     if (!validateAll()) {
       setOpenSaveConfirm(false);
+      toast.error("Please fix the highlighted errors before saving.");
       return;
     }
 
@@ -224,6 +247,7 @@ export default function IncomeSetup() {
             name: (name || "").trim(),
             amount: amount ? Number(to2(amount)) : 0,
           }))
+          // Keep only rows with both name and positive amount
           .filter((x) => x.amount > 0 && x.name.length > 0),
       },
     };
@@ -249,6 +273,7 @@ export default function IncomeSetup() {
             ? err.response.data
             : "Failed to save income setup"),
       }));
+      toast.error("Failed to save income setup.");
     } finally {
       setOpenSaveConfirm(false);
     }
