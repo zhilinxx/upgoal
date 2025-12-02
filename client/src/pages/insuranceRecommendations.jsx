@@ -212,7 +212,6 @@ export default function InsuranceRecommendations() {
             <label>Sum Assured (RM)</label>
             <div className="slider-container">
               <input
-                className="slider"
                 type="range"
                 min="100000"
                 max="500000"
