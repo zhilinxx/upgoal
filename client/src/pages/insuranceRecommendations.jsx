@@ -11,8 +11,7 @@ export default function InsuranceRecommendations() {
   const [filters, setFilters] = useState({
     premiumMin: "",
     premiumMax: "",
-    sumMin: "",
-    sumMax: "",
+    sumAssured: "",
     planType: "All",
     provider: "",
     taxRelief: false,
@@ -107,8 +106,7 @@ export default function InsuranceRecommendations() {
     setFilters({
       premiumMin: "",
       premiumMax: "",
-      sumMin: "",
-      sumMax: "",
+      sumAssured: "",
       planType: "All",
       provider: "",
       taxRelief: false,
@@ -209,36 +207,20 @@ export default function InsuranceRecommendations() {
             </div>
 
             <label>Sum Assured (RM)</label>
-            <div className="range-group">
+            <div className="slider-container">
               <input
-                type="number"
-                placeholder="Min"
-                value={filters.sumMin}
-                min="0"
+                type="range"
+                min="100000"
                 max="500000"
                 step="100000"
-                onChange={(e) => {
-                  let value = e.target.value;
-                  if (Number(value) < 0) value = "0";
-                  if (Number(value) > 500000) value = 500000;
-                  value = value.replace(/^0+(?=\d)/, "");
-                  setFilters({ ...filters, sumMin: value });
-                }}
+                value={filters.sumAssured}
+                onChange={(e) =>
+                  setFilters({ ...filters, sumAssured: Number(e.target.value) })
+                }
               />
-              <span>-</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.sumMax}
-                max="500000"
-                step="100000"
-                onChange={(e) => {
-                  let value = Number(e.target.value);
-                  if (value < 100000) value = 100000;
-                  if (value > 500000) value = 500000;
-                  setFilters({ ...filters, sumMax: value });
-                }}
-              />
+              <p className="slider-value">
+                RM {filters.sumAssured.toLocaleString()}
+              </p>
             </div>
 
             <label>Plan Type</label>
@@ -418,36 +400,20 @@ export default function InsuranceRecommendations() {
             </div>
 
             <label>Sum Assured (RM)</label>
-            <div className="range-group">
+            <div className="slider-container">
               <input
-                type="number"
-                placeholder="Min"
-                value={filters.sumMin}
-                min="0"
+                type="range"
+                min="100000"
                 max="500000"
                 step="100000"
-                onChange={(e) => {
-                  let value = e.target.value;
-                  if (Number(value) > 500000) value = 500000;
-                  if (Number(value) < 0) value = "0";
-                  value = value.replace(/^0+(?=\d)/, "");
-                  setFilters({ ...filters, sumMin: value });
-                }}
+                value={filters.sumAssured}
+                onChange={(e) =>
+                  setFilters({ ...filters, sumAssured: Number(e.target.value) })
+                }
               />
-              <span>-</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={filters.sumMax}
-                max="500000"
-                step="100000"
-                onChange={(e) => {
-                  let value = Number(e.target.value);
-                  if (value < 100000) value = 100000;
-                  if (value > 500000) value = 500000;
-                  setFilters({ ...filters, sumMax: value });
-                }}
-              />
+              <p className="slider-value">
+                RM {filters.sumAssured.toLocaleString()}
+              </p>
             </div>
 
             <label>Plan Type</label>

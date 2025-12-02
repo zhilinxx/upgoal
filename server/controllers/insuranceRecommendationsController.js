@@ -1,6 +1,6 @@
 import { getDB } from "../config/db.js";
 
-async function calculatePlanScore(plan, profile, sumMax, taxRelief) {
+async function calculatePlanScore(plan, profile, sumAssured, taxRelief) {
   const riskLevel = profile.risk_level;
   const allowance = Number(profile.allowance) || 0;
   const riskLoading = { L: 0, M: 0.5, H: 1 }[riskLevel] || 0;
@@ -11,7 +11,7 @@ async function calculatePlanScore(plan, profile, sumMax, taxRelief) {
   let adjustedSumAssured = Number(plan.sum_assured) || 0;
   let multiplier = 1;
 
-  const desiredSum = Number(sumMax) || adjustedSumAssured;
+  const desiredSum = Number(sumAssured) || adjustedSumAssured;
 
   // Adjust based on selected sum assured
   if (adjustedSumAssured === 100000 && desiredSum !== adjustedSumAssured) {
@@ -69,7 +69,10 @@ export const getInsuranceRecommendations = async (req, res) => {
     const db = getDB();
 
     // Get user profile
-    const [userRows] = await db.query("SELECT * FROM insurance_profile WHERE user_id = ?", [user_id]);
+    const [userRows] = await db.query(
+      "SELECT * FROM insurance_profile WHERE user_id = ?",
+      [user_id]
+    );
     if (userRows.length === 0)
       return res.status(404).json({ message: "Insurance profile not found" });
 
@@ -78,13 +81,27 @@ export const getInsuranceRecommendations = async (req, res) => {
     // Get plans
     const [plans] = await db.query("SELECT * FROM insurance_plan");
 
-    // Get filters
-    const { premiumMin, premiumMax, sumMin, sumMax, planType, provider, taxRelief, sort } = req.query;
+    // NEW: Only one value from slider
+    const {
+      premiumMin,
+      premiumMax,
+      planType,
+      provider,
+      taxRelief,
+      sort,
+      sumAssured // <— this replaces sumMin & sumMax
+    } = req.query;
 
-    // Compute for each plan
+    // Calculate premiums & score using sumAssured instead of sumMax
     const recommendations = await Promise.all(
       plans.map(async (plan) => {
-        const calc = await calculatePlanScore(plan, profile, sumMax, taxRelief);
+        const calc = await calculatePlanScore(
+          plan,
+          profile,
+          sumAssured,   // <— use single value
+          taxRelief
+        );
+
         return {
           ...plan,
           finalPremium: calc.finalPremium,
@@ -97,26 +114,31 @@ export const getInsuranceRecommendations = async (req, res) => {
       })
     );
 
-    // Filter results
+    // Filter out unsuitable plans
     let filtered = recommendations.filter((p) => p.score >= 70);
 
+    // Premium filtering
     if (premiumMin || premiumMax) {
       filtered = filtered.filter((p) => {
         const prem = parseFloat(p.finalPremium);
-        return (!premiumMin || prem >= premiumMin) && (!premiumMax || prem <= premiumMax);
+        return (
+          (!premiumMin || prem >= premiumMin) &&
+          (!premiumMax || prem <= premiumMax)
+        );
       });
     }
 
-    if (planType && planType !== "All") filtered = filtered.filter((p) => p.plan_type === planType);
-    if (provider) filtered = filtered.filter((p) => p.provider === provider);
-    if (sumMin || sumMax) {
-      filtered = filtered.filter((p) => {
-        const s = p.sum_assured || 0;
-        return (!sumMin || s >= sumMin) && (!sumMax || s <= sumMax);
-      });
+    // Plan type filter
+    if (planType && planType !== "All") {
+      filtered = filtered.filter((p) => p.plan_type === planType);
     }
 
-    // Sort
+    // Provider filter
+    if (provider) {
+      filtered = filtered.filter((p) => p.provider === provider);
+    }
+
+    // Sorting
     if (sort) {
       const compare = {
         premiumHigh: (a, b) => b.finalPremium - a.finalPremium,
@@ -133,6 +155,7 @@ export const getInsuranceRecommendations = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 
 export const getPlanScore = async (req, res) => {
