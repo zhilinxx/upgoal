@@ -103,7 +103,7 @@ export default function InsuranceRecommendations() {
   };
 
   const handleClear = () => {
-    setFilters({
+    const clearedFilters = {
       premiumMin: "",
       premiumMax: "",
       sumAssured: "",
@@ -111,8 +111,10 @@ export default function InsuranceRecommendations() {
       provider: "",
       taxRelief: false,
       sort: "",
-    });
-    setAppliedFilters(filters);
+    };
+
+    setFilters(clearedFilters);
+    setAppliedFilters(clearedFilters);
     fetchPlans({});
   };
 
@@ -210,6 +212,7 @@ export default function InsuranceRecommendations() {
             <label>Sum Assured (RM)</label>
             <div className="slider-container">
               <input
+                className="slider"
                 type="range"
                 min="100000"
                 max="500000"
