@@ -57,13 +57,13 @@ export default function IncomeSetup() {
     { name: "", amount: "" },
   ]);
 
-  // inline errors per field
+  // inline errors per field. others: array of { name: "", amount: "" }
   const [errors, setErrors] = useState({
     netIncome: "",
     lifestyle: "",
     housingLoan: "",
     carLoan: "",
-    others: [],
+    others: [{ name: "", amount: "" }],
     form: "",
   });
 
@@ -110,12 +110,16 @@ export default function IncomeSetup() {
         setOtherCommitments(
           normalized.length ? normalized : [{ name: "", amount: "" }]
         );
+
+        // initialize errors.others sized to rows
         setErrors({
           netIncome: "",
           lifestyle: "",
           housingLoan: "",
           carLoan: "",
-          others: [],
+          others: normalized.length
+            ? normalized.map(() => ({ name: "", amount: "" }))
+            : [{ name: "", amount: "" }],
           form: "",
         });
       } catch (e) {
@@ -133,16 +137,17 @@ export default function IncomeSetup() {
     updated[index] = { ...updated[index], [field]: value };
     setOtherCommitments(updated);
 
+    // Make sure errors.others exists and matches length
     setErrors((e) => {
       const next = { ...e, others: [...(e.others || [])] };
-      while (next.others.length < updated.length) next.others.push("");
+      while (next.others.length < updated.length) next.others.push({ name: "", amount: "" });
       return next;
     });
   };
 
   const addOtherField = () => {
     setOtherCommitments([...otherCommitments, { name: "", amount: "" }]);
-    setErrors((e) => ({ ...e, others: [...(e.others || []), ""] }));
+    setErrors((e) => ({ ...e, others: [...(e.others || []), { name: "", amount: "" }] }));
   };
 
   const removeOtherField = (idx) => {
@@ -151,6 +156,7 @@ export default function IncomeSetup() {
     setErrors((e) => {
       const arr = [...(e.others || [])];
       arr.splice(idx, 1);
+      if (arr.length === 0) arr.push({ name: "", amount: "" });
       return { ...e, others: arr };
     });
   };
@@ -163,6 +169,25 @@ export default function IncomeSetup() {
     if (n > MAX_DECIMAL_NUM)
       return `${label} exceeds the maximum RM ${MAX_DECIMAL_STR}.`;
     return "";
+  };
+
+  // Validate a single other row (used for onBlur if desired)
+  const validateOtherRow = (row) => {
+    const name = (row.name || "").trim();
+    const amountStr = row.amount ?? "";
+    const amountErr = validateMoney("Other Amount", amountStr);
+    const amountNum = amountStr === "" ? 0 : toNum(amountStr);
+
+    const e = { name: "", amount: "" };
+
+    if (name && (amountStr === "" || amountNum <= 0)) {
+      e.amount = "Please enter an amount greater than 0 for this Other commitment.";
+    } else if (!name && amountStr !== "" && amountNum > 0) {
+      e.name = "Please give a name/label for this Other commitment.";
+    } else if (amountErr) {
+      e.amount = amountErr;
+    }
+    return e;
   };
 
   const validateAll = () => {
@@ -192,37 +217,18 @@ export default function IncomeSetup() {
     next.housingLoan = validateMoney("Housing Loan", housingLoan);
     next.carLoan = validateMoney("Car Loan", carLoan);
 
-    // ---------------------------
-    // Validate other commitments (NEW RULES)
-    // - If amount is provided (>0) then name is required.
-    // - If name is provided (non-empty) then amount must be provided and > 0.
-    // - Also validate amount format using validateMoney.
-    next.others = otherCommitments.map((row, idx) => {
-      const name = (row.name || "").trim();
-      const amountStr = row.amount ?? "";
-      const amountErr = validateMoney("Other Amount", amountStr);
-
-      const amountNum = amountStr === "" ? 0 : toNum(amountStr);
-
-      if (name && (amountStr === "" || amountNum <= 0)) {
-        return "Please enter an amount greater than 0 for this Other commitment.";
-      }
-      if (!name && amountStr !== "" && amountNum > 0) {
-        return "Please give a name/label for this Other commitment.";
-      }
-      // if the amount format itself is wrong, return that message
-      if (amountErr) return amountErr;
-
-      return "";
-    });
+    // Validate other commitments row-by-row and produce field-level messages
+    next.others = otherCommitments.map((row) => validateOtherRow(row));
 
     setErrors(next);
+
+    // Any error present prevents save
     const hasErrors =
       next.netIncome ||
       next.lifestyle ||
       next.housingLoan ||
       next.carLoan ||
-      next.others.some(Boolean);
+      next.others.some((o) => o.name || o.amount);
     return !hasErrors;
   };
 
@@ -403,35 +409,63 @@ export default function IncomeSetup() {
 
         {otherCommitments.map((item, idx) => (
           <div className="income-row income-other-row" key={idx}>
-            <input
-              type="text"
-              placeholder="e.g., PTPTN Loan"
-              value={item.name}
-              onChange={(e) => setOtherField(idx, "name", e.target.value)}
-            />
-            <input
-              type="text"
-              inputMode="decimal"
-              pattern="^\d+(\.\d{1,2})?$"
-              placeholder="e.g., 100.00"
-              value={item.amount}
-              onChange={(e) =>
-                setOtherField(idx, "amount", sanitizeMoney(e.target.value))
-              }
-              onBlur={(e) =>
-                setOtherField(idx, "amount", to2(e.target.value))
-              }
-            />
+            <div style={{ flex: 1 }}>
+              <input
+                type="text"
+                placeholder="e.g., PTPTN Loan"
+                value={item.name}
+                onChange={(e) => setOtherField(idx, "name", e.target.value)}
+                onBlur={() => {
+                  // validate this row on blur
+                  const rowErr = validateOtherRow(item);
+                  setErrors((ev) => {
+                    const next = { ...ev, others: [...(ev.others || [])] };
+                    while (next.others.length < otherCommitments.length) next.others.push({ name: "", amount: "" });
+                    next.others[idx] = rowErr;
+                    return next;
+                  });
+                }}
+              />
+              {errors.others[idx]?.name && (
+                <p className="validation">{errors.others[idx].name}</p>
+              )}
+            </div>
+
+            <div style={{ width: 140, marginLeft: 12 }}>
+              <input
+                type="text"
+                inputMode="decimal"
+                pattern="^\d+(\.\d{1,2})?$"
+                placeholder="e.g., 100.00"
+                value={item.amount}
+                onChange={(e) =>
+                  setOtherField(idx, "amount", sanitizeMoney(e.target.value))
+                }
+                onBlur={() => {
+                  // format to 2 decimals and validate this row
+                  setOtherField(idx, "amount", to2(item.amount));
+                  const rowErr = validateOtherRow({ ...item, amount: to2(item.amount) });
+                  setErrors((ev) => {
+                    const next = { ...ev, others: [...(ev.others || [])] };
+                    while (next.others.length < otherCommitments.length) next.others.push({ name: "", amount: "" });
+                    next.others[idx] = rowErr;
+                    return next;
+                  });
+                }}
+              />
+              {errors.others[idx]?.amount && (
+                <p className="validation">{errors.others[idx].amount}</p>
+              )}
+            </div>
+
             <button
               type="button"
               className="income-remove-other-btn"
               onClick={() => removeOtherField(idx)}
+              title="Remove this other commitment"
             >
               <FiMinus />
             </button>
-            {errors.others[idx] && (
-              <p className="validation">{errors.others[idx]}</p>
-            )}
           </div>
         ))}
 
