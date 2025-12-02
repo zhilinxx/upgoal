@@ -73,7 +73,7 @@ export async function getSavingsGoals(userId) {
          goal_name AS name,
          saved_amt AS current,
          goal_amt AS target,
-         DATE_FORMAT(due_date, '%Y-%m-%d') AS deadline  -- <- string, no TZ!
+         DATE_FORMAT(due_date, '%Y-%m-%d') AS deadline
        FROM savings_goals
        WHERE user_id = ?
        ORDER BY goal_id DESC
@@ -101,6 +101,33 @@ export async function getOtherSpendThisMonth(userId) {
         AND UPPER(expenses_category) = 'OTHER'
         AND expenses_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
         AND expenses_date <  DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
+      `,
+      [userId]
+    );
+    return Number(rows?.[0]?.other_total || 0);
+  } finally {
+    conn.release();
+  }
+}
+
+/**
+ * Last calendar month's total spending in the "Other" category.
+ * Returns a number (0 if none).
+ *
+ * For example, if today is 2025-12-02, this will sum "Other" for 2025-11-01 .. 2025-12-01 (exclusive).
+ */
+export async function getOtherSpendLastMonth(userId) {
+  const conn = await pool.getConnection();
+  try {
+    const [rows] = await conn.query(
+      `
+      SELECT
+        COALESCE(SUM(ABS(expenses_amt)), 0) AS other_total
+      FROM expenses
+      WHERE user_id = ?
+        AND UPPER(expenses_category) = 'OTHER'
+        AND expenses_date >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
+        AND expenses_date <  DATE_FORMAT(CURDATE(), '%Y-%m-01')
       `,
       [userId]
     );

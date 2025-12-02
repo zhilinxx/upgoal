@@ -1,87 +1,173 @@
 // server/services/budgetService.js
-import axios from "axios";
 import {
   getLatestIncome,
   getMonthlyCommitments,
   getRecentExpenses,
   getSavingsGoals,
   getOtherSpendThisMonth,
+  getOtherSpendLastMonth,
 } from "../repositories/budgetRepository.js";
 
-const COLORS = ["#ff7b8c", "#f8a9a8", "#ffb9b6", "#c4e0b5", "#b3d4ff", "#ffd27f"];
+const COLORS = ["#ff7b8c", "#f8a9a8", "#ffb9b6", "#c4e0b5"];
 const pickColors = (n) => Array.from({ length: n }, (_, i) => COLORS[i % COLORS.length]);
 
+/* ===== utils ===== */
+function round2(n) {
+  return Math.round((Number(n) || 0) * 100) / 100;
+}
+function nonneg(v) {
+  return Math.max(0, round2(v));
+}
+function capOtherByBandJS(otherRatio) {
+  if (otherRatio == null) return null;
+  const r = Number(otherRatio);
+  if (Number.isNaN(r)) return null;
+  if (r <= 0.10) return null;
+  if (r <= 0.15) return 0.08;
+  if (r <= 0.20) return 0.06;
+  return 0.05;
+}
+
+/* =========================
+   Main exported function
+   ========================= */
 export async function buildDashboardData(userId) {
-  // --- Fetch from repository layer ---
   const incomeRow = await getLatestIncome(userId);
   if (!incomeRow) return null;
 
-  const { net_income: netIncome, lifestyle } = incomeRow;
-  const incomeNum = Number(netIncome) || 0;
+  const income = Number(incomeRow.net_income || 0);
+  const lastMonthOther = Number(await getOtherSpendLastMonth(userId) || 0);
+  const otherThisMonth = Number(await getOtherSpendThisMonth(userId) || 0);
 
-  // --- Check "Other" spending ratio (this month) ---
-  const otherThisMonth = await getOtherSpendThisMonth(userId);
-  const otherRatio = incomeNum > 0 ? otherThisMonth / incomeNum : 0;
+  const commitments = (await getMonthlyCommitments(userId)) || [];
+  const expenses = (await getRecentExpenses(userId)) || [];
+  const goals = (await getSavingsGoals(userId)) || [];
 
-  const commitments = await getMonthlyCommitments(userId);
-  const expenses = await getRecentExpenses(userId);
-  const goals = await getSavingsGoals(userId);
-
-  // --- Commitments classification ---
-  let housingLoan = 0, carLoan = 0, insurance = 0, others = 0;
+  // compute commitments total (sum of monthly_commitments.commitment_amt)
+  let housingLoan = 0, carLoan = 0, insCommit = 0, othersCommit = 0;
   for (const r of commitments) {
     const t = (r.type || "").toLowerCase();
     const amt = Number(r.amount || 0);
     if (t.includes("house") || t.includes("mortgage") || t.includes("rent")) housingLoan += amt;
     else if (t.includes("car") || t.includes("vehicle") || t.includes("auto")) carLoan += amt;
-    else if (t.includes("insurance")) insurance += amt;
-    else others += amt;
+    else if (t.includes("insurance")) insCommit += amt;
+    else othersCommit += amt;
   }
-  const commitmentsTotal = housingLoan + carLoan + insurance + others;
+  const commitmentsTotal = round2(housingLoan + carLoan + insCommit + othersCommit);
 
-  // --- AI / Fallback ratios ---
-  let aiAdvice = { label: "fallback", ratios: null, source: "fallback" };
-  try {
-    const { data } = await axios.post(
-      process.env.BUDGET_AI_API + "/api/segment"|| "http://localhost:5002/api/segment",
-      {
-        income: incomeNum,
-        commitments: { housingLoan, carLoan, insurance, others },
-        lifestyle,
-        other_spend_amount: otherThisMonth,
-        other_spend_ratio: otherRatio,
-        overspend_flags: { other_gt_10: otherRatio > 0.10 },
-      },
-      { timeout: 2000 }
-    );
-    aiAdvice = {
-      label: data?.label ?? "ai",
-      ratios: data?.ratios ?? null,
-      source: data?.source ?? "ai",
-    };
-  } catch (err) {
-    console.error("AI offline, using fallback:", err?.message || err);
+  // Step A: base ratios (fallback)
+  let ratios = { essentials: 0.55, savings: 0.25, insurance: 0.10, other: 0.10 };
+
+  // Step B: if last month Other >10% of income, reduce this month's 'other' ratio and redistribute
+  const lastMonthOtherRatio = income > 0 ? lastMonthOther / income : 0;
+  const capRatio = capOtherByBandJS(lastMonthOtherRatio);
+  if (capRatio != null) {
+    const delta = ratios.other - capRatio;
+    if (delta > 0) {
+      ratios.other = capRatio;
+      ratios.savings += delta * 0.7;
+      ratios.essentials += delta * 0.3;
+    }
   }
 
-  // --- Allocation and rules (Banded allocator) ---
-  const baseResult = allocateBudgetBanded(
-    incomeNum,
-    commitmentsTotal,
-    safeRatios(aiAdvice.ratios),
-  );
+  // Step C: compute tentative allocations based on FULL income
+  let essentialsAmt = round2(income * ratios.essentials);
+  let savingsAmt = round2(income * ratios.savings);
+  let insuranceAmt = round2(income * ratios.insurance);
+  let otherAmt = round2(income * ratios.other);
 
-  // ✅ SIMPLE, VISIBLE RULE: if Other > 10% this month, force Other = 6% of income
-  const finalResult = hardCapOther(baseResult, incomeNum, otherRatio, aiAdvice?.label || aiAdvice?.segment);
+  // Step D: enforce essentials >= commitmentsTotal (commitments are prioritized)
+  // If commitments >= income -> emergency: essentials = income, others = savings = insurance = 0
+  if (commitmentsTotal >= income) {
+    essentialsAmt = round2(income);
+    savingsAmt = 0;
+    insuranceAmt = 0;
+    otherAmt = 0;
+  } else {
+    // Ensure essentials covers commitments:
+    if (essentialsAmt < commitmentsTotal) {
+      let need = round2(commitmentsTotal - essentialsAmt);
 
-  // --- Prepare final structure ---
+      // Try reduce savings first
+      const takeFromSavings = Math.min(savingsAmt, need);
+      savingsAmt = round2(savingsAmt - takeFromSavings);
+      need = round2(need - takeFromSavings);
+
+      // Then try reduce 'other'
+      const reducibleOther = Math.min(otherAmt, need);
+      otherAmt = round2(otherAmt - reducibleOther);
+      need = round2(need - reducibleOther);
+
+      // Then try reduce insurance
+      const takeFromInsurance = Math.min(insuranceAmt, need);
+      insuranceAmt = round2(insuranceAmt - takeFromInsurance);
+      need = round2(need - takeFromInsurance);
+
+      // After borrowing from other buckets, set essentials = commitmentsTotal (or compute by income - rest)
+      if (need > 0) {
+        // still short -> fallback to emergency-like: set essentials to income and zero others
+        essentialsAmt = round2(income);
+        savingsAmt = 0;
+        insuranceAmt = 0;
+        otherAmt = 0;
+      } else {
+        // compute essentials as income - (savings + insurance + other)
+        essentialsAmt = round2(income - (savingsAmt + insuranceAmt + otherAmt));
+        // final guard: ensure essentials is at least commitmentsTotal
+        if (essentialsAmt < commitmentsTotal) {
+          essentialsAmt = round2(commitmentsTotal);
+          // recompute drift by taking from savings (if any) else set savings to 0 and adjust essentials accordingly
+          const sumRest = round2(savingsAmt + insuranceAmt + otherAmt);
+          const remaining = round2(income - essentialsAmt);
+          if (remaining < 0) {
+            // shouldn't happen but guard
+            essentialsAmt = round2(income);
+            savingsAmt = 0;
+            insuranceAmt = 0;
+            otherAmt = 0;
+          } else {
+            // distribute remaining into savings (preferred) then insurance/other proportionally (but keep simple: put to savings)
+            savingsAmt = round2(Math.max(0, remaining));
+            insuranceAmt = 0;
+            otherAmt = 0;
+          }
+        }
+      }
+    } else {
+      // essentials already >= commitments => absorb rounding drift into savings so total == income
+      const totalAlloc = round2(essentialsAmt + savingsAmt + insuranceAmt + otherAmt);
+      const drift = round2(income - totalAlloc);
+      savingsAmt = round2(savingsAmt + drift);
+    }
+  }
+
+  // Final safety clamps and final drift fix
+  essentialsAmt = nonneg(essentialsAmt);
+  savingsAmt = nonneg(savingsAmt);
+  insuranceAmt = nonneg(insuranceAmt);
+  otherAmt = nonneg(otherAmt);
+
+  // Ensure sum == income (final drift correction to savings)
+  const finalSum = round2(essentialsAmt + savingsAmt + insuranceAmt + otherAmt);
+  const finalDrift = round2(income - finalSum);
+  if (finalDrift !== 0) {
+    savingsAmt = round2(Math.max(0, savingsAmt + finalDrift));
+  }
+
+  // If still not equal due to numeric edgecases, as last resort adjust essentials
+  const finalSum2 = round2(essentialsAmt + savingsAmt + insuranceAmt + otherAmt);
+  if (finalSum2 !== round2(income)) {
+    essentialsAmt = round2(essentialsAmt + (round2(income) - finalSum2));
+  }
+
   const breakdown = [
-    { name: "Essentials", amount: finalResult.essentials },
-    { name: "Savings", amount: finalResult.savings },
-    { name: "Insurance", amount: finalResult.insBucket },
-    { name: "Other", amount: finalResult.other },
+    { name: "Essentials", amount: essentialsAmt },
+    { name: "Savings", amount: savingsAmt },
+    { name: "Insurance", amount: insuranceAmt },
+    { name: "Other", amount: otherAmt }
   ].map((row, i) => ({ ...row, color: pickColors(4)[i] }));
 
-  const savingsGoals = goals.map((g) => ({
+  const savingsGoals = goals.map(g => ({
     id: g.id,
     name: g.name,
     current: Number(g.current || 0),
@@ -89,229 +175,16 @@ export async function buildDashboardData(userId) {
     deadline: g.deadline,
   }));
 
-  const expensesList = expenses.map((e) => ({ name: e.name, amount: Number(e.amount || 0) }));
+  const expensesList = expenses.map(e => ({ name: e.name, amount: Number(e.amount || 0) }));
 
   return {
-    income: incomeNum,
+    income,
     currency: "RM",
     breakdown,
     savingsGoals,
     expenses: expensesList,
-    ai: { source: aiAdvice.source, segment: aiAdvice.label },
-    // optional: add a status flag if you want to show UI hints
-    // status: baseResult._status,
+    _commitmentsTotal: commitmentsTotal,
+    _lastMonthOther: lastMonthOther,
+    _lastMonthOtherRatio: lastMonthOtherRatio,
   };
-}
-
-/* =========================
-   Banded allocator (NO negatives, sums to income)
-   ========================= */
-function allocateBudgetBanded(income, commitmentsTotal, ratios) {
-  income = Number(income) || 0;
-  commitmentsTotal = Math.max(0, Number(commitmentsTotal) || 0);
-
-  const r = Math.max(0, income) === 0 ? 0 : Math.max(0, income - commitmentsTotal) / income; // room ratio
-  const room = Math.max(0, income - commitmentsTotal);
-
-  const pct = (x) => round2((Number(x) || 0) * income);
-  const nonneg = (x) => Math.max(0, round2(x));
-
-  // Helper to finalize so that:
-  // 1) all buckets are non-negative
-  // 2) Essentials = income - (others), clamped ≥ commitmentsTotal
-  // 3) sum equals income exactly (drift correction absorbed into Savings)
-  const finalize = (ess, sav, ins, oth, status) => {
-    let savings = nonneg(sav);
-    let insBucket = nonneg(ins);
-    let other = nonneg(oth);
-
-    // Essentials must be at least commitments, but cannot exceed income
-    let essentials = round2(income - (savings + insBucket + other));
-    if (essentials < commitmentsTotal) {
-      const deficit = round2(commitmentsTotal - essentials);
-
-      // Pull from savings/other in order, then insurance if needed
-      const pull = (amount, takeFrom) => {
-        const can = Math.min(amount, takeFrom);
-        return [round2(amount - can), round2(takeFrom - can)];
-      };
-      let need = deficit;
-      [need, savings] = pull(need, savings);
-      [need, other] = pull(need, other);
-      [need, insBucket] = pull(need, insBucket);
-
-      essentials = round2(essentials + deficit - need);
-      // If still need > 0 (shouldn't happen), cap essentials at income.
-      essentials = Math.min(essentials, income);
-      // Recompute drift to match income exactly
-      const sum = essentials + savings + insBucket + other;
-      const drift = round2(income - sum);
-      if (drift > 0) savings = round2(savings + drift);
-    }
-
-    // Final clamp and sum-fix
-    essentials = nonneg(essentials);
-    const sum = essentials + savings + insBucket + other;
-    const drift = round2(income - sum);
-    if (drift !== 0) {
-      // prefer to adjust savings
-      savings = nonneg(savings + drift);
-      // if still off due to rounding, adjust essentials minimally
-      const sum2 = essentials + savings + insBucket + other;
-      const drift2 = round2(income - sum2);
-      if (drift2 !== 0) essentials = nonneg(essentials + drift2);
-    }
-
-    return { essentials, savings, insBucket, other, _status: status };
-  };
-
-  // Bands
-  if (room <= 0) {
-    // Emergency: commitments meet/exceed income
-    return finalize(income, 0, 0, 0, "emergency");
-  }
-
-  if (r <= 0.05) {
-    // Survival
-    const insFloor = Math.min(room, pct(0.03)); // 3% if possible
-    const savFloor = Math.min(room - insFloor, pct(0.05)); // up to 5%
-    const oth = 0;
-    return finalize(commitmentsTotal, savFloor, insFloor, oth, "survival");
-  }
-
-  if (r <= 0.15) {
-    // Tight
-    const insFloor = Math.min(room, pct(0.05)); // 5%
-    const savFloor = Math.min(Math.max(room - insFloor, 0), pct(0.10)); // 10% but cap by room
-    const othCap = pct(0.02); // 2%
-    const oth = Math.min(othCap, Math.max(room - insFloor - savFloor, 0));
-    // any remainder goes to savings
-    const used = insFloor + savFloor + oth;
-    const extraToSavings = Math.max(room - used, 0);
-    return finalize(commitmentsTotal, savFloor + extraToSavings, insFloor, oth, "tight");
-  }
-
-  if (r <= 0.30) {
-    // Constrained
-    const insFloor = Math.min(room, pct(0.05)); // 5%
-    const savFloor = Math.min(Math.max(room - insFloor, 0), pct(0.15)); // 15% floor (cap by room)
-    const othCap = pct(0.05); // 5% cap
-
-    // Try to use AI/fallback ratios for the remaining room after floors
-    const rem = Math.max(room - (insFloor + savFloor), 0);
-    const rOther = (ratios?.other ?? 0.10); // default 10% share if missing
-    let othBase = round2(rem * rOther);
-    let oth = Math.min(othCap, othBase);
-    let rem2 = Math.max(rem - oth, 0);
-
-    // Put remainder to savings
-    const sav = round2(savFloor + rem2);
-    return finalize(commitmentsTotal, sav, insFloor, oth, "constrained");
-  }
-
-  // Normal (>30%)
-  {
-    // Start from AI/fallback ratios
-    const rE = ratios?.essentials ?? 0.55;
-    const rS = ratios?.savings ?? 0.25;
-    const rI = ratios?.insurance ?? 0.10;
-    const rO = ratios?.other ?? 0.10;
-
-    // Proposed non-essential allocations by ratios over the free room
-    // But keep essentials at least commitments.
-    let essentials = Math.max(commitmentsTotal, round2(rE * income));
-    if (essentials > income) essentials = income; // just in case
-
-    const free = Math.max(0, income - essentials);
-
-    // initial split of free by ratios (normalized)
-    const wSum = Math.max(rS + rI + rO, 1e-9);
-    let savings = round2(free * (rS / wSum));
-    let insBucket = round2(free * (rI / wSum));
-    let other = round2(free * (rO / wSum));
-
-    // insurance guard [5%, 15%]
-    const minI = pct(0.05), maxI = pct(0.15);
-    insBucket = clamp(insBucket, Math.min(minI, free), Math.min(maxI, free));
-    // savings guard >= 20% income (if possible)
-    const minS = pct(0.20);
-    const flexAfterI = Math.max(0, income - essentials - insBucket);
-    savings = Math.min(Math.max(savings, Math.min(minS, flexAfterI)), flexAfterI);
-    // other is the remainder
-    other = Math.max(0, round2(income - (essentials + savings + insBucket)));
-
-    return finalize(essentials, savings, insBucket, other, "normal");
-  }
-}
-
-/* =========================
-   SIMPLE after-allocation hard cap
-   ========================= */
-// If Other > 10% this month, FORCE "Other" amount to 6% of income.
-// Push the cut to Savings (70%) and Essentials (30%).
-function hardCapOther(finals, income, otherRatio, label = "balanced spender") {
-  if (!income || otherRatio <= 0.10) return finals; // only act if >10%
-
-  const capRatio = 0.06;                 // visible & simple
-  const capAmt   = round2(capRatio * income);
-
-  if (finals.other <= capAmt) return finals; // already at/under cap
-
-  const delta = round2(finals.other - capAmt);
-
-  // segment-aware split (optional)
-  let wS = 0.70, wE = 0.30;
-  const key = String(label || "").toLowerCase();
-  if (key.includes("conservative")) { wS = 0.80; wE = 0.20; }
-  else if (key.includes("over"))     { wS = 0.90; wE = 0.10; }
-
-  const addS = round2(delta * wS);
-  const addE = round2(delta * wE);
-
-  const out = { ...finals };
-  out.other      = capAmt;
-  out.savings    = round2(out.savings + addS);
-  out.essentials = round2(out.essentials + addE);
-
-  // keep insurance unchanged; fix rounding drift to match income exactly
-  const sum   = out.essentials + out.savings + out.insBucket + out.other;
-  const drift = round2(income - sum);
-  out.savings = round2(out.savings + drift);
-
-  return out;
-}
-
-/* =========================
-   Utils
-   ========================= */
-function round2(n) {
-  return Math.round((Number(n) || 0) * 100) / 100;
-}
-
-function clamp(v, lo, hi) {
-  return Math.min(Math.max(v, lo), hi);
-}
-
-function safeRatios(r) {
-  const keys = ["essentials", "savings", "insurance", "other"];
-  if (!r || typeof r !== "object") return null;
-  const ok = keys.every((k) => typeof r[k] === "number" && r[k] >= 0);
-  if (!ok) return null;
-  const sum = keys.reduce((acc, k) => acc + r[k], 0);
-  if (sum <= 0) return null;
-  // normalize to be safe
-  return keys.reduce((acc, k) => ((acc[k] = r[k] / sum), acc), {});
-}
-
-/* =========================
-   Fallback ratios
-   ========================= */
-function fallbackRatios(lifestyle) {
-  const table = {
-    None: { essentials: 0.55, savings: 0.25, insurance: 0.10, other: 0.10 },
-    Frugal: { essentials: 0.50, savings: 0.30, insurance: 0.10, other: 0.10 },
-    Balanced: { essentials: 0.55, savings: 0.25, insurance: 0.10, other: 0.10 },
-    Luxury: { essentials: 0.60, savings: 0.20, insurance: 0.10, other: 0.10 },
-  };
-  return { label: "fallback", ratios: table[lifestyle] || table.None, source: "fallback" };
 }
