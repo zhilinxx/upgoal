@@ -112,6 +112,7 @@ export default function InsuranceRecommendations() {
       taxRelief: false,
       sort: "",
     });
+    setAppliedFilters(filters);
     fetchPlans({});
   };
 

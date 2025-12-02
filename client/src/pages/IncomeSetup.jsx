@@ -231,7 +231,6 @@ export default function IncomeSetup() {
     // validate before attempting save
     if (!validateAll()) {
       setOpenSaveConfirm(false);
-      toast.error("Please fix the highlighted errors before saving.");
       return;
     }
 

@@ -48,6 +48,15 @@ const PAGE_TITLES = {
   "/comparePlans": "Plan Comparison",
 };
 
+const skipAuthCheckRoutes = [
+  "/login",
+  "/register",
+  "/forgotPassword",
+  "/resetPassword",
+  "/verifyEmail",
+];
+
+
 function App() {
   const { loading: themeLoading } = useTheme();
 
@@ -59,6 +68,10 @@ function App() {
   const [loadingAuth, setLoadingAuth] = useState(true);
 
   useEffect(() => {
+    if (skipAuthCheckRoutes.includes(window.location.pathname)) {
+      setLoadingAuth(false);
+      return;
+    }
     const checkAuth = async () => {
       try {
         const res = await getMe(); // this will auto-refresh if needed
