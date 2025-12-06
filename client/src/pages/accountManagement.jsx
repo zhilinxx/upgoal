@@ -30,7 +30,7 @@ export default function AccountManagement() {
 
   useEffect(() => {
     fetchUsers();
-  }, [search, statusFilter]);
+  }, [search, statusFilter, page]);
 
   const handleSelect = (userId) => {
     setSelectedIds((prev) =>
