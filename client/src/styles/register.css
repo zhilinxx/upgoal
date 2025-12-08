@@ -20,6 +20,12 @@
   margin-right: 15px;
 }
 
+.register-form {
+  display: block;
+  justify-content: center;
+  align-items: center;
+}
+
 .register-logo {
   width: 120px;
   margin: 0 auto 20px;

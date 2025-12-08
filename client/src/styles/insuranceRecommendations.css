@@ -66,6 +66,10 @@
   transition: border-color 0.2s;
 }
 
+.slider-value {
+  margin: 0;
+}
+
 .plan-types {
   display: flex;
   gap: 5px;

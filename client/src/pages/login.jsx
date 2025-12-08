@@ -25,6 +25,7 @@ export default function Login() {
       localStorage.setItem("role", res.data.role);
       localStorage.setItem("userId", res.data.userId);
       localStorage.setItem("email", res.data.email);
+      localStorage.setItem("adminEmail", res.data.email);
       const serverTheme = res.data?.theme;
       console.log("Login theme from server:", serverTheme);
 

@@ -378,7 +378,7 @@ export default function AddInsurancePlan() {
             </div>
 
             <div className="input-group">
-              <label>Plan Brochure (PDF)</label>
+              <label>Plan Brochure (PDF)<span className="required">*</span></label>
               <input
                 type="file"
                 accept="application/pdf"

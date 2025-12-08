@@ -10,6 +10,7 @@ export default function AccountManagement() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0); 
   const limit = 10;
   const [selectAll, setSelectAll] = useState(false); 
 
@@ -18,15 +19,18 @@ export default function AccountManagement() {
       const { data } = await getAllAccounts(search, statusFilter, page, limit);
       setUsers(data.users);
       setTotalPages(data.pagination?.totalPages || 1);
+      setTotalRecords(data.pagination?.totalRecords || 0);
       setSelectedIds([]);
     } catch (err) {
       console.error(err);
     }
   };
 
+  useEffect(() => { setPage(1); }, [search, statusFilter]);
+
   useEffect(() => {
     fetchUsers();
-  }, [search, statusFilter]);
+  }, [search, statusFilter, page]);
 
   const handleSelect = (userId) => {
     setSelectedIds((prev) =>
@@ -93,7 +97,7 @@ export default function AccountManagement() {
         </div>
       </div>
       
-      <p className="record-line">{users.length} records found.</p>
+      <p className="record-line">{totalRecords} records found.</p>
       <div className="table-container">
         <table className="account-table">
           <thead>

@@ -103,7 +103,7 @@ export default function InsuranceRecommendations() {
   };
 
   const handleClear = () => {
-    setFilters({
+    const clearedFilters = {
       premiumMin: "",
       premiumMax: "",
       sumAssured: "",
@@ -111,7 +111,10 @@ export default function InsuranceRecommendations() {
       provider: "",
       taxRelief: false,
       sort: "",
-    });
+    };
+
+    setFilters(clearedFilters);
+    setAppliedFilters(clearedFilters);
     fetchPlans({});
   };
 

@@ -127,6 +127,9 @@ export const login = async (req, res) => {
     if (!user.is_verified)
       return res.status(400).json({ message: "Please verify your email" });
 
+    if(!user.status)
+      return res.status(400).json({ message: "Your account is deactivated" });
+
     const valid = await bcrypt.compare(password, user.password);
     if (!valid)
       return res.status(400).json({ message: "Wrong password" });

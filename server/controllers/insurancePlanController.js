@@ -167,6 +167,14 @@ export const addPlan = async (req, res) => {
 export const updatePlan = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Helper to avoid inserting "null" strings
+    const toNumberOrNull = (v) => {
+      if (v === undefined || v === null || v === "") return null;
+      if (v === "null") return null;
+      return Number(v);
+    };
+
     const {
       plan_name,
       plan_type,
@@ -187,6 +195,7 @@ export const updatePlan = async (req, res) => {
     const logoPath = req.files?.logo?.[0]
       ? `uploads/providerLogo/${req.files.logo[0].filename}`
       : null;
+
     const brochurePath = req.files?.brochure?.[0]
       ? `uploads/insuranceBrochures/${req.files.brochure[0].filename}`
       : null;
@@ -199,10 +208,23 @@ export const updatePlan = async (req, res) => {
         provider_logo=COALESCE(?, provider_logo), brochure_path=COALESCE(?, brochure_path)
       WHERE plan_id=?`,
       [
-        plan_name, plan_type, provider, provider_phone, provider_email, premium, payment_structure,
-        sum_assured, coverage_age, coverage_scope, CI || 0,
-        annual_limit || null, lifetime_limit || null, hp_room_board || null,
-        logoPath, brochurePath, id,
+        plan_name,
+        plan_type,
+        provider,
+        provider_phone,
+        provider_email,
+        toNumberOrNull(premium),
+        payment_structure,
+        sum_assured,
+        coverage_age,
+        coverage_scope,
+        toNumberOrNull(CI),
+        toNumberOrNull(annual_limit),
+        toNumberOrNull(lifetime_limit),
+        toNumberOrNull(hp_room_board),
+        logoPath,
+        brochurePath,
+        id,
       ]
     );
 
@@ -212,6 +234,7 @@ export const updatePlan = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Delete selected plans
 export const deletePlans = async (req, res) => {
