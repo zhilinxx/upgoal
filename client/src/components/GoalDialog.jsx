@@ -216,7 +216,7 @@ export default function GoalDialog({
 
                     {mode === "edit" && (
                         <>
-                            <label>Saved Amount</label>
+                            <label>Saved Amount (RM)</label>
                             <input
                                 inputMode="decimal"
                                 autoComplete="off"
