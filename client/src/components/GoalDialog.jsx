@@ -201,7 +201,7 @@ export default function GoalDialog({
                     {errors.name && <p className="validation">{errors.name}</p>}
 
                     <label>
-                        Goal Amount<span className="req">*</span>
+                        Goal Amount (RM)<span className="req">*</span>
                     </label>
                     <input
                         inputMode="decimal"
