@@ -270,7 +270,7 @@ export default function MonthlyExpenses() {
     }
   };
 
-  // ---- Pagination ----
+  //Pagination
   const goPrev = () => {
     const next = Math.max(1, page - 1);
     setPage(next);
@@ -282,13 +282,13 @@ export default function MonthlyExpenses() {
     setParam("page", String(next));
   };
 
-  // ---- Alert visibility ----
+  //Alert visibility
   const showOtherAlert = netIncome > 0 && otherThisMonth > netIncome * 0.1;
   const pct = showOtherAlert
     ? ((otherThisMonth / netIncome) * 100).toFixed(1)
     : "0.0";
 
-  // NEW: hide center label/amount when total is zero
+  //hide center label/amount when total is zero
   const hasSpending = Number.isFinite(monthTotal) && monthTotal > 0;
 
   return (
