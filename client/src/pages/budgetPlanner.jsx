@@ -75,7 +75,7 @@ export default function BudgetPlanner() {
   };
 
   if (loading) {
-    return <div className="loading">Loading Budget Planner…</div>;
+    return <div className="budget-planner-loading">Loading Budget Planner…</div>;
   }
 
   if (!data) {
