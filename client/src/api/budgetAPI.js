@@ -1,14 +1,10 @@
-// client/src/api/budgetAPI.js
 import { API } from "./auth";
 
-// env
 const ROOT = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 const API_BASE = `${ROOT}/api`;
 const BUDGET_BASE = `${API_BASE}/budget`;
 
-/* =========================
-   Dashboard
-   ========================= */
+//Dashboard
 
 export const getDashboard = (userId) =>
   API.get(`${BUDGET_BASE}/dashboard`, { params: { userId } });
@@ -20,9 +16,7 @@ export async function fetchDashboardData() {
   return data;
 }
 
-/* =========================
-   Rules
-   ========================= */
+//Rules
 
 export const postAlerts = (payload) =>
   API.post(`${BUDGET_BASE}/rules/alerts`, payload);
@@ -30,9 +24,7 @@ export const postAlerts = (payload) =>
 export const postAdjustBudgets = (payload) =>
   API.post(`${BUDGET_BASE}/rules/adjust-budgets`, payload);
 
-/* =========================
-   Savings Goals
-   ========================= */
+//Savings Goals
 
 export const listGoals = () =>
   API.get(`/budget/goals`, {

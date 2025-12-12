@@ -1,4 +1,3 @@
-// controllers/goalsController.js
 import {
   listGoalsRepo,
   createGoalRepo,

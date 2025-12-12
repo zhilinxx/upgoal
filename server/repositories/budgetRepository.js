@@ -1,9 +1,5 @@
-// server/repositories/budgetRepository.js
 import pool from "../config/db.js";
 
-/**
- * Latest income row for a user (net_income + lifestyle).
- */
 export async function getLatestIncome(userId) {
   const conn = await pool.getConnection();
   try {
@@ -21,9 +17,6 @@ export async function getLatestIncome(userId) {
   }
 }
 
-/**
- * Monthly commitments (typed + amount).
- */
 export async function getMonthlyCommitments(userId) {
   const conn = await pool.getConnection();
   try {
@@ -39,9 +32,6 @@ export async function getMonthlyCommitments(userId) {
   }
 }
 
-/**
- * Recent expenses in the last 30 days (name + ABS(amount)).
- */
 export async function getRecentExpenses(userId) {
   const conn = await pool.getConnection();
   try {
@@ -60,10 +50,6 @@ export async function getRecentExpenses(userId) {
   }
 }
 
-/**
- * Savings goals for the dashboard.
- * ✅ Force deadline to plain 'YYYY-MM-DD' to avoid timezone shifts in UI.
- */
 export async function getSavingsGoals(userId) {
   const conn = await pool.getConnection();
   try {
@@ -86,9 +72,6 @@ export async function getSavingsGoals(userId) {
   }
 }
 
-/**
- * This calendar month's total spending in the "Other" category.
- */
 export async function getOtherSpendThisMonth(userId) {
   const conn = await pool.getConnection();
   try {
@@ -110,12 +93,6 @@ export async function getOtherSpendThisMonth(userId) {
   }
 }
 
-/**
- * Last calendar month's total spending in the "Other" category.
- * Returns a number (0 if none).
- *
- * For example, if today is 2025-12-02, this will sum "Other" for 2025-11-01 .. 2025-12-01 (exclusive).
- */
 export async function getOtherSpendLastMonth(userId) {
   const conn = await pool.getConnection();
   try {

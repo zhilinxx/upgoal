@@ -1,4 +1,3 @@
-// routes/profileRoutes.js
 import express from "express";
 import { getUserProfile} from "../controllers/profileController.js";
 import { verifyToken } from "../middlewares/verifyToken.js"; // assuming same pattern as auth

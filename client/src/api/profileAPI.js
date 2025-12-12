@@ -1,5 +1,5 @@
 // api/profileAPI.js
-import { API } from "./auth"; // reuse your configured axios instance
+import { API } from "./auth"; 
 
 
 // === Profile functions ===

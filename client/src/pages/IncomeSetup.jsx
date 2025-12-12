@@ -1,4 +1,3 @@
-// client/src/pages/IncomeSetup.jsx
 import React, { useEffect, useState } from "react";
 import { FiPlus, FiMinus } from "react-icons/fi";
 import { toast } from "react-toastify";
@@ -8,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { FaChevronLeft } from "react-icons/fa";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
 
-/* ---------- Money helpers ---------- */
 const MAX_DECIMAL_NUM = 9_999_999_999.99;
 const MAX_DECIMAL_STR = "9,999,999,999.99";
 const amountOK = (v) =>
@@ -19,28 +17,25 @@ const to2 = (v) => {
   return Number.isFinite(n) ? n.toFixed(2) : "";
 };
 
-/** Keep only digits + one dot, clamp to two decimals while typing */
 const sanitizeMoney = (raw) => {
   let s = String(raw);
-  // remove everything except digits and dots
   s = s.replace(/[^0-9.]/g, "");
-  // if multiple dots, keep first
   const first = s.indexOf(".");
   if (first !== -1) {
     s =
       s.slice(0, first + 1) +
       s
         .slice(first + 1)
-        .replace(/\./g, ""); // drop remaining dots
+        .replace(/\./g, ""); 
   }
-  // limit decimals to 2
+
   if (first !== -1) {
     const intPart = s.slice(0, first);
     const decPart = s.slice(first + 1, first + 1 + 2);
     s = (intPart || "0") + "." + decPart;
   }
-  // strip leading zeros (but keep "0" or "0.xx")
-  s = s.replace(/^0+(?=\d)/, ""); // keep a single 0 before dot if needed
+
+  s = s.replace(/^0+(?=\d)/, ""); 
   if (s.startsWith(".")) s = "0" + s;
   return s;
 };
@@ -50,14 +45,13 @@ export default function IncomeSetup() {
 
   const [incomeId, setIncomeId] = useState(null);
   const [netIncome, setNetIncome] = useState("");
-  const [lifestyle, setLifestyle] = useState(""); // start empty so placeholder can show
+  const [lifestyle, setLifestyle] = useState(""); 
   const [housingLoan, setHousingLoan] = useState("");
   const [carLoan, setCarLoan] = useState("");
   const [otherCommitments, setOtherCommitments] = useState([
     { name: "", amount: "" },
   ]);
 
-  // inline errors per field. others: array of { name: "", amount: "" }
   const [errors, setErrors] = useState({
     netIncome: "",
     lifestyle: "",
@@ -81,7 +75,6 @@ export default function IncomeSetup() {
         setIncomeId(data.incomeId ?? null);
         setNetIncome(data.netIncome ? to2(data.netIncome) : "");
 
-        // Only assign if the saved value is one of our allowed options.
         const valid = ["Frugal", "Balanced", "Luxury", "None"];
         const saved = data.lifestyle;
         setLifestyle(valid.includes(saved) ? saved : "");
@@ -130,14 +123,11 @@ export default function IncomeSetup() {
     })();
   }, [userId]);
 
-  /* ---------- helpers ---------- */
-
   const setOtherField = (index, field, value) => {
     const updated = [...otherCommitments];
     updated[index] = { ...updated[index], [field]: value };
     setOtherCommitments(updated);
 
-    // Make sure errors.others exists and matches length
     setErrors((e) => {
       const next = { ...e, others: [...(e.others || [])] };
       while (next.others.length < updated.length) next.others.push({ name: "", amount: "" });
@@ -171,7 +161,6 @@ export default function IncomeSetup() {
     return "";
   };
 
-  // Validate a single other row (used for onBlur if desired)
   const validateOtherRow = (row) => {
     const name = (row.name || "").trim();
     const amountStr = row.amount ?? "";
@@ -200,7 +189,6 @@ export default function IncomeSetup() {
       form: "",
     };
 
-    // netIncome required & > 0
     if (!amountOK(netIncome) || netIncome === "") {
       next.netIncome =
         "Monthly Net Income is required and must be a valid number (max 2 decimals).";
@@ -216,13 +204,10 @@ export default function IncomeSetup() {
 
     next.housingLoan = validateMoney("Housing Loan", housingLoan);
     next.carLoan = validateMoney("Car Loan", carLoan);
-
-    // Validate other commitments row-by-row and produce field-level messages
     next.others = otherCommitments.map((row) => validateOtherRow(row));
 
     setErrors(next);
 
-    // Any error present prevents save
     const hasErrors =
       next.netIncome ||
       next.lifestyle ||
@@ -232,9 +217,7 @@ export default function IncomeSetup() {
     return !hasErrors;
   };
 
-  // Actual save logic (called after user confirms)
   const doSubmit = async () => {
-    // validate before attempting save
     if (!validateAll()) {
       setOpenSaveConfirm(false);
       return;
@@ -252,7 +235,6 @@ export default function IncomeSetup() {
             name: (name || "").trim(),
             amount: amount ? Number(to2(amount)) : 0,
           }))
-          // Keep only rows with both name and positive amount
           .filter((x) => x.amount > 0 && x.name.length > 0),
       },
     };
@@ -305,7 +287,6 @@ export default function IncomeSetup() {
       >
         {errors.form && <p className="validation">{errors.form}</p>}
 
-        {/* Row 1 - Monthly Income */}
         <div className="income-row">
           <div className="income-form-group">
             <label>
@@ -328,7 +309,6 @@ export default function IncomeSetup() {
           </div>
         </div>
 
-        {/* Row 2 - Lifestyle */}
         <div className="income-row">
           <div className="income-form-group">
             <label>
@@ -355,10 +335,8 @@ export default function IncomeSetup() {
           </div>
         </div>
 
-        {/* Monthly Commitments Title */}
         <h4 className="income-commitment-title">Monthly Commitments :</h4>
 
-        {/* Row 3 - Housing & Car Loans (stacked) */}
         <div className="income-row">
           <div className="income-form-group">
             <label>Housing Loans (RM)</label>
@@ -415,7 +393,6 @@ export default function IncomeSetup() {
                 value={item.name}
                 onChange={(e) => setOtherField(idx, "name", e.target.value)}
                 onBlur={() => {
-                  // validate this row on blur
                   const rowErr = validateOtherRow(item);
                   setErrors((ev) => {
                     const next = { ...ev, others: [...(ev.others || [])] };
@@ -441,7 +418,6 @@ export default function IncomeSetup() {
                   setOtherField(idx, "amount", sanitizeMoney(e.target.value))
                 }
                 onBlur={() => {
-                  // format to 2 decimals and validate this row
                   setOtherField(idx, "amount", to2(item.amount));
                   const rowErr = validateOtherRow({ ...item, amount: to2(item.amount) });
                   setErrors((ev) => {
@@ -475,7 +451,7 @@ export default function IncomeSetup() {
         </div>
       </form>
 
-      {/* ===== Confirm: Back ===== */}
+      {/* Confirm: Back */}
       <ConfirmDialog
         open={openBackConfirm}
         action="discard"
@@ -486,7 +462,7 @@ export default function IncomeSetup() {
         onConfirm={() => navigate(-1)}
       />
 
-      {/* ===== Confirm: Save ===== */}
+      {/* Confirm: Save */}
       <ConfirmDialog
         open={openSaveConfirm}
         action="save"

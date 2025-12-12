@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 import { fetchDashboardData, postAlerts, postAdjustBudgets } from "../api/budgetAPI.js";
 
-// existing sections
 import BudgetSummary from "../components/BudgetSummary.jsx";
 import SavingsGoals from "../components/SavingsGoals.jsx";
 import ExpensesList from "../components/Expenses.jsx";
@@ -14,8 +13,8 @@ export default function BudgetPlanner() {
   const navigate = useNavigate();
 
   const [data, setData] = useState(null);
-  const [plan, setPlan] = useState(null);          // { Essentials, Savings, Insurance, Other }
-  const [spending, setSpending] = useState(null);  // same keys as plan
+  const [plan, setPlan] = useState(null);         
+  const [spending, setSpending] = useState(null);  
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,12 +26,10 @@ export default function BudgetPlanner() {
         if (!mounted) return;
         setData(d);
 
-        // convert breakdown to map
         const p = {};
         (d?.breakdown ?? []).forEach(b => (p[b.name] = Number(b.amount || 0)));
         setPlan(p);
 
-        // default spending by bucket (user can key in)
         setSpending({
           Essentials: 0, Savings: 0, Insurance: 0, Other: 0,
         });
@@ -55,7 +52,6 @@ export default function BudgetPlanner() {
     [plan]
   );
 
-  // --- rules: alerts
   const handleCheckAlerts = async (limits) => {
     try {
       const { data: res } = await postAlerts({
@@ -69,7 +65,6 @@ export default function BudgetPlanner() {
     }
   };
 
-  // --- rules: auto-reallocate
   const handleAutoAdjust = async () => {
     try {
       const { data: res } = await postAdjustBudgets({ plan, spending: spending ?? {} });
@@ -80,7 +75,7 @@ export default function BudgetPlanner() {
   };
 
   if (loading) {
-    return <div className="budget-planner-loading">Loading Budget Planner…</div>;
+    return <div className="loading">Loading Budget Planner…</div>;
   }
 
   if (!data) {
@@ -96,37 +91,15 @@ export default function BudgetPlanner() {
 
   return (
     <div className="budget-page-container">
-      {/* Header (kept like your Insurance pages) */}
-      {/* <div className="budget-header">
-        <h2>Budget Planner</h2>
-        <div className={`ai-chip ${aiSegment.replace(/\s+/g, "-").toLowerCase()}`}>
-          AI Segment: <b>{aiSegment}</b>
-        </div>
-      </div> */}
-
-      {/* 3-card grid */}
       <div className="budget-grid">
-        {/* Card 1: Doughnut + RuleControls */}
         <section className="budget-card">
           <BudgetSummary income={income} breakdown={data.breakdown} currency={currency} />
-          {/* <RuleControls
-            currency={currency}
-            income={income}
-            plan={plan}
-            spending={spending}
-            setSpending={setSpending}
-            alerts={alerts}
-            onCheckAlerts={handleCheckAlerts}
-            onAutoAdjust={handleAutoAdjust}
-          /> */}
         </section>
 
-        {/* Card 2: Savings Goals */}
         <section className="budget-card">
           <SavingsGoals goals={data.savingsGoals} currency={currency} />
         </section>
 
-        {/* Card 3: Expenses (full width) */}
         <section className="budget-card budget-card--full">
           <ExpensesList expenses={data.expenses} currency={currency} />
         </section>

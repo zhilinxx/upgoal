@@ -1,5 +1,3 @@
-/* ===== Budget Summary (Chart + Legend) ===== */
-
 /* Side-by-side on desktop */
 .budget-summary-section {
     display: flex;
@@ -12,12 +10,10 @@
 /* Chart column — responsive box that drives the canvas size */
 .budget-doughnut-container {
     position: relative;
-    /* clamp(min, preferred, max)  ← fixed order */
     width: clamp(140px, 20vw, 220px);
     height: clamp(140px, 20vw, 220px);
     margin: 0 auto;
     flex: 0 0 auto;
-    /* don’t stretch */
     min-width: 0;
 }
 
@@ -73,7 +69,6 @@
     flex-shrink: 0;
 }
 
-/* One row: [dot+name] ...... [value] */
 .budget-legend-item {
     display: flex;
     align-items: center;
@@ -83,16 +78,13 @@
     font-size: clamp(10px, 2.8vw, 14px);
 }
 
-/* The cluster that holds dot + name — YOU control this gap */
 .budget-legend-left {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    /* << tighten/loosen here */
     min-width: 0;
 }
 
-/* Dot itself has no extra margin now */
 .budget-color-dot {
     width: 10px;
     height: 10px;
@@ -100,7 +92,6 @@
     flex-shrink: 0;
 }
 
-/* Name can truncate nicely if needed */
 .budget-legend-name {
     color: var(--text-color);
     font-weight: 500;
@@ -110,7 +101,6 @@
     min-width: 0;
 }
 
-/* Value stays snug on the right */
 .budget-legend-value {
     color: var(--text-color);
     font-weight: 600;
@@ -128,10 +118,8 @@
     padding-top: 10px;
 }
 
-/* ---------- Mobile tweaks ---------- */
+/* Mobile tweaks */
 @media (max-width: 520px) {
-
-    /* Stack legend under chart so names don't get squashed */
     .budget-summary-section {
         flex-direction: column;
         align-items: center;
@@ -139,7 +127,6 @@
     }
 
     .budget-doughnut-container {
-        /* a bit larger than the desktop min but still phone-friendly */
         width: clamp(200px, 58vw, 260px);
         height: clamp(200px, 58vw, 260px);
     }
@@ -153,7 +140,6 @@
         margin-bottom: 14px;
     }
 
-    /* Allow names to wrap (avoid single-letter columns) */
     .budget-legend-name {
         white-space: normal;
         word-break: keep-all;

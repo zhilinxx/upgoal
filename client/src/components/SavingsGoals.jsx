@@ -6,7 +6,7 @@ import ConfirmDialog from "./ConfirmDialog.jsx";
 import { createGoal, updateGoal, deleteGoal, listGoals } from "../api/budgetAPI.js";
 import "../styles/SavingsGoals.css";
 
-/* Money helpers (DECIMAL(12,2)) */
+/* DECIMAL(12,2) */
 const fmtMoney = (n, currency = "RM") =>
   `${currency} ${Number(n || 0).toLocaleString(undefined, {
     minimumFractionDigits: 2,
@@ -104,7 +104,7 @@ export default function SavingsGoals({ currency = "RM" }) {
     scrollerRef.current?.scrollTo({ left: 0 });
   }, []);
 
-  // --- Add pill: tap vs drag detection ---
+  // Add pill: tap vs drag detection 
   const handleAddPointerDown = (e) => {
     const p = e.touches?.[0] ?? e;
     setPress({ x: p.clientX, y: p.clientY });
@@ -116,7 +116,7 @@ export default function SavingsGoals({ currency = "RM" }) {
     if (dx < 6 && dy < 6) startCreate();
   };
 
-  // --- Layout numbers: width of add pill + gap (kept for paginator math) ---
+  // Layout numbers: width of add pill + gap 
   const RAIL = 56; // width of .add-goal-box
   const GAP = 18;
 
@@ -126,7 +126,7 @@ export default function SavingsGoals({ currency = "RM" }) {
   };
   const stride = () => slideWidth() + GAP;
 
-  // --- Scroll -> update active dot (0 => first goal) ---
+  // Scroll -> update active dot (0 => first goal) 
   const handleScroll = () => {
     const el = scrollerRef.current;
     if (!el) return;
@@ -236,7 +236,7 @@ export default function SavingsGoals({ currency = "RM" }) {
     <section className="savings-goals-section">
       <h3 className="section-title">My Savings Goals</h3>
 
-      {/* ✅ merged rail with conditional is-empty class */}
+      {/* merged rail with conditional is-empty class */}
       <div
         className={`goals-carousel ${isEmpty ? "is-empty" : ""}`}
         ref={scrollerRef}

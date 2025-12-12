@@ -11,17 +11,15 @@
     overflow-x: hidden;
 }
 
-/* -------- Horizontal scroller container -------- */
+/* Horizontal scroller container */
 .goals-carousel {
     position: relative;
     display: flex;
     gap: 18px;
     overflow-x: auto;
-    /* only this scrolls horizontally */
     overflow-y: hidden;
     max-width: 100%;
     min-width: 0;
-    /* small inset so the add pill isn't clipped by the container border */
     padding: 6px 6px 14px 12px;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;
@@ -37,9 +35,7 @@
 /* -------- Add Another Goal (first slide, snaps into place) -------- */
 .add-goal-box {
     flex: 0 0 56px;
-    /* narrow vertical pill */
     position: static;
-    /* scrolls with content */
     align-self: stretch;
 
     display: flex;
@@ -60,7 +56,6 @@
     box-sizing: border-box;
     flex-shrink: 0;
 
-    /* ✅ make the pill itself a snap target so it can be the first stop */
     scroll-snap-align: start;
 }
 
@@ -84,7 +79,7 @@
     transform: rotate(180deg);
 }
 
-/* -------- Individual goal card -------- */
+/* Individual goal card */
 .goal-card {
     scroll-snap-align: start;
     flex: 0 0 min(640px, 92vw);
@@ -101,9 +96,7 @@
     max-width: 100%;
     min-width: 0;
     transform: scale(0.85);
-    /* scale down the whole card */
     transform-origin: left center;
-    /* keep aligned to the Add Goal pill */
 }
 
 /* header row: title + actions */
@@ -139,7 +132,7 @@
     background: transparent;
 }
 
-/* -------- Amount row -------- */
+/* Amount row */
 .goal-progress-text {
     display: flex;
     align-items: baseline;
@@ -208,7 +201,7 @@
     background: var(--btn-hover);
 }
 
-/* -------- Paginator (one dot per GOAL only) -------- */
+/* Paginator (one dot per GOAL only) */
 .paginator {
     display: flex;
     justify-content: center;
@@ -236,7 +229,7 @@
     opacity: 1;
 }
 
-/* -------- Small screens -------- */
+/* Small screens  */
 @media (max-width: 480px) {
     .amount-left {
         flex-basis: 100%;
@@ -262,7 +255,7 @@
     }
 }
 
-/* -------- Media elements safety -------- */
+/* Media elements safety */
 img,
 canvas,
 svg,
@@ -272,7 +265,7 @@ video {
     display: block;
 }
 
-/* -------- Modal styles (unchanged) -------- */
+/* Modal styles */
 .modal-overlay {
     position: fixed;
     inset: 0;

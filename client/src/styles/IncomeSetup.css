@@ -1,4 +1,3 @@
-/* === Container & header === */
 .income-container {
   margin: 0 auto;
   padding: 20px;
@@ -38,11 +37,11 @@
 
 /* When a title follows any form row, push it down more */
 .income-row + .income-commitment-title {
-  margin-top: 38px;          /* ← adjust this number to taste */
-  margin-bottom: 6px;        /* small space before the next inputs */
+  margin-top: 38px;          
+  margin-bottom: 6px;        
 }
 
-/* === Form wrapper === */
+/* Form wrapper */
 .income-form {
   display: flex;
   flex-direction: column;
@@ -59,10 +58,10 @@
   font-weight: 700;
 }
 
-/* === Grid rows === */
+/* Grid rows */
 .income-row {
   display: grid;
-  grid-template-columns: 1fr; /* default single column */
+  grid-template-columns: 1fr; 
   gap: 20px;
 }
 
@@ -112,7 +111,7 @@
   font-size: larger;
 }
 
-/* === Other commitments === */
+/* Other commitments */
 .income-other-label {
   display: inline-flex;
   align-items: center;
@@ -147,8 +146,8 @@
 .income-remove-other-btn svg {
   width: 22px;
   height: 22px;
-  stroke-width: 2.5;        /* ⬅️ make lines thicker (default is 2) */
-  stroke: #ff8ea1;        /* keep same pink tone */
+  stroke-width: 2.5;        
+  stroke: #ff8ea1;        
 }
 
 .income-add-other-btn:hover svg,
@@ -180,12 +179,12 @@
   align-items: center;
 }
 
-/* === Responsive === */
+/* Responsive */
 @media (max-width: 992px) {
   .income-form { margin-left: 40px; margin-right: 40px; }
 }
 
 @media (max-width: 768px) {
   .income-form { margin-left: 10px; margin-right: 10px; }
-  .income-row--two { grid-template-columns: 1fr; } /* stack Housing & Car */
+  .income-row--two { grid-template-columns: 1fr; } 
 }

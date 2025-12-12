@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState, useMemo } from "react";
 import ConfirmDialog from "./ConfirmDialog";
 import "../styles/Expenses.css";
 
-/* ---------- Money & validation helpers (updated) ---------- */
 const MAX_DECIMAL_STR = "999,999,999,999.99"; // 12 int + 2 decimal digits
 const MAX_INT_DIGITS = 12;
 
@@ -33,7 +32,7 @@ const toNum = (v) => Number(to2(v));
 // typing sanitizer
 const sanitizeMoney = (s) => String(s).replace(/[^0-9.]/g, "");
 
-// ✅ get local "YYYY-MM-DD" for today (no UTC shifting)
+//get local "YYYY-MM-DD" for today (no UTC shifting)
 const todayLocalISO = () => {
   const d = new Date();
   const y = d.getFullYear();
@@ -42,11 +41,11 @@ const todayLocalISO = () => {
   return `${y}-${m}-${day}`;
 };
 
-// ✅ check if date is today or past (parse as LOCAL date)
+//check if date is today or past (parse as LOCAL date)
 const isPastOrToday = (iso) => {
   if (!iso) return false;
   const [y, m, d] = iso.split("-").map(Number);
-  const picked = new Date(y, m - 1, d); // local date
+  const picked = new Date(y, m - 1, d); 
   const today = new Date();
   picked.setHours(0, 0, 0, 0);
   today.setHours(0, 0, 0, 0);
@@ -55,10 +54,10 @@ const isPastOrToday = (iso) => {
 
 export default function ExpenseDialog({
   open,
-  mode = "create",        // "create" | "edit"
-  initial = {},           // { expenses_id, expenses_name, expenses_amt, expenses_category, expenses_date }
-  onClose,                // () => void
-  onSave,                 // async (payload) => void
+  mode = "create",        
+  initial = {},           
+  onClose,                
+  onSave,                 
 }) {
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");

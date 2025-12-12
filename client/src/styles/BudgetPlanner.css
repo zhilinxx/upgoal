@@ -28,11 +28,8 @@
 .budget-page-container {
   margin: 0 auto;
   padding: 20px;
-  /* remove edge “frame/line” */
   box-shadow: none;
-
-  /* contain width & prevent horizontal overflow */
-  max-width: 1120px;     /* adjust to taste (980–1200px works well) */
+  max-width: 1120px;     
   width: 100%;
   box-sizing: border-box;
 }
@@ -61,17 +58,13 @@
   color: var(--main-pink);
 }
 
-/* Grid (no fixed margins; tracks can shrink) */
 .budget-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* shrinkable columns */
   gap: 20px;
-
-  /* remove hard side margins that caused overflow */
   margin-left: 0;
   margin-right: 0;
-
-  min-width: 0; /* allow children to shrink inside */
+  min-width: 0; 
 }
 
 /* Cards to hold each section */
@@ -80,16 +73,13 @@
   border: 1px solid #e7e7e7;
   border-radius: 12px;
   padding: 16px;
-
-  /* prevent charts/carousels from forcing overflow */
   min-width: 0;
   overflow: hidden;
 }
 .budget-card--full {
-  grid-column: 1 / -1; /* expenses spans full width */
+  grid-column: 1 / -1; 
 }
 
-/* Loading / error states */
 .budget-planner-loading,
 .budget-planner-error {
   text-align: center;
@@ -108,13 +98,13 @@
 /* Responsive */
 @media (max-width: 1024px) {
   .budget-grid {
-    margin-left: 0;  /* container padding gives gutter */
+    margin-left: 0;  
     margin-right: 0;
   }
 }
 @media (max-width: 768px) {
   .budget-grid {
-    grid-template-columns: minmax(0, 1fr); /* stack */
+    grid-template-columns: minmax(0, 1fr); 
   }
   .budget-card--full {
     grid-column: auto;

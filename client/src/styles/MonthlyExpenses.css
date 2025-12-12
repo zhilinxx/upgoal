@@ -53,13 +53,13 @@
   display: block;
 }
 
-/* ───────── Chart + legend (namespaced) ───────── */
+/*Chart + legend */
 /* Row keeps items together and centered */
 .expenses-summary-section{
   display: flex;
-  align-items: center;     /* vertical center vs the donut */
-  justify-content: center; /* no push to the edges */
-  gap: 16px;               /* distance between donut and legend */
+  align-items: center;     
+  justify-content: center; 
+  gap: 16px;               
   padding: 10px 0;
 }
 
@@ -71,23 +71,23 @@
   margin: 0;
   margin-top: 20px;
   margin-bottom: 20px;
-  flex: 0 0 auto;          /* fixed; don't stretch */
+  flex: 0 0 auto;         
   min-width: 0;
 }
 
 /* Legend becomes a compact block next to the donut */
 .expenses-legend-area{
-  flex: 0 0 auto;          /* don’t grow to the whole row */
+  flex: 0 0 auto;          
   width: 100%;
-  max-width: 340px;        /* tweak 300–380 if needed */
+  max-width: 340px;        
   padding-top: 0;
-  margin-left: 8px;        /* small nudge towards donut */
+  margin-left: 8px;        
 }
 
 /* legend rows */
 .expenses-legend-item{
   display: grid;
-  grid-template-columns: 1fr 110px; /* name | value */
+  grid-template-columns: 1fr 110px; 
   align-items: center;
   column-gap: 12px;
   margin-bottom: 14px;
@@ -95,7 +95,7 @@
 .expenses-legend-left{
   display: inline-flex;
   align-items: center;
-  gap: 6px;                /* dot ↔ name */
+  gap: 6px;                
   min-width: 0;
 }
 .expenses-legend-value{
@@ -173,7 +173,7 @@
   display: block;
 }
 
-/* ───────── Controls / table / pagination ───────── */
+/*Controls / table / pagination */
 .expenses-container .top-controls {
   margin-top: 6px;
   display: grid;
@@ -191,7 +191,7 @@
   border-radius: 10px;
   background: var(--section-bg);
   font-size: 13px;
-  line-height: 1;  /* keep height consistent */
+  line-height: 1;  
   color: #999;
   outline: none;
   box-sizing: border-box;
@@ -203,7 +203,6 @@
   -moz-appearance: auto;
 }
 
-/* --- Unified placeholder color behavior for all top controls --- */
 /* Base text color when value exists */
 .expenses-container .calendar-icon,
 .expenses-container .search-input,
@@ -217,7 +216,7 @@
 /* When nothing selected in dropdown */
 .expenses-container .category-filter[data-placeholder="true"] { color: #999; }
 
-/* Optional: make unselected <option> gray in dropdown */
+/*make unselected option gray in dropdown */
 .expenses-container .category-filter option[value=""] { color: #999; }
 
 /* Internal date text color fix for <input type="month"> */
@@ -302,7 +301,7 @@
 /* Desktop layout for controls */
 @media (min-width:768px){
   .expenses-container .top-controls{
-    grid-template-columns: 220px 1fr 200px auto auto; /* month | search | category | trash | add */
+    grid-template-columns: 220px 1fr 200px auto auto; 
     align-items:center;
   }
 }
@@ -315,7 +314,7 @@
   box-shadow:0 0 0 3px rgba(255,137,155,.15);
 }
 
-/* ===== Modal (ConfirmDialog / ExpenseDialog / GoalDialog) ===== */
+/* Modal (ConfirmDialog / ExpenseDialog / GoalDialog) */
 .modal-overlay{
   position:fixed; inset:0; background:rgba(0,0,0,.35);
   display:flex; align-items:center; justify-content:center;
@@ -335,7 +334,7 @@
 .modal-card h3{ margin:0; }
 .modal-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:14px; }
 
-/* ---- Uniform field layout inside dialogs ---- */
+/* Uniform field layout inside dialogs */
 .modal-card label{
   margin:10px 0 4px;
   font-size:.9rem;
@@ -379,7 +378,7 @@
 /* Date field – keep calendar icon fixed and aligned */
 .modal-card .date-field{ position:relative; }
 .modal-card .date-field .calendar-icon{
-  padding-right:44px;                 /* room for icon */
+  padding-right:44px;             
   -webkit-appearance:none; appearance:none;
 }
 .modal-card .date-field .calendar-icon::-webkit-calendar-picker-indicator{

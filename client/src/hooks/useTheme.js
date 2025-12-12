@@ -1,4 +1,3 @@
-// client/src/hooks/useTheme.js
 import { useEffect, useState, useCallback } from "react";
 import { getTheme, setThemeAPI } from "../api/themeAPI";
 
@@ -7,26 +6,26 @@ function applyDomTheme(t) {
 }
 
 export default function useTheme() {
-  // 1) Initial theme from localStorage
+  // Initial theme from localStorage
   const [theme, setThemeState] = useState(() => {
     const saved = localStorage.getItem("theme");
     return saved === "dark" ? "dark" : "light";
   });
   const [loading, setLoading] = useState(true);
 
-  // 2) Keep DOM + localStorage in sync whenever theme state changes
+  // Keep DOM + localStorage in sync whenever theme state changes
   useEffect(() => {
     applyDomTheme(theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // 3) On mount, sync from DB ONLY if user is logged in
+  // On mount, sync from DB ONLY if user is logged in
   useEffect(() => {
     let ignore = false;
 
     const userId = localStorage.getItem("userId");
     if (!userId) {
-      // no logged-in user → just use localStorage / default
+      // no logged-in user: just use localStorage / default
       setLoading(false);
       return;
     }
@@ -37,7 +36,6 @@ export default function useTheme() {
         const t = data?.theme === "dark" ? "dark" : "light";
 
         if (!ignore) {
-          // this will also update DOM + localStorage via effect above
           setThemeState(t);
         }
       } catch (e) {
@@ -52,25 +50,24 @@ export default function useTheme() {
     };
   }, []);
 
-  // 4) Change theme; if logged in, also persist to server
+  // Change theme: if logged in, also persist to server
   const setTheme = useCallback(
     async (next) => {
       const desired = next === "dark" ? "dark" : "light";
       const prev = theme;
       const userId = localStorage.getItem("userId");
 
-      // If no user logged in → just change local state (no API)
+      // If no user logged in: just change local state (no API)
       if (!userId) {
         setThemeState(desired);
         return;
       }
 
       try {
-        await setThemeAPI(desired); // wait server OK
-        setThemeState(desired);    // DOM + localStorage auto-sync
+        await setThemeAPI(desired); 
+        setThemeState(desired);    
       } catch (e) {
         console.error("Failed to save theme:", e);
-        // revert
         setThemeState(prev);
       }
     },

@@ -1,4 +1,3 @@
-// server/services/budgetService.js
 import {
   getLatestIncome,
   getMonthlyCommitments,
@@ -11,7 +10,6 @@ import {
 const COLORS = ["#ff7b8c", "#f8a9a8", "#ffb9b6", "#c4e0b5"];
 const pickColors = (n) => Array.from({ length: n }, (_, i) => COLORS[i % COLORS.length]);
 
-/* ===== utils ===== */
 function round2(n) {
   return Math.round((Number(n) || 0) * 100) / 100;
 }
@@ -28,9 +26,6 @@ function capOtherByBandJS(otherRatio) {
   return 0.05;
 }
 
-/* =========================
-   Main exported function
-   ========================= */
 export async function buildDashboardData(userId) {
   const incomeRow = await getLatestIncome(userId);
   if (!incomeRow) return null;
@@ -43,7 +38,7 @@ export async function buildDashboardData(userId) {
   const expenses = (await getRecentExpenses(userId)) || [];
   const goals = (await getSavingsGoals(userId)) || [];
 
-  // compute commitments total (sum of monthly_commitments.commitment_amt)
+  // compute commitments total 
   let housingLoan = 0, carLoan = 0, insCommit = 0, othersCommit = 0;
   for (const r of commitments) {
     const t = (r.type || "").toLowerCase();
@@ -55,10 +50,10 @@ export async function buildDashboardData(userId) {
   }
   const commitmentsTotal = round2(housingLoan + carLoan + insCommit + othersCommit);
 
-  // Step A: base ratios (fallback)
+  // base ratios (fallback)
   let ratios = { essentials: 0.55, savings: 0.25, insurance: 0.10, other: 0.10 };
 
-  // Step B: if last month Other >10% of income, reduce this month's 'other' ratio and redistribute
+  // if last month Other >10% of income, reduce this month's 'other' ratio and redistribute
   const lastMonthOtherRatio = income > 0 ? lastMonthOther / income : 0;
   const capRatio = capOtherByBandJS(lastMonthOtherRatio);
   if (capRatio != null) {
@@ -70,13 +65,13 @@ export async function buildDashboardData(userId) {
     }
   }
 
-  // Step C: compute tentative allocations based on FULL income
+  // compute tentative allocations based on FULL income
   let essentialsAmt = round2(income * ratios.essentials);
   let savingsAmt = round2(income * ratios.savings);
   let insuranceAmt = round2(income * ratios.insurance);
   let otherAmt = round2(income * ratios.other);
 
-  // Step D: enforce essentials >= commitmentsTotal (commitments are prioritized)
+  // enforce essentials >= commitmentsTotal (commitments are prioritized)
   // If commitments >= income -> emergency: essentials = income, others = savings = insurance = 0
   if (commitmentsTotal >= income) {
     essentialsAmt = round2(income);
@@ -84,7 +79,7 @@ export async function buildDashboardData(userId) {
     insuranceAmt = 0;
     otherAmt = 0;
   } else {
-    // Ensure essentials covers commitments:
+    // Ensure essentials covers commitments
     if (essentialsAmt < commitmentsTotal) {
       let need = round2(commitmentsTotal - essentialsAmt);
 
@@ -126,7 +121,7 @@ export async function buildDashboardData(userId) {
             insuranceAmt = 0;
             otherAmt = 0;
           } else {
-            // distribute remaining into savings (preferred) then insurance/other proportionally (but keep simple: put to savings)
+            // distribute remaining into savings then insurance/other proportionally (but keep simple: put to savings)
             savingsAmt = round2(Math.max(0, remaining));
             insuranceAmt = 0;
             otherAmt = 0;

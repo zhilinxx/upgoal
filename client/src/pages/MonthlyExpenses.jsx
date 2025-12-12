@@ -1,4 +1,3 @@
-// client/src/pages/MonthlyExpenses.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Doughnut } from "react-chartjs-2";
@@ -13,7 +12,7 @@ import {
   deleteExpense,
 } from "../api/expensesAPI";
 
-import { API } from "../api/auth";              // ✅ to fetch netIncome
+import { API } from "../api/auth";              
 import ExpenseDialog from "../components/ExpenseDialog.jsx";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
 import "../styles/MonthlyExpenses.css";
@@ -30,13 +29,11 @@ export default function MonthlyExpenses() {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
 
-  // ---- URL params (single source of truth) ----
   const pageParam = Number(params.get("page") || 1);
   const searchParam = params.get("search") || "";
   const catParam = params.get("cat") || "All";
   const monthParam = params.get("month") || new Date().toISOString().slice(0, 7); // YYYY-MM
 
-  // ---- Local state ----
   const [currency, setCurrency] = useState("RM");
   const [records, setRecords] = useState([]);
   const [page, setPage] = useState(pageParam);
@@ -45,12 +42,9 @@ export default function MonthlyExpenses() {
   const [categoryTotals, setCategoryTotals] = useState({});
   const [loading, setLoading] = useState(true);
   const hasNoRows = !loading && records.length === 0;
-
-  // NEW: values for alert
   const [otherThisMonth, setOtherThisMonth] = useState(0);
   const [netIncome, setNetIncome] = useState(0);
 
-  // search input mirrors URL param
   const [searchInput, setSearchInput] = useState(searchParam);
   useEffect(() => { setSearchInput(searchParam); }, [searchParam]);
 
@@ -61,7 +55,6 @@ export default function MonthlyExpenses() {
   const [editing, setEditing] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  // ---- Helpers ----
   const setParam = (k, v) => {
     const n = new URLSearchParams(params);
     if (v === "" || v === "All") n.delete(k);
@@ -80,35 +73,31 @@ export default function MonthlyExpenses() {
     year: "numeric",
   });
 
-  // ---- Fetch with page auto-recovery ----
   const refetch = async () => {
     const res = await fetchMonthlyExpenses({
       month: monthParam,
       page,
       pageSize,
-      search: searchParam, // server expects "search"
+      search: searchParam, 
       category: catParam === "All" ? "" : catParam,
     });
 
     const nextTotalPages = Math.max(1, res.totalPages || 1);
     setTotalPages(nextTotalPages);
 
-    // If current page is now out of range, jump to last page and let useEffect refetch
     if (page > nextTotalPages) {
       const next = nextTotalPages;
       setPage(next);
       const n = new URLSearchParams(params);
       n.set("page", String(next));
       setParams(n, { replace: true });
-      return; // useEffect will trigger another refetch with corrected page
+      return; 
     }
 
     setRecords(res.items || []);
     setCategoryTotals(res.categoryTotals || {});
     setCurrency(res.currency || "RM");
-    setOtherThisMonth(Number(res.otherThisMonth || 0));     // ✅ from backend
-
-    // Clear selection after every successful refetch
+    setOtherThisMonth(Number(res.otherThisMonth || 0));     
     setSelected(new Set());
   };
 
@@ -127,10 +116,8 @@ export default function MonthlyExpenses() {
       }
     })();
     return () => { mounted = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize, searchParam, catParam, monthParam]);
 
-  // NEW: fetch netIncome (so alert is based on selected month vs user's net income)
   useEffect(() => {
     (async () => {
       try {
@@ -142,9 +129,8 @@ export default function MonthlyExpenses() {
         console.error("Failed to load netIncome for alert:", e);
       }
     })();
-  }, [monthParam]); // re-evaluate when month changes (not strictly necessary, but OK)
+  }, [monthParam]); 
 
-  // ---- Chart ----
   const chartLabels = useMemo(() => Object.keys(categoryTotals), [categoryTotals]);
   const chartValues = useMemo(
     () => chartLabels.map((k) => Number(categoryTotals[k] || 0)),
@@ -209,7 +195,6 @@ export default function MonthlyExpenses() {
     });
   };
 
-  // ---- Dialog handlers ----
   const onAddClick = () => setAddOpen(true);
   const onEditClick = (row) => { setEditing(row); setEditOpen(true); };
   const onDeleteSelected = () => {
@@ -225,9 +210,9 @@ export default function MonthlyExpenses() {
       await createExpense(payload);
       toast.success("Expense saved");
 
-      const createdMonth = payload.expenses_date?.slice(0, 7); // "YYYY-MM"
+      const createdMonth = payload.expenses_date?.slice(0, 7); 
       if (createdMonth && createdMonth !== monthParam) {
-        setParam("month", createdMonth); // triggers refetch via useEffect
+        setParam("month", createdMonth); 
       } else {
         await refetch();
       }
@@ -466,10 +451,6 @@ export default function MonthlyExpenses() {
           Next
         </button>
       </div>
-
-      {/* =================== */}
-      {/* Dialogs (at bottom) */}
-      {/* =================== */}
 
       {/* Add (create) dialog */}
       <ExpenseDialog

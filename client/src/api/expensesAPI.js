@@ -1,4 +1,3 @@
-// client/src/API/expensesAPI.js
 import { API } from "./auth";
 
 function getUserId() {
@@ -12,7 +11,6 @@ export async function fetchMonthlyExpenses(params) {
     const { data } = await API.get("/expenses", {
         params: { userId, ...params },
     });
-    // now returns { items, totalPages, categoryTotals, currency, otherThisMonth }
     return data;
 }
 

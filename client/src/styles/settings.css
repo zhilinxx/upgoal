@@ -1,4 +1,3 @@
-/* Title row spacing (sits above the card list) */
 .settings-page-title {
   width: 100%;
   max-width: 980px;
@@ -86,7 +85,7 @@
   color: var(--text-color);
 }
 
-/* ===== THEME RADIO BUTTONS ===== */
+/* THEME RADIO BUTTONS */
 .settings-radio-row {
   display: flex;
   align-items: center;
@@ -149,7 +148,7 @@
   font-weight: 500;
 }
 
-/* ===== RESPONSIVE ===== */
+/* RESPONSIVE */
 .settings-page-title,
 .settings-section {
   flex: 0 0 100%;

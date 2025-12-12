@@ -1,4 +1,3 @@
-// services/expensesService.js
 import {
     countByFilters,
     listByFilters,
@@ -6,10 +5,9 @@ import {
     insertExpense,
     updateExpenseById,
     deleteExpenseByIdRepo,
-    getOtherSpendByRange, // ✅ new flexible version
+    getOtherSpendByRange, 
 } from "../repositories/expensesRepository.js";
 
-/* ---------- helpers ---------- */
 function monthRangeOrNull(yyyyMM) {
     if (!yyyyMM || yyyyMM === "all") return { start: null, end: null };
     const [y, m] = String(yyyyMM).split("-").map(Number);
@@ -20,7 +18,6 @@ function monthRangeOrNull(yyyyMM) {
 }
 const to2 = (n) => Number.parseFloat(Number(n).toFixed(2));
 
-/* ---------- main read ---------- */
 export async function getMonthlyExpenses({
     userId,
     month,
@@ -59,11 +56,10 @@ export async function getMonthlyExpenses({
         totalPages,
         categoryTotals,
         currency: "RM",
-        otherThisMonth, // <-- include so front-end can alert
+        otherThisMonth, 
     };
 }
 
-/* ---------- mutations ---------- */
 export async function addExpense({ userId, payload }) {
     const name = String(payload.expenses_name || "").trim();
     const amount = to2(payload.expenses_amt ?? 0);

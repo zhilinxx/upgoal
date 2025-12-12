@@ -20,7 +20,7 @@ function Expenses({ expenses, currency }) {
         <span className="view-all" onClick={() => navigate("/monthlyExpenses")}>View all</span>
       </div>
 
-      {/* ✅ Show message when there are no expenses */}
+      {/* Show message when there are no expenses */}
       {!hasExpenses ? (
         <div className="no-expense-message">
           <p style={{ color: "#999", textAlign: "center", margin: "12px 0" }}>
