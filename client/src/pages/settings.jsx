@@ -12,7 +12,7 @@ export default function Settings() {
     const onResize = () => {
       const mobile = window.innerWidth <= 768;
       setIsMobile(mobile);
-      if (!mobile) setOpenTheme(true);   // keep expanded on desktop
+      if (!mobile) setOpenTheme(true);   
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
@@ -22,13 +22,11 @@ export default function Settings() {
 
   return (
     <div className="settings-container">
-      {/* Title is its own row */}
       <div className="settings-page-title">
         <h2>Settings</h2>
       </div>
 
       <div className="settings-inner">
-        {/* THEME card */}
         <div className="settings-section">
           {isMobile ? (
             <div className="settings-section-header" onClick={toggleThemeSection}>
